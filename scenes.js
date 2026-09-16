@@ -1,7 +1,7 @@
 /* =========================================================
    Sceny rozdziałów — prawie niewidoczne ozdobniki wzięte z tekstu.
      Babia Góra:    kilka płatków śniegu (zamieć).
-     Gran Paradiso: czołówki idące nocą różnymi drogami; o świcie gasną.
+     Gran Paradiso: kilka świetlików krążących po ekranie; o świcie gasną.
      Zakończenie:   jedno ciepłe światło — okno schroniska.
    Jedna warstwa pod tekstem; na kolumnie tekstu ozdobniki są jeszcze słabsze.
    Rozdział i etap podaje script.js (html[data-scene], html[data-step]),
@@ -19,28 +19,17 @@
   document.body.prepend(canvas);
 
   const FADE = 1.5;                               // s — wejście i wyjście sceny, jak kolor tła
-  const wideNav = matchMedia("(min-width: 85em)"); // wtedy przy prawej krawędzi stoi spis
 
   let width = 0;
   let height = 0;
   let ratio = 1;
   let column = { left: 0, right: 0 };
-  let marginEnd = 0;                              // prawa granica marginesu (przed spisem)
 
   const rand = (a, b) => a + Math.random() * (b - a);
   const ease = (x) => x * x * (3 - 2 * x);
 
   // Na kolumnie tekstu ozdobnik ma połowę siły — litery zostają czyste
   const over = (x) => (x > column.left - 24 && x < column.right + 24 ? 0.5 : 1);
-
-  // Miejsce na marginesie; na wąskim ekranie — cała szerokość (nad tekstem słabiej)
-  function marginX() {
-    const left = column.left - 48;
-    const right = marginEnd - column.right - 48;
-    if (left < 60 && right < 60) return rand(12, width - 12);
-    const useLeft = right < 60 || (left >= 60 && Math.random() < 0.5);
-    return useLeft ? rand(24, column.left - 24) : rand(column.right + 24, marginEnd - 24);
-  }
 
   // Miękki punkt światła, rysowany raz i potem tylko kopiowany
   function sprite(size, rgb, core) {
@@ -81,37 +70,34 @@
     },
   };
 
-  // --- Gran Paradiso: czołówki ---
-  // Grupki po 2–3 światła jedno za drugim, każda swoją drogą: w lewo, prosto albo w prawo.
+  // --- Gran Paradiso: świetliki ---
+  // Kilka pojedynczych światełek, każde własnym kursem, który płynnie skręca.
+  // Powoli rozbłyskują i przygasają; za krawędzią ekranu wracają z drugiej strony.
   const lamps = {
-    groups: [],
+    list: [],
     glow: null,
     seed() {
-      this.glow ||= sprite(40, "255, 210, 140", 0.12);
-      const count = width < 700 ? 3 : 6;
-      this.groups = Array.from({ length: count }, () => this.group(rand(0, height)));
-    },
-    group(y) {
-      return {
-        x: marginX(), y,
-        drift: [-3, 0, 2.5][Math.floor(Math.random() * 3)],
-        vy: rand(5, 9), n: Math.random() < 0.5 ? 2 : 3, gap: rand(22, 34), phase: rand(0, 6.3),
-      };
+      this.glow ||= sprite(32, "255, 210, 140", 0.1);
+      const count = width < 700 ? 4 : 7;
+      this.list = Array.from({ length: count }, () => ({
+        x: rand(0, width), y: rand(0, height), heading: rand(0, Math.PI * 2),
+        speed: rand(6, 14), phase: rand(0, 100), pulse: rand(0, 6.3),
+      }));
     },
     draw(level, dt, t) {
-      this.groups.forEach((g, k) => {
-        g.y -= g.vy * dt;
-        g.x += g.drift * dt;
-        if (g.y + g.n * g.gap < -20) this.groups[k] = g = this.group(height + 20);
-        for (let i = 0; i < g.n; i++) {
-          const y = g.y + i * g.gap;
-          // kolejne światło jest tam, gdzie pierwsze było chwilę temu
-          const x = g.x - g.drift * ((i * g.gap) / g.vy) + Math.sin(t * 0.35 + g.phase + i) * 2;
-          const flicker = 0.8 + 0.2 * Math.sin(t * 1.7 + g.phase * 3 + i * 2);
-          ctx.globalAlpha = 0.9 * flicker * level * over(x);
-          ctx.drawImage(this.glow, x - 20, y - 20);
-        }
-      });
+      for (const f of this.list) {
+        // skręt: suma dwóch wolnych sinusów o różnych okresach — ruch bez wzoru, ale bez szarpnięć
+        f.heading += (Math.sin(t * 0.37 + f.phase) + 0.6 * Math.sin(t * 0.83 + f.phase * 1.7)) * 0.9 * dt;
+        f.x += Math.cos(f.heading) * f.speed * dt;
+        f.y += Math.sin(f.heading) * f.speed * dt;
+        if (f.x < -20) f.x = width + 20;
+        else if (f.x > width + 20) f.x = -20;
+        if (f.y < -20) f.y = height + 20;
+        else if (f.y > height + 20) f.y = -20;
+        const glow = 0.55 + 0.45 * Math.sin(t * 0.9 + f.pulse);
+        ctx.globalAlpha = 0.45 * glow * level * over(f.x);
+        ctx.drawImage(this.glow, f.x - 16, f.y - 16);
+      }
     },
   };
 
@@ -133,7 +119,7 @@
 
   const scenes = [
     { id: "babia-gora", art: snow },
-    { id: "gran-paradiso", art: lamps, until: "swit" },   // o świcie czołówki gasną
+    { id: "gran-paradiso", art: lamps, until: "swit" },   // o świcie świetliki gasną
     { id: "zakonczenie", art: hut },
   ].map((scene) => ({ ...scene, level: 0, target: 0 }));
 
@@ -191,7 +177,6 @@
     canvas.height = Math.round(height * ratio);
     const box = document.querySelector(".chapter")?.getBoundingClientRect();
     column = box ? { left: box.left, right: box.right } : { left: 0, right: innerWidth };
-    marginEnd = wideNav.matches ? innerWidth - 280 : innerWidth;
     // Nowe rozmieszczenie tylko przy zmianie szerokości — pasek adresu na telefonie zmienia samą wysokość
     if (innerWidth !== width) {
       width = innerWidth;

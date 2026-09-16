@@ -28,6 +28,7 @@
   let queued = false;
   let lastSave = 0;
   let resume = null;                       // pasek „wróć tam”, jeśli jest pokazany
+  let lastY = window.scrollY;              // kierunek przewijania — dla przycisku trasy
 
   function update() {
     queued = false;
@@ -57,6 +58,7 @@
       links.get(current)?.removeAttribute("aria-current");
       links.get(active)?.setAttribute("aria-current", "location");
       current = active;
+      updateRouteLabel(active);
     }
 
     // Miejsce czytania: zapisujemy tylko rozdziały (powrót do wstępu nie kasuje miejsca)
@@ -66,6 +68,13 @@
       lastSave = now;
     }
     if (resume && window.scrollY > 300) hideResume();
+
+    // Przycisk trasy (węższe ekrany): chowa się przy czytaniu w dół, wraca przy przewijaniu w górę
+    const y = window.scrollY;
+    if (Math.abs(y - lastY) > 16) {
+      document.documentElement.classList.toggle("route-away", y > lastY);
+      lastY = y;
+    }
   }
 
   function queueUpdate() {
@@ -283,9 +292,10 @@
     selectionTimer = setTimeout(placeCopyButton, 150);
   });
 
-  // --- „cyk” i „klik”: efekty na kliknięcie ---
+  // --- „cyk”, „klik” i „Enter”: efekty na kliknięcie ---
   // „cyk” — błysk migawki na cały ekran (30% krycia, 160 ms), najwyżej jeden na 0,7 s.
   // „klik” — samo słowo drgnie, kolumna tekstu stoi.
+  // „Enter” — słowo wciska się jak klawisz.
   // Tylko po kliknięciu, nigdy samo. Nie przy zaznaczaniu tekstu, nie przy wyłączonych efektach.
 
   const SNAP_GAP = 700;
@@ -313,12 +323,76 @@
     word.classList.add("is-jolting");
   }
 
+  function press(word) {
+    word.classList.remove("is-pressed");
+    void word.offsetWidth;
+    word.classList.add("is-pressed");
+  }
+
   article.addEventListener("click", (event) => {
     const word = event.target.closest(".fx");
     if (!word || !effectsEnabled() || !getSelection().isCollapsed) return;
     if (word.classList.contains("fx-cyk")) snap();
+    else if (word.classList.contains("fx-enter")) press(word);
     else jolt(word);
   });
+
+  // --- Trasa na węższych ekranach ---
+  // Boczny spis mieści się dopiero od 85em. Niżej: cichy przycisk w prawym dolnym rogu
+  // z bieżącym rozdziałem otwiera ten sam spis jako panel od dołu ekranu.
+  // Przy czytaniu (przewijanie w dół) przycisk się chowa, wraca przy przewijaniu w górę.
+  const nav = document.querySelector(".profile-nav");
+  const wide = matchMedia("(min-width: 85em)");
+  const routeButton = document.createElement("button");
+  const routeLabel = document.createElement("span");
+  const backdrop = document.createElement("div");
+  routeButton.type = "button";
+  routeButton.className = "route-toggle";
+  routeButton.setAttribute("aria-controls", "trasa");
+  routeButton.setAttribute("aria-expanded", "false");
+  routeLabel.className = "route-label";
+  routeButton.append(routeLabel);
+  backdrop.className = "route-backdrop";
+  backdrop.hidden = true;
+  nav.id = "trasa";
+  document.body.append(backdrop, routeButton);
+
+  function updateRouteLabel(id) {
+    const section = id ? document.getElementById(id) : null;
+    const name = section?.querySelector("h2")?.textContent ?? "";
+    const number = section?.querySelector(".chapter-meta span")?.textContent;
+    const label = !section || section === intro ? "start"
+      : section.classList.contains("coda") ? "koniec"
+      : `${number} · ${name}`;
+    routeLabel.textContent = label;
+    routeButton.setAttribute("aria-label", `Spis rozdziałów, teraz: ${label}`);
+  }
+
+  const routeOpen = () => routeButton.getAttribute("aria-expanded") === "true";
+
+  function setRoute(open) {
+    if (open === routeOpen()) return;
+    routeButton.setAttribute("aria-expanded", String(open));
+    document.documentElement.classList.toggle("route-open", open);
+    backdrop.hidden = !open;
+    if (open) {
+      const link = nav.querySelector("[aria-current]") ?? nav.querySelector("a");
+      nav.scrollTop = link.closest("li").offsetTop - nav.clientHeight / 2;   // bieżący rozdział na środku panelu
+      link.focus({ preventScroll: true });
+    } else if (nav.contains(document.activeElement)) {
+      routeButton.focus({ preventScroll: true });
+    }
+  }
+
+  routeButton.addEventListener("click", () => setRoute(!routeOpen()));
+  backdrop.addEventListener("click", () => setRoute(false));
+  nav.addEventListener("click", (event) => {
+    if (event.target.closest("a")) setRoute(false);
+  });
+  addEventListener("keydown", (event) => {
+    if (event.key === "Escape") setRoute(false);
+  });
+  wide.addEventListener("change", () => setRoute(false));
 
   // Kropkowana linia pod słowami tylko wtedy, gdy efekty działają (hero.js aktualizuje przy przełączaniu)
   document.documentElement.classList.toggle("effects-off", !effectsEnabled());
