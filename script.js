@@ -294,7 +294,7 @@
 
   // --- „cyk”, „klik”, „WTF” i „Enter”: efekty na kliknięcie ---
   // „cyk”   — podwójny błysk flesza na cały ekran.
-  // „klik”  — linijka albo akapit ze słowem pisze się od nowa, znak po znaku, jak wygenerowany.
+  // „klik”  — trzęsie się linijka albo zdanie ze słowem.
   // „WTF”   — słowo się rozsypuje, a tekst szarpie się i na moment odwraca kolory.
   // „Enter” — słowo wciska się jak klawisz.
   // Tylko po kliknięciu, nigdy samo. Nie przy zaznaczaniu tekstu, nie przy wyłączonych efektach.
@@ -336,49 +336,73 @@
     restart(article, "is-shaken");
   }
 
-  // Linijka (w bloku z pojedynczymi Enterami) albo cały akapit znika i wpisuje się od nowa.
-  // Znaki pojawiają się co klatkę; długi akapit dostaje więcej znaków na klatkę — całość ok. 1 s.
-  // Po wszystkim wraca oryginalny HTML, bez setek pomocniczych elementów.
-  function retype(word) {
-    const target = word.closest(".line") ?? word.closest("p");
-    if (!target || target.dataset.typing) return;
-    target.dataset.typing = "true";
-    const original = target.innerHTML;
-    const walker = document.createTreeWalker(target, NodeFilter.SHOW_TEXT);
+  // „klik” — trzęsie się linijka albo zdanie ze słowem:
+  //   w bloku z pojedynczymi Enterami — linijka („Klik. Kolejna aplikacja.”),
+  //   w krótkim akapicie (jedna linijka) — cały akapit („Klik. Klik. Klik.”),
+  //   w dłuższym akapicie — zdanie przed słowem razem z nim („Generujemy ogłoszenie. Klik.”).
+  // Zdanie na chwilę dostaje pomocniczy element; po trzęsieniu tekst wraca do dawnej postaci.
+  const SHORT = 60;                        // znaków: akapit mieszczący się w jednej linijce
+
+  function shake(word) {
+    const target = word.closest(".jolt-wrap") ?? word.closest(".line") ?? shortParagraph(word) ?? wrapSentence(word);
+    restart(target, "is-jolting");
+    if (!target.classList.contains("jolt-wrap")) return;
+    clearTimeout(target.unwrapTimer);
+    target.unwrapTimer = setTimeout(() => {
+      const parent = target.parentNode;
+      target.replaceWith(...target.childNodes);
+      parent.normalize();
+    }, 400);
+  }
+
+  function shortParagraph(word) {
+    const paragraph = word.closest("p");
+    return paragraph.textContent.trim().length < SHORT ? paragraph : null;
+  }
+
+  function wrapSentence(word) {
+    const paragraph = word.closest("p");
+    // Tekst akapitu jako jeden ciąg, z zapamiętanym początkiem każdego węzła tekstu
+    const walker = document.createTreeWalker(paragraph, NodeFilter.SHOW_TEXT);
     const nodes = [];
-    while (walker.nextNode()) nodes.push(walker.currentNode);
-    const chars = [];
-    for (const node of nodes) {
-      const fragment = document.createDocumentFragment();
-      for (const char of node.nodeValue) {
-        const span = document.createElement("span");
-        span.textContent = char;
-        span.style.opacity = "0";
-        chars.push(span);
-        fragment.append(span);
-      }
-      node.replaceWith(fragment);
+    let text = "";
+    while (walker.nextNode()) {
+      nodes.push({ node: walker.currentNode, from: text.length });
+      text += walker.currentNode.nodeValue;
     }
-    const perFrame = Math.max(1, Math.ceil(chars.length / 60));
-    let shown = 0;
-    const step = () => {
-      const end = Math.min(chars.length, shown + perFrame);
-      for (; shown < end; shown++) chars[shown].style.opacity = "";
-      if (shown < chars.length) {
-        requestAnimationFrame(step);
-      } else {
-        target.innerHTML = original;
-        delete target.dataset.typing;
-      }
+    const locate = (index) => {
+      const hit = nodes.findLast((entry) => entry.from <= index);
+      return [hit.node, index - hit.from];
     };
-    requestAnimationFrame(step);
+
+    const wordStart = nodes.find((entry) => word.contains(entry.node)).from;
+    let end = wordStart + word.textContent.length;
+    if (/[.!?…]/.test(text[end] ?? "")) end++;
+
+    // Początek: koniec zdania, które było przed zdaniem poprzedzającym słowo
+    const before = text.slice(0, wordStart).trimEnd();
+    const marks = [". ", "! ", "? ", "… "].map((mark) => before.lastIndexOf(mark, before.length - 2));
+    const boundary = Math.max(...marks);
+    const start = boundary < 0 ? 0 : boundary + 2;
+
+    const range = document.createRange();
+    range.setStart(...locate(start));
+    range.setEnd(...locate(end));
+    if (word.contains(range.startContainer)) range.setStartBefore(word);
+    if (word.contains(range.endContainer)) range.setEndAfter(word);
+
+    const wrap = document.createElement("span");
+    wrap.className = "jolt-wrap";
+    wrap.append(range.extractContents());
+    range.insertNode(wrap);
+    return wrap;
   }
 
   article.addEventListener("click", (event) => {
     const word = event.target.closest(".fx");
     if (!word || !effectsEnabled() || !getSelection().isCollapsed) return;
     if (word.classList.contains("fx-cyk")) snap();
-    else if (word.classList.contains("fx-klik")) retype(word);
+    else if (word.classList.contains("fx-klik")) shake(word);
     else if (word.classList.contains("fx-wtf")) glitch(word);
     else restart(word, "is-pressed");
   });

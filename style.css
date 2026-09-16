@@ -899,6 +899,35 @@ article.is-shaken {
   }
 }
 
+/* „klik” — linijka albo zdanie drgnie o kilka pikseli (element wskazuje script.js) */
+.jolt-wrap,
+.line.is-jolting,
+p.is-jolting {
+  position: relative;
+}
+
+.is-jolting {
+  animation: jolt 300ms ease-out;
+}
+
+@keyframes jolt {
+  20% {
+    left: -3px;
+  }
+
+  45% {
+    left: 3px;
+  }
+
+  70% {
+    left: -1.5px;
+  }
+
+  100% {
+    left: 0;
+  }
+}
+
 /* „Enter” — słowo wciska się jak klawisz */
 .fx.is-pressed {
   animation: press 220ms ease-out;
@@ -916,6 +945,7 @@ article.is-shaken {
 
 @media (prefers-reduced-motion: reduce) {
   .flash.is-on,
+  .is-jolting,
   .fx.is-pressed,
   .fx-wtf.is-glitching,
   .fx-wtf.is-glitching::before,
