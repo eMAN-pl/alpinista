@@ -690,12 +690,12 @@ a:hover {
   }
 }
 
-/* ---------- „cyk”, „klik” i „Enter” (script.js) ----------
+/* ---------- „cyk”, „klik”, „WTF” i „Enter” (script.js) ----------
    Efekty tylko po kliknięciu. Słowa w kolorze linków, z kropkowaną linią,
    żeby było widać, że da się w nie kliknąć. Przy wyłączonych efektach wyglądają jak zwykły tekst. */
 
 .fx {
-  position: relative;      /* „klik” i „Enter” ruszają się przez przesunięcie, bez zmiany układu wiersza */
+  position: relative;      /* „Enter” wciska się przez przesunięcie; „WTF” nosi nałożone połówki */
 }
 
 .js:not(.effects-off) .fx {
@@ -711,50 +711,191 @@ a:hover {
   text-decoration-color: var(--accent);
 }
 
-/* „cyk” — błysk migawki: biała warstwa na cały ekran, 30% → 0 w 160 ms */
+/* „cyk” — podwójny błysk flesza na cały ekran */
 .flash {
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 60;
   background: #fff;
   opacity: 0;
   pointer-events: none;
 }
 
 .flash.is-on {
-  animation: snap 160ms ease-out;
+  animation: double-flash 250ms ease-out;
 }
 
-@keyframes snap {
-  from {
-    opacity: 0.3;
+@keyframes double-flash {
+  15% {
+    opacity: 1;
   }
 
-  to {
+  30% {
+    opacity: 0;
+  }
+
+  45% {
+    opacity: 1;
+  }
+
+  100% {
     opacity: 0;
   }
 }
 
-/* „klik” — słowo drgnie o kilka pikseli */
-.fx.is-jolting {
-  animation: jolt 300ms ease-out;
+/* „WTF” — słowo się rozsypuje: dwie przesunięte połówki z czerwoną i turkusową poświatą */
+.fx-wtf {
+  display: inline-block;   /* przesunięcie i skos działają tylko na elemencie blokowym */
 }
 
-@keyframes jolt {
-  20% {
-    left: -3px;
+.fx-wtf.is-glitching {
+  animation: glitch-word 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.fx-wtf.is-glitching::before,
+.fx-wtf.is-glitching::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  opacity: 0;
+}
+
+.fx-wtf.is-glitching::before {
+  left: 2px;
+  text-shadow: -3px 0 red;
+  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+  animation: glitch-top 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.fx-wtf.is-glitching::after {
+  left: -2px;
+  text-shadow: -3px 0 cyan;
+  clip-path: polygon(0 45%, 100% 45%, 100% 100%, 0 100%);
+  animation: glitch-bottom 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes glitch-word {
+  0% {
+    color: #fff;
   }
 
-  45% {
-    left: 3px;
+  10% {
+    transform: translate(-2px, 1px) skewX(10deg);
+  }
+
+  30% {
+    transform: translate(2px, -1px) skewX(-10deg);
+  }
+
+  50% {
+    transform: translate(-1px, 2px) skewX(5deg);
   }
 
   70% {
-    left: -1.5px;
+    transform: translate(1px, -2px) skewX(-5deg);
+    color: #fff;
+  }
+
+  85% {
+    transform: none;
+  }
+}
+
+@keyframes glitch-top {
+  0% {
+    opacity: 1;
+  }
+
+  20% {
+    transform: translate(6px, -2px);
+  }
+
+  40% {
+    transform: translate(-6px, 2px);
+  }
+
+  60% {
+    transform: translate(6px, 2px);
+  }
+
+  75% {
+    opacity: 1;
+    transform: translate(-4px, -2px);
+  }
+
+  85% {
+    opacity: 0;
+    transform: none;
   }
 
   100% {
-    left: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes glitch-bottom {
+  0% {
+    opacity: 1;
+  }
+
+  20% {
+    transform: translate(-6px, 2px);
+  }
+
+  40% {
+    transform: translate(6px, -2px);
+  }
+
+  60% {
+    transform: translate(-6px, -2px);
+  }
+
+  75% {
+    opacity: 1;
+    transform: translate(4px, 2px);
+  }
+
+  85% {
+    opacity: 0;
+    transform: none;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+/* …a tekst szarpie się i na moment odwraca kolory (środek obrotu ustawia script.js) */
+article.is-shaken {
+  animation: hard-glitch 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+@keyframes hard-glitch {
+  10% {
+    filter: invert(1) hue-rotate(90deg);
+    transform: translate3d(-15px, 10px, 0) scale(1.03) rotate(-2deg);
+  }
+
+  20% {
+    filter: invert(0);
+    transform: translate3d(15px, -10px, 0) scale(1.01) rotate(1deg);
+  }
+
+  30% {
+    filter: invert(1);
+    transform: translate3d(-5px, 5px, 0) rotate(-1deg);
+  }
+
+  40% {
+    filter: invert(0);
+    transform: translate3d(5px, -5px, 0);
+  }
+
+  60% {
+    transform: none;
   }
 }
 
@@ -775,8 +916,11 @@ a:hover {
 
 @media (prefers-reduced-motion: reduce) {
   .flash.is-on,
-  .fx.is-jolting,
-  .fx.is-pressed {
+  .fx.is-pressed,
+  .fx-wtf.is-glitching,
+  .fx-wtf.is-glitching::before,
+  .fx-wtf.is-glitching::after,
+  article.is-shaken {
     animation: none;
   }
 }

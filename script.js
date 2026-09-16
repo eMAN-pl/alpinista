@@ -2,7 +2,7 @@
    Nie każdy, kto był na szczycie, jest alpinistą
    Pasek postępu, aktywny punkt trasy w spisie,
    zapamiętywanie miejsca czytania, kopiowanie z linkiem,
-   efekty „cyk” i „klik” na kliknięcie.
+   efekty „cyk”, „klik”, „WTF” i „Enter” na kliknięcie.
    Bez tego pliku strona działa: znika pasek, podświetlenie, powrót,
    przycisk kopiowania i efekty — zostaje tekst i spis rozdziałów.
    ========================================================= */
@@ -292,49 +292,95 @@
     selectionTimer = setTimeout(placeCopyButton, 150);
   });
 
-  // --- „cyk”, „klik” i „Enter”: efekty na kliknięcie ---
-  // „cyk” — błysk migawki na cały ekran (30% krycia, 160 ms), najwyżej jeden na 0,7 s.
-  // „klik” — samo słowo drgnie, kolumna tekstu stoi.
+  // --- „cyk”, „klik”, „WTF” i „Enter”: efekty na kliknięcie ---
+  // „cyk”   — podwójny błysk flesza na cały ekran.
+  // „klik”  — linijka albo akapit ze słowem pisze się od nowa, znak po znaku, jak wygenerowany.
+  // „WTF”   — słowo się rozsypuje, a tekst szarpie się i na moment odwraca kolory.
   // „Enter” — słowo wciska się jak klawisz.
   // Tylko po kliknięciu, nigdy samo. Nie przy zaznaczaniu tekstu, nie przy wyłączonych efektach.
+  // Błysk albo szarpnięcie najwyżej raz na 1,5 s — poniżej progu trzech błysków na sekundę.
 
-  const SNAP_GAP = 700;
+  const FLASH_GAP = 1500;
   let flash = null;
-  let lastSnap = 0;
+  let lastFlash = -Infinity;
+
+  function flashAllowed() {
+    const now = performance.now();
+    if (now - lastFlash < FLASH_GAP) return false;
+    lastFlash = now;
+    return true;
+  }
+
+  function restart(node, className) {
+    node.classList.remove(className);
+    void node.offsetWidth;                 // restart animacji
+    node.classList.add(className);
+  }
 
   function snap() {
-    const now = performance.now();
-    if (now - lastSnap < SNAP_GAP) return;
-    lastSnap = now;
+    if (!flashAllowed()) return;
     if (!flash) {
       flash = document.createElement("div");
       flash.className = "flash";
       flash.setAttribute("aria-hidden", "true");
       document.body.append(flash);
     }
-    flash.classList.remove("is-on");
-    void flash.offsetWidth;                // restart animacji
-    flash.classList.add("is-on");
+    restart(flash, "is-on");
   }
 
-  function jolt(word) {
-    word.classList.remove("is-jolting");
-    void word.offsetWidth;
-    word.classList.add("is-jolting");
+  function glitch(word) {
+    if (!flashAllowed()) return;
+    restart(word, "is-glitching");
+    // Tekst szarpie się wokół środka ekranu, nie środka całego (bardzo wysokiego) artykułu
+    article.style.transformOrigin = `50% ${window.scrollY + innerHeight / 2 - article.offsetTop}px`;
+    restart(article, "is-shaken");
   }
 
-  function press(word) {
-    word.classList.remove("is-pressed");
-    void word.offsetWidth;
-    word.classList.add("is-pressed");
+  // Linijka (w bloku z pojedynczymi Enterami) albo cały akapit znika i wpisuje się od nowa.
+  // Znaki pojawiają się co klatkę; długi akapit dostaje więcej znaków na klatkę — całość ok. 1 s.
+  // Po wszystkim wraca oryginalny HTML, bez setek pomocniczych elementów.
+  function retype(word) {
+    const target = word.closest(".line") ?? word.closest("p");
+    if (!target || target.dataset.typing) return;
+    target.dataset.typing = "true";
+    const original = target.innerHTML;
+    const walker = document.createTreeWalker(target, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    const chars = [];
+    for (const node of nodes) {
+      const fragment = document.createDocumentFragment();
+      for (const char of node.nodeValue) {
+        const span = document.createElement("span");
+        span.textContent = char;
+        span.style.opacity = "0";
+        chars.push(span);
+        fragment.append(span);
+      }
+      node.replaceWith(fragment);
+    }
+    const perFrame = Math.max(1, Math.ceil(chars.length / 60));
+    let shown = 0;
+    const step = () => {
+      const end = Math.min(chars.length, shown + perFrame);
+      for (; shown < end; shown++) chars[shown].style.opacity = "";
+      if (shown < chars.length) {
+        requestAnimationFrame(step);
+      } else {
+        target.innerHTML = original;
+        delete target.dataset.typing;
+      }
+    };
+    requestAnimationFrame(step);
   }
 
   article.addEventListener("click", (event) => {
     const word = event.target.closest(".fx");
     if (!word || !effectsEnabled() || !getSelection().isCollapsed) return;
     if (word.classList.contains("fx-cyk")) snap();
-    else if (word.classList.contains("fx-enter")) press(word);
-    else jolt(word);
+    else if (word.classList.contains("fx-klik")) retype(word);
+    else if (word.classList.contains("fx-wtf")) glitch(word);
+    else restart(word, "is-pressed");
   });
 
   // --- Trasa na węższych ekranach ---
