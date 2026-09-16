@@ -1,0 +1,7 @@
+Newsreader — Copyright 2020 The Newsreader Project Authors (https://github.com/productiontype/Newsreader)
+
+Font jest udostępniony na licencji SIL Open Font License, wersja 1.1.
+Pełny tekst licencji: https://openfontlicense.org/open-font-license-official-text/
+
+Pliki woff2 w tym folderze pochodzą z Google Fonts (zestawy znaków: latin, latin-ext),
+zwykły i kursywa, i są serwowane z własnego serwera strony.

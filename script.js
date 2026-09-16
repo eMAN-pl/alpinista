@@ -1,0 +1,344 @@
+/* =========================================================
+   Nie każdy, kto był na szczycie, jest alpinistą
+   Pasek postępu, aktywny punkt trasy w spisie,
+   zapamiętywanie miejsca czytania, kopiowanie z linkiem,
+   efekty „cyk” i „klik” na kliknięcie.
+   Bez tego pliku strona działa: znika pasek, podświetlenie, powrót,
+   przycisk kopiowania i efekty — zostaje tekst i spis rozdziałów.
+   ========================================================= */
+
+(() => {
+  const TITLE = "Nie każdy, kto był na szczycie, jest alpinistą";
+
+  const article = document.querySelector("article");
+  const bar = document.querySelector(".progress");
+  const hero = document.querySelector(".hero");
+  const intro = document.getElementById("wstep");
+  const sections = [intro, ...document.querySelectorAll(".chapter")].filter(Boolean);
+  const links = new Map(
+    [...document.querySelectorAll(".profile-nav a")].map((a) => [a.hash.slice(1), a])
+  );
+
+  const PLACE_KEY = "alpinista:miejsce";   // localStorage: rozdział + miejsce w nim
+  const EFFECTS_KEY = "alpinista:efekty";  // localStorage: wybór z przełącznika (hero.js)
+  const SAVE_EVERY = 1000;                 // zapis najwyżej raz na sekundę
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+
+  let current = null;
+  let queued = false;
+  let lastSave = 0;
+  let resume = null;                       // pasek „wróć tam”, jeśli jest pokazany
+
+  function update() {
+    queued = false;
+    const vh = window.innerHeight;
+
+    // Postęp czytania: od początku do końca artykułu
+    const box = article.getBoundingClientRect();
+    const span = box.height - vh;
+    const progress = span > 0 ? Math.min(1, Math.max(0, -box.top / span)) : 1;
+    bar.style.transform = `scaleX(${progress})`;
+
+    // Aktywny punkt trasy: ostatnia część, której początek minął górną trzecią ekranu
+    let active = null;
+    for (const section of sections) {
+      if (section.getBoundingClientRect().top > vh / 3) break;
+      active = section.id;
+    }
+
+    // Spis pojawia się od startu — ekran tytułowy zostaje czysty
+    document.documentElement.classList.toggle("nav-on", active !== null);
+
+    // Scena: rozdział i etap w nim (kolory tła w style.css, ozdobniki w scenes.js)
+    setScene("scene", active);
+    setScene("step", active && lastStep(document.getElementById(active), vh));
+
+    if (active !== current) {
+      links.get(current)?.removeAttribute("aria-current");
+      links.get(active)?.setAttribute("aria-current", "location");
+      current = active;
+    }
+
+    // Miejsce czytania: zapisujemy tylko rozdziały (powrót do wstępu nie kasuje miejsca)
+    const now = performance.now();
+    if (active && active !== intro?.id && now - lastSave > SAVE_EVERY) {
+      savePlace(active);
+      lastSave = now;
+    }
+    if (resume && window.scrollY > 300) hideResume();
+  }
+
+  function queueUpdate() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(update);
+  }
+
+  // html[data-scene] / html[data-step] — zmieniane tylko przy zmianie, bo śledzi je scenes.js
+  function setScene(key, value) {
+    const data = document.documentElement.dataset;
+    if (value) {
+      if (data[key] !== value) data[key] = value;
+    } else if (key in data) {
+      delete data[key];
+    }
+  }
+
+  // Etap w rozdziale: ostatni akapit z data-step, który minął środek ekranu
+  function lastStep(section, vh) {
+    let step = null;
+    for (const node of section.querySelectorAll("[data-step]")) {
+      if (node.getBoundingClientRect().top > vh / 2) break;
+      step = node.dataset.step;
+    }
+    return step;
+  }
+
+  // Efekty: wybór czytelnika z przełącznika, a bez wyboru — ustawienie systemowe „ogranicz ruch”
+  function effectsEnabled() {
+    try {
+      const stored = localStorage.getItem(EFFECTS_KEY);
+      if (stored) return stored === "on";
+    } catch {
+      // bez pamięci — decyduje ustawienie systemowe
+    }
+    return !reduceMotion.matches;
+  }
+
+  // --- Zapamiętywanie miejsca ---
+  // Zapisujemy rozdział i ułamek jego wysokości, a nie piksele —
+  // miejsce zgadza się też na innym ekranie i po zmianie szerokości okna.
+
+  function savePlace(id) {
+    const box = document.getElementById(id).getBoundingClientRect();
+    const fraction = Math.min(1, Math.max(0, -box.top / box.height));
+    try {
+      localStorage.setItem(PLACE_KEY, JSON.stringify({ id, fraction: Number(fraction.toFixed(4)) }));
+    } catch {
+      // prywatne okno albo zablokowana pamięć — po prostu nie pamiętamy
+    }
+  }
+
+  function readPlace() {
+    try {
+      return JSON.parse(localStorage.getItem(PLACE_KEY));
+    } catch {
+      return null;
+    }
+  }
+
+  function goTo(place) {
+    const section = document.getElementById(place.id);
+    const box = section.getBoundingClientRect();
+    window.scrollTo({ top: window.scrollY + box.top + place.fraction * box.height, behavior: "instant" });
+  }
+
+  // Dyskretny pasek na dole: bez modala, bez wymuszania, można zignorować.
+  // Nie pokazujemy go, gdy ktoś wszedł linkiem do rozdziału albo doczytał do końca.
+  function offerResume() {
+    const place = readPlace();
+    if (!place || place.id === intro?.id || location.hash || window.scrollY > 200) return;
+    const section = document.getElementById(place.id);
+    if (!section) return;
+    const isCoda = section.classList.contains("coda");
+    if (isCoda && place.fraction > 0.8) return;
+
+    const number = section.querySelector(".chapter-meta span")?.textContent;
+    const name = section.querySelector("h2")?.textContent;
+
+    resume = document.createElement("div");
+    resume.className = "resume";
+    resume.setAttribute("role", "region");
+    resume.setAttribute("aria-label", "Powrót do miejsca czytania");
+
+    const text = document.createElement("span");
+    text.textContent = isCoda ? "czytałeś do zakończenia" : `czytałeś do rozdziału ${number} · ${name}`;
+
+    const link = document.createElement("a");
+    link.href = `#${place.id}`;
+    link.textContent = "wróć tam";
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      hideResume();
+      goTo(place);
+    });
+
+    const close = document.createElement("button");
+    close.type = "button";
+    close.setAttribute("aria-label", "Zamknij");
+    close.textContent = "×";
+    close.addEventListener("click", hideResume);
+
+    resume.append(text, link, close);
+    document.body.append(resume);
+  }
+
+  function hideResume() {
+    resume?.remove();
+    resume = null;
+  }
+
+  // --- Czyste kopiowanie ---
+  // Do schowka trafia sam tekst: bez numerów rozdziałów, metadanych, stopek,
+  // odnośników do przypisów, spisu i napisów w tle. Twarde spacje → zwykłe.
+
+  const NOT_COPIED =
+    ".chapter-meta, .chapter-end, .fn-ref, .fn-num, .fn-back, " +
+    ".profile-nav, .hero-markers, .resume, .copy-link";
+
+  function cleanText(range) {
+    const holder = document.createElement("div");
+    holder.className = "copy-holder";   // poza ekranem, ale z tymi samymi stylami akapitów
+    holder.append(range.cloneContents());
+    holder.querySelectorAll(NOT_COPIED).forEach((node) => node.remove());
+    article.append(holder);
+    const text = holder.innerText;
+    holder.remove();
+    return text
+      .replace(/ /g, " ")
+      .replace(/[ \t]+\n/g, "\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+  }
+
+  document.addEventListener("copy", (event) => {
+    const selection = getSelection();
+    if (!selection.rangeCount || selection.isCollapsed) return;
+    const range = selection.getRangeAt(0);
+    if (!article.contains(range.commonAncestorContainer)) return;
+    event.clipboardData.setData("text/plain", cleanText(range));
+    event.preventDefault();
+  });
+
+  // --- Zaznacz i skopiuj z linkiem ---
+  // Po zaznaczeniu fragmentu nad nim pojawia się mały przycisk. Schowek dostaje:
+  //   „zaznaczony tekst”
+  //
+  //   — Nie każdy, kto był na szczycie, jest alpinistą
+  //   domena/rozdzial/
+  // Link prowadzi do strony rozdziału (z własnym podglądem), która przenosi do #rozdzialu.
+
+  const copyButton = document.createElement("button");
+  copyButton.type = "button";
+  copyButton.className = "copy-link";
+  copyButton.textContent = "kopiuj z linkiem";
+  copyButton.hidden = true;
+  document.body.append(copyButton);
+
+  let quote = null;          // { text, section }
+  let selectionTimer = 0;
+
+  function sectionOf(node) {
+    const element = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
+    return element?.closest(".intro, .chapter") ?? null;
+  }
+
+  function placeCopyButton() {
+    const selection = getSelection();
+    if (!selection.rangeCount || selection.isCollapsed) return hideCopyButton();
+    const range = selection.getRangeAt(0);
+    const section = sectionOf(range.commonAncestorContainer);
+    if (!section) return hideCopyButton();
+    const text = cleanText(range);
+    if (text.length < 3) return hideCopyButton();
+
+    quote = { text, section };
+    const rect = range.getBoundingClientRect();
+    const below = rect.top < 60;          // przy górnej krawędzi — pod zaznaczeniem
+    copyButton.textContent = "kopiuj z linkiem";
+    copyButton.classList.toggle("is-below", below);
+    copyButton.style.left = `${Math.min(Math.max(rect.left + rect.width / 2, 80), innerWidth - 80)}px`;
+    copyButton.style.top = `${window.scrollY + (below ? rect.bottom + 10 : rect.top - 10)}px`;
+    copyButton.hidden = false;
+  }
+
+  function hideCopyButton() {
+    copyButton.hidden = true;
+    quote = null;
+  }
+
+  function chapterLink(section) {
+    const url = section.id === intro?.id
+      ? new URL("./", document.baseURI)
+      : new URL(`${section.id}/`, document.baseURI);
+    return url.href.replace(/^https?:\/\//, "");
+  }
+
+  // Zaznaczenie nie znika przy kliknięciu w przycisk
+  copyButton.addEventListener("pointerdown", (event) => event.preventDefault());
+  copyButton.addEventListener("click", async () => {
+    if (!quote) return;
+    const text = `„${quote.text}”\n\n— ${TITLE}\n${chapterLink(quote.section)}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      copyButton.textContent = "skopiowano";
+    } catch {
+      copyButton.textContent = "nie udało się skopiować";
+    }
+    setTimeout(hideCopyButton, 1200);
+  });
+
+  document.addEventListener("selectionchange", () => {
+    clearTimeout(selectionTimer);
+    selectionTimer = setTimeout(placeCopyButton, 150);
+  });
+
+  // --- „cyk” i „klik”: efekty na kliknięcie ---
+  // „cyk” — błysk migawki na cały ekran (30% krycia, 160 ms), najwyżej jeden na 0,7 s.
+  // „klik” — samo słowo drgnie, kolumna tekstu stoi.
+  // Tylko po kliknięciu, nigdy samo. Nie przy zaznaczaniu tekstu, nie przy wyłączonych efektach.
+
+  const SNAP_GAP = 700;
+  let flash = null;
+  let lastSnap = 0;
+
+  function snap() {
+    const now = performance.now();
+    if (now - lastSnap < SNAP_GAP) return;
+    lastSnap = now;
+    if (!flash) {
+      flash = document.createElement("div");
+      flash.className = "flash";
+      flash.setAttribute("aria-hidden", "true");
+      document.body.append(flash);
+    }
+    flash.classList.remove("is-on");
+    void flash.offsetWidth;                // restart animacji
+    flash.classList.add("is-on");
+  }
+
+  function jolt(word) {
+    word.classList.remove("is-jolting");
+    void word.offsetWidth;
+    word.classList.add("is-jolting");
+  }
+
+  article.addEventListener("click", (event) => {
+    const word = event.target.closest(".fx");
+    if (!word || !effectsEnabled() || !getSelection().isCollapsed) return;
+    if (word.classList.contains("fx-cyk")) snap();
+    else jolt(word);
+  });
+
+  // Kropkowana linia pod słowami tylko wtedy, gdy efekty działają (hero.js aktualizuje przy przełączaniu)
+  document.documentElement.classList.toggle("effects-off", !effectsEnabled());
+
+  // --- Kliknięcie w ekran tytułowy przewija do startu ---
+  // Płynnie; przy „ogranicz ruch” albo wyłączonych efektach — od razu.
+  // Nie reaguje na przełącznik efektów ani na zaznaczanie tytułu.
+  hero?.addEventListener("click", (event) => {
+    if (event.target.closest("button, a") || !getSelection().isCollapsed) return;
+    intro?.scrollIntoView({ behavior: effectsEnabled() ? "smooth" : "auto", block: "start" });
+  });
+
+  // --- Druk i PDF: szkice ładują się dopiero przy przewijaniu — przed drukiem wszystkie ---
+  addEventListener("beforeprint", () => {
+    document.querySelectorAll('img[loading="lazy"]').forEach((img) => (img.loading = "eager"));
+  });
+
+  addEventListener("scroll", queueUpdate, { passive: true });
+  addEventListener("resize", queueUpdate);
+  addEventListener("pagehide", () => current && current !== intro?.id && savePlace(current));
+  offerResume();
+  update();
+})();

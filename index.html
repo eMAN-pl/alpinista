@@ -1,0 +1,930 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nie każdy, kto był na szczycie, jest alpinistą</title>
+  <meta name="description" content="W branży projektowej wszyscy są już na szczycie. Wszyscy wygłaszają wzniosłe inwokacje. Wszyscy mają przepiękne kadry. A coraz mniej osób chce się wspinać.">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="pl_PL">
+  <meta property="og:title" content="Nie każdy, kto był na szczycie, jest alpinistą">
+  <meta property="og:description" content="W branży projektowej wszyscy są już na szczycie. Wszyscy wygłaszają wzniosłe inwokacje. Wszyscy mają przepiękne kadry. A coraz mniej osób chce się wspinać.">
+  <meta property="og:url" content="https://eman-pl.github.io/alpinista/">
+  <meta property="og:image" content="https://eman-pl.github.io/alpinista/assets/og/index.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#1a1917">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="fonts/newsreader-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="style.css">
+  <script>document.documentElement.className = "js";</script>
+  <script src="script.js" defer></script>
+  <script src="hero.js" defer></script>
+  <script src="scenes.js" defer></script>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+
+<nav class="profile-nav" aria-label="Rozdziały">
+  <ol>
+    <li><a href="#wstep" aria-label="Start"><span class="pn-dot"></span><span class="pn-alt">start</span></a></li>
+    <li><a href="#pilsko" aria-label="Pilsko, 1557 m n.p.m."><span class="pn-dot"></span><span class="pn-alt">1557</span><span class="pn-name">Pilsko</span></a></li>
+    <li><a href="#dolina-pieciu-stawow" aria-label="Dolina Pięciu Stawów, 1900 m n.p.m."><span class="pn-dot"></span><span class="pn-alt">1900</span><span class="pn-name">Dolina Pięciu Stawów</span></a></li>
+    <li><a href="#kozi-wierch" aria-label="Kozi Wierch, 2291 m n.p.m."><span class="pn-dot"></span><span class="pn-alt">2291</span><span class="pn-name">Kozi Wierch</span></a></li>
+    <li><a href="#mnich" aria-label="Mnich, 2068 m n.p.m."><span class="pn-dot"></span><span class="pn-alt">2068</span><span class="pn-name">Mnich</span></a></li>
+    <li><a href="#marmolada" aria-label="Marmolada, 3343 m n.p.m."><span class="pn-dot"></span><span class="pn-alt">3343</span><span class="pn-name">Marmolada</span></a></li>
+    <li><a href="#everest" aria-label="Everest, 8849 m n.p.m."><span class="pn-dot"></span><span class="pn-alt">8849</span><span class="pn-name">Everest</span></a></li>
+    <li><a href="#babia-gora" aria-label="Babia Góra, 1725 m n.p.m."><span class="pn-dot"></span><span class="pn-alt">1725</span><span class="pn-name">Babia Góra</span></a></li>
+    <li><a href="#rysy" aria-label="Rysy, 2499 m n.p.m."><span class="pn-dot"></span><span class="pn-alt">2499</span><span class="pn-name">Rysy</span></a></li>
+    <li><a href="#gran-paradiso" aria-label="Gran Paradiso, 4061 m n.p.m."><span class="pn-dot"></span><span class="pn-alt">4061</span><span class="pn-name">Gran Paradiso</span></a></li>
+    <li><a href="#skalka" aria-label="Via ferrata na Skalce, 1236 m n.p.m."><span class="pn-dot"></span><span class="pn-alt">1236</span><span class="pn-name">Via ferrata na Skalce</span></a></li>
+    <li><a href="#grossglockner" aria-label="Grossglockner, 3798 m n.p.m."><span class="pn-dot"></span><span class="pn-alt">3798</span><span class="pn-name">Grossglockner</span></a></li>
+    <li><a href="#zakonczenie" aria-label="Koniec"><span class="pn-dot"></span><span class="pn-alt">koniec</span></a></li>
+  </ol>
+</nav>
+
+<main>
+<article>
+
+  <div class="hero">
+    <canvas aria-hidden="true"></canvas>
+    <div class="hero-markers" aria-hidden="true">
+      <div class="marker"><span class="marker-dot"></span><span class="marker-line"></span><span class="marker-label">Pilsko <span>1557 m</span></span></div>
+      <div class="marker"><span class="marker-dot"></span><span class="marker-line"></span><span class="marker-label">Pięć Stawów <span>1900 m</span></span></div>
+      <div class="marker"><span class="marker-dot"></span><span class="marker-line"></span><span class="marker-label">Kozi Wierch <span>2291 m</span></span></div>
+      <div class="marker"><span class="marker-dot"></span><span class="marker-line"></span><span class="marker-label">Mnich <span>2068 m</span></span></div>
+      <div class="marker"><span class="marker-dot"></span><span class="marker-line"></span><span class="marker-label">Marmolada <span>3343 m</span></span></div>
+      <div class="marker"><span class="marker-dot"></span><span class="marker-line"></span><span class="marker-label">Everest <span>8849 m</span></span></div>
+      <div class="marker"><span class="marker-dot"></span><span class="marker-line"></span><span class="marker-label">Babia Góra <span>1725 m</span></span></div>
+      <div class="marker"><span class="marker-dot"></span><span class="marker-line"></span><span class="marker-label">Rysy <span>2499 m</span></span></div>
+      <div class="marker"><span class="marker-dot"></span><span class="marker-line"></span><span class="marker-label">Gran Paradiso <span>4061 m</span></span></div>
+      <div class="marker"><span class="marker-dot"></span><span class="marker-line"></span><span class="marker-label">Skalka <span>1236 m</span></span></div>
+      <div class="marker"><span class="marker-dot"></span><span class="marker-line"></span><span class="marker-label">Grossglockner <span>3798 m</span></span></div>
+    </div>
+    <h1><span class="t-line">Nie każdy,</span> <span class="t-line">kto był na szczycie,</span> <span class="t-line">jest <em>alpinistą</em></span></h1>
+  </div>
+
+  <section class="intro" id="wstep" aria-labelledby="wstep-tytul">
+    <header class="chapter-head">
+      <h2 id="wstep-tytul">Start</h2>
+      <p class="chapter-meta">esej · 11 rozdziałów · 40 minut</p>
+    </header>
+    <p class="lines">
+      <span class="line">W branży projektowej wszyscy są już na szczycie.</span><br>
+      <span class="line">Wszyscy wygłaszają wzniosłe inwokacje.</span><br>
+      <span class="line">Wszyscy mają przepiękne kadry.</span><br>
+      <span class="line">A coraz mniej osób chce się wspinać.</span>
+    </p>
+    <p class="lines">
+      <span class="line">Większość z nas nigdy się nie dowiedziała, czy miała rację.</span><br>
+      <span class="line">Wdrożyliśmy, pokazaliśmy, opisaliśmy, poszliśmy dalej.</span><br>
+      <span class="line">Nikt nie wrócił sprawdzić.</span><br>
+      <span class="line">A mimo to mówimy bardzo pewnym głosem — na scenach i przy stołach, przy których zapadają decyzje.</span>
+    </p>
+    <p class="lines">
+      <span class="line">Prawda jest bezlitosna.</span><br>
+      <span class="line">Góra szybko weryfikuje.</span><br>
+      <span class="line">Albo wejdziesz.</span><br>
+      <span class="line">Albo nie.</span>
+    </p>
+    <p>Więc zanim pójdziemy dalej, warto zadać sobie jedno pytanie:</p>
+    <p class="thesis"><strong>Czy tak naprawdę wiesz, jak się wspinać?</strong></p>
+  </section>
+
+  <section class="chapter" id="pilsko" aria-labelledby="pilsko-tytul">
+    <header class="chapter-head">
+      <h2 id="pilsko-tytul">Pilsko</h2>
+      <p class="chapter-meta"><span>1 z 11</span> <span class="sep" aria-hidden="true">·</span> <span>1557 m n.p.m.</span> <span class="sep" aria-hidden="true">·</span> <span class="coords">49°32′N 19°19′E</span> <span class="sep sep-note" aria-hidden="true">·</span> <span class="note">[adnotacja]</span></p>
+    </header>
+    <figure class="sketch">
+      <picture>
+        <source srcset="assets/web/pilsko.webp" type="image/webp">
+        <img src="assets/web/pilsko.jpg" width="1024" height="1024" loading="lazy" decoding="async" alt="Szkic węglem: wieża z pięciu drewnianych klocków, szósty klocek leży obok, przewrócony.">
+      </picture>
+    </figure>
+    <p>Kiedy myślę o swoim dzieciństwie, myślę o Beskidach. Pasję do gór zaszczepił we mnie ojciec i została ze mną do dziś. Z każdym rokiem robi się ona bardziej głodna. Karmię ją więc systematycznie. To w niej widzę najwięcej swojej filozofii.</p>
+    <p>Góry mogą sporo nauczyć. Nie liczą się z Twoim planem. Nie liczą się z Twoim zmęczeniem. One po prostu są. I pozostaną na długo po nas.</p>
+    <p>Zacznijmy od początku. Czy pamiętasz swój dziecięcy szczyt? Niekoniecznie pierwszy. Taki, który udało Ci się zdobyć i z którego byłeś naprawdę dumny. Tylko Ty i góra. I być może bliscy, którzy szli obok. Czy pamiętasz, jak wyglądał ten dzień? Jaka była pogoda?</p>
+    <p>Moim jest chyba Pilsko, zdobyte od strony Sopotni Wielkiej. Minęło tyle lat, a do dziś pamiętam z tamtego dnia kilka bardzo wyraźnych kadrów. Ciepły, słoneczny dzień. Wodospad, który robił na małym człowieku ogromne wrażenie. Ból dziecięcych nóg. I irytowanie taty ciągłym „czy długo jeszcze?”.</p>
+    <p>Pytania dzieci są fascynujące. Myślę, że dziecko można zdefiniować przez świat zapętlony w „co to?” i „dlaczego?”.</p>
+    <p>Z jakiego materiału zrobione są myśli? Skoro pingwiny to ptaki, to czy robią sobie gniazda ze śniegu? Gdzie mieszka echo, kiedy nic nie mówię? Skąd góra wie, kiedy przestać rosnąć?</p>
+    <p>A czy Ty pamiętasz swoje dlaczego?</p>
+    <p>Czy obecnie pytamy z ciekawości? Czy dlatego, że tak wypada? Często to nie ciekawość, a pięknie zainscenizowana gra. Pytania nieszukające odpowiedzi. Kurtuazja? A może tylko zaznaczenie obecności na kolejnym spotkaniu o tym samym szarym problemie.</p>
+    <p>Czasami to nie kurtuazja. Czasami to po prostu strach.</p>
+    <p>A przecież chwilę temu budowaliśmy konstrukcje z LEGO. Rozkręcaliśmy zabawki, żeby zobaczyć, co jest w środku. Gorzej potem szło ich ponowne składanie. Stawialiśmy architektoniczne dzieła sztuki z desek i gałęzi, a czasem z koców, stołów i puf. Rysowaliśmy kredą tory wyścigowe, a naszymi samochodami były zwykłe kapsle po piwie. Chociaż sama ta zwykłość już była niezwykła.</p>
+    <p>Nie mieliśmy procesów. Nie było design systemu. Ani Figmy. Była za to ciekawość i potrzeba sprawdzenia:</p>
+    <p class="thesis"><strong>„Co się stanie, jeśli zrobię to inaczej?”</strong></p>
+    <p>Nie chodziło o to, żeby od razu zrobić coś idealnego. Chodziło o to, żeby spróbować.</p>
+    <p>Rozebrać. Złożyć. Zmienić. Sprawdzić. Czasem włożyć do ogniska i spalić. A potem spróbować jeszcze raz. I jeszcze raz.</p>
+    <p>Do dziś zresztą rozkręcam rzeczy. Składam. Sprawdzam. Zmieniam. Może rzadziej spalam. Czasem dlatego, że coś mnie po prostu wkurza. Czasem z czystej ciekawości. Nie po to, żeby ocenić — po to, żeby zobaczyć, dlaczego ktoś podjął taką decyzję.</p>
+    <p>Beskidy to był poligon idealny. Ich łagodna natura i dziecięca ciekawość — trudno o lepsze połączenie.</p>
+    <p>Piękno tych terenów sprawiło, że z każdą wizytą poruszałem się po nich coraz sprawniej. Z każdą herbatą wypitą w ich towarzystwie czułem się coraz pewniej. Stały się moim domem. Którędy najszybciej wejść. Na którym rozwidleniu skręcić. Czego spodziewać się po dobrze znanej drodze.</p>
+    <p class="thesis"><strong>Byłem bardzo dobry w poruszaniu się po znanym terenie.</strong></p>
+    <p>Wtedy jeszcze nie wiedziałem, że nie wszystkie góry wyglądają tak samo. Ani jak brutalne może okazać się wyjście poza wydeptany szlak.</p>
+    <p class="chapter-end">koniec rozdziału 1 z 11 · do końca ok. 38 min</p>
+  </section>
+
+  <section class="chapter" id="dolina-pieciu-stawow" aria-labelledby="dolina-pieciu-stawow-tytul">
+    <header class="chapter-head">
+      <h2 id="dolina-pieciu-stawow-tytul">Dolina Pięciu Stawów</h2>
+      <p class="chapter-meta"><span>2 z 11</span> <span class="sep" aria-hidden="true">·</span> <span>1900 m n.p.m.</span> <span class="sep" aria-hidden="true">·</span> <span class="coords">49°13′N 20°03′E</span></p>
+    </header>
+    <figure class="sketch">
+      <picture>
+        <source srcset="assets/web/dolina-pieciu-stawow.webp" type="image/webp">
+        <img src="assets/web/dolina-pieciu-stawow.jpg" width="1024" height="1024" loading="lazy" decoding="async" alt="Szkic węglem: stalowy łańcuch zwisający z kotwy wbitej w skałę.">
+      </picture>
+    </figure>
+    <p>Na studiach pierwszy raz pojechałem w Tatry. Tydzień spędzony z przyjaciółmi w schronisku w Dolinie Pięciu Stawów całkowicie przeprojektował sposób, w jaki patrzę na świat.</p>
+    <p class="lines">
+      <span class="line">Wizualnie — księżycowe wręcz piękno.</span><br>
+      <span class="line">Kondycyjnie — o wiele cięższe doświadczenie.</span><br>
+      <span class="line">Ekspozycyjnie — trochę strasznie.</span>
+    </p>
+    <p>Wszystko było nowe. Każda góra skrywała swoje tajemnice.</p>
+    <p>Szybko okazało się, że nie wystarczy znać drogi. Trzeba jeszcze wiedzieć, jak się po niej poruszać.</p>
+    <p>Pamiętam pierwszą styczność z łańcuchami. Świeżo poznaną zasadę trzech punktów podparcia. Gdyby ktoś wtedy spojrzał na moje dłonie, zobaczyłby, jak mało mam pewności siebie. Turysta w obcym, nieznanym otoczeniu.</p>
+    <p>I jak to z turystami bywa, porwałem się na klasyka. Orla Perć.</p>
+    <p>Do dziś pamiętam zdziwienie, kiedy udeptana ścieżka skończyła się, a przede mną stanęła pionowa ściana.</p>
+    <p>Ściana. Koniec ścieżki. WTF…</p>
+    <p>Zrobiłem najtrudniejszy polski szlak spontanicznie. Bez wiedzy. Bez planu. Bez kasku. W jeansach. Do końca nieświadomy tego, czego ta góra wymaga. Nie obyło się bez ryzykownych sytuacji.</p>
+    <p>Nie traktuję tamtej wyprawy jako błędu. Raczej jako kamień milowy. Przeszedłem ten szlak — ale nie dlatego, że umiałem. Dlatego, że miałem szczęście.</p>
+    <p>Wtedy myślałem inaczej. Wtedy myślałem, że dałem radę.</p>
+    <p>Z czasem zacząłem rozumieć, że odwaga i brak świadomości ryzyka to dwie zupełnie różne rzeczy. Bo wynik nie zawsze jest dowodem kompetencji.</p>
+    <p>I mogę dziś powiedzieć, że zrobiłem Orlą Perć. To prawda. Tak samo prawdą jest, kiedy ktoś pisze w CV, że prowadził projekt, przy którym był. Sam tak pisałem. Jedno i drugie brzmi dobrze. Jedno i drugie niczego nie mówi o tym, czy ta osoba wiedziała, co robi.</p>
+    <p>Bo to są dwa różne zdania:</p>
+    <p class="lines thesis">
+      <span class="line"><strong>„Byłem przy tym.”</strong></span><br>
+      <span class="line"><strong>„Podjąłem tę decyzję i jej broniłem.”</strong></span>
+    </p>
+    <p>Pierwsze mówi, że przeszedłeś szlak. Drugie, że go prowadziłeś.</p>
+    <p>W projektowaniu też miałem swoje jeansy. Sam też byłem pasażerem przy decyzjach, jakie zapadały przy stole. Wchodziłem w problemy, których jeszcze dobrze nie rozumiałem, z przekonaniem, że skoro potrafię coś zrobić, to znaczy, że wiem, co robię. Mimo wszystko często stawiałem na swoim. Bo przecież byłem ekspertem.</p>
+    <p>Chyba każdy ma takie momenty. Różnica polega na tym, czy po czasie potrafimy je rozpoznać.</p>
+    <p class="lines">
+      <span class="line">Ile razy biznes spojrzał na Ciebie jak na turystę w jeansach?</span><br>
+      <span class="line">I ile razy miał rację?</span><br>
+      <span class="line">Ile razy byłeś tylko pasażerem?</span>
+    </p>
+    <p>Wróciłem do domu z dziwnym głodem. Wróciłem w Beskidy i zacząłem eksperymentować. Warianty nocne. Zimowe. Na azymut. Samotne i z przyjaciółmi. Czasem kilkudniowe. Potem to samo, tylko innymi drogami i w innym tempie.</p>
+    <p>Chciałem poznać górę z każdej możliwej strony. Ukraść trochę jej tajemnic. Zrozumieć, jak się zmienia i jak ja się przy tym zmieniam. Okazało się, że znajomość Beskidów przestaje wystarczać, kiedy największym wyzwaniem nie jest już znalezienie drogi, tylko własna głowa.</p>
+    <p>Przyszedł czas na lęk wysokości. Ferraty. Wspinanie. Jura. Drogi taternickie. Dłonie coraz rzadziej zdradzały niepewność. Następnie kursy i podejścia alpejskie. Kolejne góry i kolejne wyzwania.</p>
+    <p>I chyba w tym momencie zacząłem rozumieć coś ważnego:</p>
+    <p class="thesis"><strong>Im więcej wiem o górach, tym bardziej wiem, jak dużo jeszcze o nich nie wiem.</strong></p>
+    <p class="chapter-end">koniec rozdziału 2 z 11 · do końca ok. 36 min</p>
+  </section>
+
+  <section class="chapter" id="kozi-wierch" aria-labelledby="kozi-wierch-tytul">
+    <header class="chapter-head">
+      <h2 id="kozi-wierch-tytul">Kozi Wierch</h2>
+      <p class="chapter-meta"><span>3 z 11</span> <span class="sep" aria-hidden="true">·</span> <span>2291 m n.p.m.</span> <span class="sep" aria-hidden="true">·</span> <span class="coords">49°13′N 20°02′E</span> <span class="sep sep-note" aria-hidden="true">·</span> <span class="note">2013?</span></p>
+    </header>
+    <figure class="sketch">
+      <picture>
+        <source srcset="assets/web/kozi-wierch.webp" type="image/webp">
+        <img src="assets/web/kozi-wierch.jpg" width="1024" height="1024" loading="lazy" decoding="async" alt="Szkic węglem: mapa z poziomicami, złożona w cztery, z wydartym rogiem.">
+      </picture>
+    </figure>
+    <p>Na Kozim Wierchu byłem dwa razy. Za pierwszym razem jako turysta. Bodajże w 2013 roku. Za drugim — dwanaście lat później. Tym razem jako ktoś, kto doceniał już piękno tego terenu i zaczynał je rozumieć.</p>
+    <p>Ta sama góra. Ta sama droga. Czerwony szlak przez Zawrat, czyli Orla Perć. Można tam zresztą wejść jeszcze inaczej — zwykłym, czarnym szlakiem od Pięciu Stawów. Bez łańcuchów i innych ubezpieczeń. Ten sam szczyt, to samo zdjęcie. Ale zupełnie inna góra.</p>
+    <p>Z pierwszego razu pamiętam niewiele. Większość momentów, którymi mógłbym się delektować, ograniczała się do strachu. Może nie był to strach paraliżujący, ale na pewno czułem dyskomfort i niepewność swoich ruchów. Jakoś ukończyłem ten szlak. Znalazłem się na szczycie. Zrobiłem zdjęcie. <span class="fx fx-cyk">Cyk</span>. Rozdział zamknięty. Nieprędko chciałem to powtarzać.</p>
+    <p>Porwałem się na coś trudnego. Bez odpowiedniej wiedzy. Pewnie nogi miałem z galarety — potwierdzi to kolega, który mnie wtedy widział.</p>
+    <p>Mimo wszystko czułem dumę. Traktowałem to jako swój prywatny sukces.</p>
+    <p>Za drugim razem byłem w szoku. Minęło tyle lat, a ja szybko zacząłem rozpoznawać charakterystyczne formacje skalne. Konkretne miejsca. Utrudnienia, które kiedyś zapamiętałem.</p>
+    <p>To zaskakujące, jak działa nasza pamięć. Jak pamięta detale. I to sprzed tylu lat. A jednocześnie ma problem z przypomnieniem sobie, co robiliśmy dnia poprzedniego.</p>
+    <p>Mogłem zmierzyć się z tym samym terenem jeszcze raz. I wiesz co? Zrobiłem to z uśmiechem na twarzy. Każdy krok był przemyślany i pewny. Co śmieszniejsze — tym razem nie było towarzysza, który utrudniał mi pierwsze przejście. Nie było lęku wysokości.</p>
+    <p>Nic się nie zmieniło (no może poza słynną drabinką). Zmieniłem się ja.</p>
+    <p>I dopiero wtedy zrozumiałem, że za pierwszym razem przeszedłem ten szlak jako pasażer. Ktoś, kto chciał tylko odhaczyć kolejną „fajną rzecz”. Dopiero teraz mogłem zrozumieć tę drogę. Docenić ją. Świadomie mierzyć się z tym, co stawiała przede mną każda formacja skalna.</p>
+    <p class="thesis"><strong>Szlak to nie góra.</strong></p>
+    <p>Możesz znać trasę. Wiedzieć, gdzie skręcić, gdzie chwycić za łańcuch, gdzie zaczyna się trudniejszy fragment. Możesz przejść ją dziesięć razy. To nadal nie znaczy, że rozumiesz górę.</p>
+    <p>Do tego trzeba dojrzeć.</p>
+    <p>Dlaczego więc tak często ufamy jednej mapie?</p>
+    <p>W projektowaniu mamy swoje mapy i bardzo niechętnie z nich schodzimy. Najbezpieczniejszą z nich jest zdanie: „to zależy od kontekstu”.</p>
+    <p>Oczywiście, że zależy. Problem zaczyna się wtedy, kiedy to zdanie przestaje być początkiem rozmowy i staje się jej wygodnym końcem. Bo czasem projektant nie ma argumentu. Nie zrozumiał jeszcze problemu. Albo po prostu nie wie. I wtedy najłatwiej powiedzieć: „to zależy od kontekstu”. Albo: „bo tak mówią heurystyki Nielsena”.</p>
+    <p>Temat zamknięty. Szlak zaliczony. Jeszcze tylko zdjęcie. <span class="fx fx-cyk">Cyk</span>. Możemy iść dalej.</p>
+    <p>Tylko że heurystyka nie jest argumentem. Jest narzędziem.</p>
+    <p>Heurystyki mają swoje lata. Wielu z nas zna je tak dobrze, że stosuje je odruchowo, nie pamiętając, że kiedyś uczyliśmy się ich jako zasad. I nie chodzi o to, że są bezużyteczne. Przeciwnie. Problem zaczyna się wtedy, kiedy przestajemy patrzeć na konkretną górę, bo przecież mamy już mapę.</p>
+    <p>Jest jeszcze trzecia mapa, najlepiej ubrana z nich wszystkich: „badania pokazały”.</p>
+    <p>Kiedyś zapytałem wprost projektanta wyżej ode mnie: jakie badania? Co dokładnie pokazały?</p>
+    <p>Badania nagle przestały istnieć. Ta mapa nigdy nie została narysowana.</p>
+    <p>Bywa i tak, że istnieje — tylko trochę inaczej, niż wygląda. Osiem wywiadów, z których w prezentacji cytuje się dwa. Te, które pasowały pod tezę. Reszta zostaje w pliku, do którego nikt nie wróci. Dlatego kiedy ktoś opowiada mi o swoim researchu, najciekawsze pytanie nie brzmi „co wyszło?”. Brzmi: <strong>„co znaleźliście takiego, co Wam nie pasowało?”</strong>. Jeśli nie ma odpowiedzi, to nie były badania. To była mapa narysowana pod trasę, którą i tak chcieliśmy iść.</p>
+    <p class="thesis"><strong>Nie zmieniamy mapy po kontakcie z terenem. Zmieniamy opowieść o tym, co zobaczyliśmy.</strong></p>
+    <p>Jeżeli wszystko rzekomo zależy od kontekstu, ale na każdy kontekst mamy w kieszeni tę samą gotową odpowiedź — to czy aby na pewno patrzymy na ten sam szczyt?</p>
+    <p>Mont Blanc jest dobrym przykładem. Droga, którą przez lata opisywano jako klasyczną, wciąż widnieje na mapach w niezmienionej formie. Ale sama góra nie jest już taka sama.</p>
+    <p>Topnieje lód. Rozmarza zmarzlina, która przez tysiące lat trzymała skały na miejscu. Obrywów jest dziś około dziesięć razy więcej niż dwie dekady temu. Tam, gdzie jeszcze niedawno szło się po niemal płaskim lodowcu, trzeba było założyć linę poręczową.</p>
+    <p>Latem 2026 wszystkie trzy najczęściej wybierane drogi na Mont Blanc były przez pewien czas niedostępne jednocześnie. Pierwszy raz od 1786 roku, czyli od pierwszego wejścia na ten szczyt.<sup class="fn-ref"><a href="#przypis-1" id="odnosnik-1" aria-label="Przypis 1">1</a></sup></p>
+    <p>Mapa nadal grzecznie pokazuje tę samą linię. Tylko że góra pod nią zdążyła się zmienić.</p>
+    <p class="thesis"><strong>Mapa nie musi być zła, żeby zaprowadzić Cię w złe miejsce. Wystarczy, że przestała pasować do terenu.</strong></p>
+    <p>Z produktami jest identycznie. Zmienia się technologia. Rynek. Zachowania użytkowników. Możliwości biznesu. To, co działało bezbłędnie trzy lata temu, dziś może być przepisem na katastrofę.</p>
+    <p>Czasem zresztą mapy nie wybierasz sam. Dostajesz ją gotową. Ticket w Jirze opisany jeden do jednego. Ustalenia zapadły wcześniej. Bez Ciebie. Ty masz tylko „narysować”.</p>
+    <p>Kolorujesz. Czy nadal jesteś projektantem?</p>
+    <p>To zależy od kontekstu.</p>
+    <p class="lines">
+      <span class="line">Czasem nie dostajesz mapy dlatego, że ktoś uważa ją za najlepszą.</span><br>
+      <span class="line">Dostajesz ją, bo organizacja pamięta poprzednią wyprawę.</span>
+    </p>
+    <p>Bo prowadzenia nie dostaje się na prośbę. Nikt nie oddaje pierwszego miejsca w zespole dlatego, że ktoś o nie poprosił. Oddaje je, kiedy zobaczy, jak stawiasz nogi.</p>
+    <p>Więc weź jeden mały fragment. Zrób go inaczej, niż mówi ticket. I pokaż różnicę. Nie musisz zmieniać świata. Wystarczy, że pokażesz, że mogło być inaczej.</p>
+    <p>Możesz świetnie znać Figmę, design system i branżowe standardy. To jest wartościowa kompetencja. Ale czym innym jest znajomość wydeptanej ścieżki, a czym innym sztuka poruszania się w ciężkim terenie.</p>
+    <p class="lines thesis">
+      <span class="line"><strong>Dobry projektant nie musi znać każdej góry.</strong></span><br>
+      <span class="line"><strong>Powinien umieć poruszać się po górach.</strong></span>
+    </p>
+    <p>Bo kiedy kończy się wydeptany szlak, zaczyna się prawdziwa wspinaczka.</p>
+    <aside class="footnotes" aria-label="Przypisy">
+      <p id="przypis-1"><span class="fn-num">1</span>Masyw Mont Blanc rozpada się w rekordowym tempie — wspinanie.pl, sierpień 2026: <a href="https://wspinanie.pl/2026/08/mont-blanc-smiglowiec/" target="_blank" rel="noopener">wspinanie.pl/2026/08/mont-blanc-smiglowiec/</a><a class="fn-back" href="#odnosnik-1" aria-label="Wróć do tekstu">↩︎</a></p>
+    </aside>
+    <p class="chapter-end">koniec rozdziału 3 z 11 · do końca ok. 32 min</p>
+  </section>
+
+  <section class="chapter" id="mnich" aria-labelledby="mnich-tytul">
+    <header class="chapter-head">
+      <h2 id="mnich-tytul">Mnich</h2>
+      <p class="chapter-meta"><span>4 z 11</span> <span class="sep" aria-hidden="true">·</span> <span>2068 m n.p.m.</span> <span class="sep" aria-hidden="true">·</span> <span class="coords">49°12′N 20°03′E</span></p>
+    </header>
+    <figure class="sketch">
+      <picture>
+        <source srcset="assets/web/mnich.webp" type="image/webp">
+        <img src="assets/web/mnich.jpg" width="1024" height="1024" loading="lazy" decoding="async" alt="Szkic węglem: pojedynczy but wspinaczkowy na rzepy.">
+      </picture>
+    </figure>
+    <p>Mnich jest dla mnie dobrym obrazem tego momentu, kiedy przestajesz myśleć o każdym ruchu osobno.</p>
+    <p>Wyobraź sobie, że się wspinasz. Prowadzisz. Masz przed sobą kolejną wpinkę. Czasami, żeby do niej sięgnąć, musisz zrobić ruch, którego jeszcze nie jesteś do końca pewien. Czujesz nawet pewien dyskomfort z tym związany. Wiesz, że musisz przenieść ciężar ciała. Puścić jedną rękę. Zaufać nogom. Zaryzykować trochę więcej niż przed chwilą. I nagle decydujesz się wykonać ten jeden ruch, który zadecyduje, czy utrzymasz się w ścianie…</p>
+    <p>Na początku ktoś mówi Ci, co zrobić. Potem próbujesz to wykonać. Nie wychodzi. Próbujesz jeszcze raz. Nie wychodzi. Jeszcze raz. I jeszcze raz. Do momentu, aż któregoś dnia Twoje ciało zaczyna rozumieć. Zaczynasz wiedzieć, co zrobić, zanim zdążysz to nazwać.</p>
+    <p class="lines">
+      <span class="line">To nie jest już teoria.</span><br>
+      <span class="line">To jest pamięć mięśniowa.</span>
+    </p>
+    <p>Michael Polanyi napisał kiedyś, że wiemy więcej, niż potrafimy powiedzieć.</p>
+    <p>Doświadczony wspinacz wie, pod jakim kątem ustawić ciało, żeby odciążyć przedramiona. To opiera się na prawach fizyki, ale nikt nie wykonuje w głowie obliczeń. Nie da się też precyzyjnie wyjaśnić słowami, jak mocno docisnąć but na wyślizganej ścianie albo jak ułożyć dłoń na obłym chwycie.</p>
+    <p>Nie każdy patent da się zwerbalizować.</p>
+    <p>Z projektowaniem bywa podobnie. Patrzysz na produkt kilka sekund i wiesz, jak jest zbudowany. Wiesz też, że coś jest nie tak — choć uzasadnienie przychodzi dopiero po chwili. Albo wcale.</p>
+    <p>Kurs tego nie da. Kurs daje mapę, i to jest sporo. Ale odruch trzeba sobie wypracować samemu.</p>
+    <p>Setki przepracowanych godzin. Powtórzenia. Błędy. Nieudane próby. Przy okazji obdarcia. Kolejne próby. Naciągnięcia. Zakwasy. Czasami może pojawić się krew. I jeszcze jedna próba. I kolejna.</p>
+    <p>Ale tak właśnie stajemy się praktykami.</p>
+    <p>To dlatego dwanaście lat później rozpoznawałem na Orlej Perci miejsca, o których dawno przestałem pamiętać. Ciało pamiętało za mnie.</p>
+    <p>Dlatego kiedy ktoś pyta mnie, jak zacząć w designie, nie zaczynam od teorii. Zaczynam od budowania.</p>
+    <p>Weź rozwiązanie, które Ci się podoba. Spróbuj zrozumieć, jak działa. Dlaczego jest dobre? Jak zostało zbudowane? Co sprawia, że właśnie ten element działa tak, a nie inaczej?</p>
+    <p class="thesis"><strong>A potem spróbuj je odtworzyć. Nawet jeden do jednego.</strong></p>
+    <p>Nie po to, żeby je skopiować. Po to, żeby zobaczyć, czego wcześniej nie widziałeś.</p>
+    <p>Bo kiedy zaczynasz naprawdę budować, zaczynasz też naprawdę pytać. A kiedy zaczynasz pytać, zaczynasz rozumieć. I wtedy teoria przestaje być zbiorem definicji. Zaczyna odpowiadać na pytania, które sam już masz.</p>
+    <p>Z czasem pojawia się coś, co można nazwać intuicją. Ale intuicja nie bierze się znikąd. Za intuicją najczęściej stoją setki wcześniejszych prób, błędów i obserwacji.</p>
+    <p>Często chcemy za szybko osiągnąć jakiś etap. Często nawet nie jesteśmy świadomi, że jeszcze nie jesteśmy gotowi. Głowa nie jest wystarczająco spokojna. Ciało nie jest jeszcze gotowe. I dlatego odpadamy od ściany. Czasami zatrzymamy się na naszej asekuracji. A czasami ten upadek bywa naprawdę bolesny.</p>
+    <p>W ścianie ta informacja przychodzi natychmiast. Zrobiłeś zły ruch — odpadasz. Nie ma dyskusji. Nie ma prezentacji. Nie ma roadmapy. Nie ma KPI. Odpadasz.</p>
+    <p>W projektowaniu rzadko dostajesz taką odpowiedź. Wdrażasz, idziesz dalej, a produkt zmienia się z dziesięciu innych powodów. Można przepracować w tym zawodzie wiele lat i nigdy się nie dowiedzieć, które ruchy były dobre.</p>
+    <p>A niektóre były po prostu szczęśliwe. Tylko że tego też się nie dowiesz.</p>
+    <p>Odpadałem kilka razy. Najboleśniej wtedy, kiedy chciałem zmienić wszystko za jednym podejściem. Pół roku projektowania nowych mechanik i eleganckich rozwiązań dla znanej marki e-commerce. Zamiast iteracyjnie — wszystko naraz. Co mogło pójść nie tak?</p>
+    <p>Bolało.</p>
+    <p>To, co osiągnąłem, było dobre. Do dziś tak uważam. Tylko że skończyły się środki, zanim skończyła się droga.</p>
+    <p class="thesis"><strong>Doświadczenie nie polega na tym, że wiesz wszystko. Polega na tym, że szybciej rozpoznajesz, czego jeszcze nie wiesz.</strong></p>
+    <p class="chapter-end">koniec rozdziału 4 z 11 · do końca ok. 29 min</p>
+  </section>
+
+  <section class="chapter" id="marmolada" aria-labelledby="marmolada-tytul">
+    <header class="chapter-head">
+      <h2 id="marmolada-tytul">Marmolada</h2>
+      <p class="chapter-meta"><span>5 z 11</span> <span class="sep" aria-hidden="true">·</span> <span>3343 m n.p.m.</span> <span class="sep" aria-hidden="true">·</span> <span class="coords">46°26′N 11°51′E</span></p>
+    </header>
+    <figure class="sketch">
+      <picture>
+        <source srcset="assets/web/marmolada.webp" type="image/webp">
+        <img src="assets/web/marmolada.jpg" width="1024" height="1024" loading="lazy" decoding="async" alt="Szkic węglem: para starych raków z paskami i ostrymi zębami.">
+      </picture>
+    </figure>
+    <p>Mieszkam na dziesiątym piętrze. Winda działa. Jeżdżę nią codziennie i nie mam z tym problemu.</p>
+    <p>Mimo wszystko staram się regularnie wchodzić po schodach. Nie dlatego, że tak trzeba. Dlatego, że po roku jeżdżenia windą przestaje się wiedzieć, ile to właściwie jest — dziesiąte piętro.</p>
+    <p>A Ty? Próbowałeś kiedyś wejść na swoje?</p>
+    <p>Marmolada nie jest jednym szczytem. To cały masyw, najwyższy w Dolomitach, z lodowcem i kilkoma wierzchołkami. Najwyższy z nich to Punta Penia — 3343 metry.</p>
+    <p>Można ją zdobyć, wjeżdżając na Punta Rocca. Trzy odcinki kolejki i jesteś na górze. Piękna sprawa. Oszczędzasz czas. Oszczędzasz siły. Stajesz na tarasie, robisz zdjęcie panoramy. <span class="fx fx-cyk">Cyk</span>. Kadr się zgadza.</p>
+    <p>Problem w tym, że Punta Rocca ma 3265 metrów. Do najwyższego punktu jest stamtąd siedemdziesiąt osiem metrów w pionie. I cała reszta drogi, na którą trzeba mieć sprzęt i umiejętności.</p>
+    <p>Z tarasu widać go doskonale.</p>
+    <p>Można też wejść żelazną drogą — Cresta Ovest, ferratą wiodącą zachodnią granią. W teorii trudności techniczne nie cięższe niż na Orlej Perci. W praktyce różnie bywa. Spora ekspozycja. Czasem oblodzenia i pogoda, która zmienia wszystko. Prawie 1300 metrów przewyższenia. Narastające zmęczenie. Mijają godziny, a góra wciąż daje o sobie znać. W końcu stajesz na wierzchołku z zupełnie innym bagażem.</p>
+    <p>Mijałem po drodze różnych ludzi. Najbardziej zapamiętałem parę, która szła na lotnej asekuracji, w pełnym alpejskim szpeju. Sprzętu mieli więcej, niż wymagała droga. Umiejętności — mniej, niż wymagał sprzęt. Przez brak pewności i nadmiar rzeczy do ogarnięcia zatrzymywali się w miejscach, w których nie powinno się stać. Wstrzymywali ruch. Dokładali zmiennych. Cudzych zmiennych, które musiałem uwzględniać.</p>
+    <p>Jest jeszcze droga klasyczna przez lodowiec, z rakami, czekanem i liną. I jest południowa ściana — ponad sto ekstremalnych dróg wspinaczkowych, o których większość ludzi na tarasie nigdy nie usłyszy.</p>
+    <p>Jest za to jeden wspólny mianownik. Wszyscy powiedzą potem to samo: byłem na Marmoladzie.</p>
+    <p class="thesis"><strong>Każda z tych dróg prowadzi na szczyt. Ale nie uczą tego samego.</strong></p>
+    <p>I nie chodzi o to, żeby nie korzystać z kolejki. Korzystam. Czasem to najrozsądniejsza decyzja, jaką można podjąć.</p>
+    <p>Chodzi o różnicę między tym, że wjechałeś, a tym, że myślisz, że wszedłeś.</p>
+    <hr>
+    <p>Tę drogę na skróty widać dzisiaj jak na dłoni. W dobie, w której stworzenie produktu to zaledwie jedno zdanie.</p>
+    <p class="lines">
+      <span class="line"><span class="fx fx-klik">Klik</span>. Kolejna aplikacja.</span><br>
+      <span class="line"><span class="fx fx-klik">Klik</span>. Kolejny wtórny design.</span><br>
+      <span class="line"><span class="fx fx-klik">Klik</span>. Research bez pokrycia.</span>
+    </p>
+    <p>I na każdym etapie — <span class="fx fx-cyk">cyk</span> — foteczka ze szczytu.</p>
+    <p>Zalaliśmy internet falą sztampy. Wtórnych rozwiązań jest dziś tyle, co turystów w sierpniu nad Morskim Okiem. Mało kto weryfikuje, czy te generacje w ogóle mają sens. Mało kto już cokolwiek weryfikuje. Byleby tylko szybko wejść na szczyt i zrobić foteczkę.</p>
+    <p class="lines">
+      <span class="line">Powoływanie się na artefakty produktu, które powstały na skutek pomyłki modelu. WTF.</span><br>
+      <span class="line">Halucynacje w opisie ticketu, który masz wykonać. Czytasz i masz w głowie jedno wielkie WTF.</span><br>
+      <span class="line">Wygenerowana makieta do zakodowania, która nie ma sensu pod względem logiki ani użyteczności. WTF.</span><br>
+      <span class="line">Vibe kodowanie tej makiety i zdziwienie, że ktoś ma pretensje na code review. WTF.</span>
+    </p>
+    <p>A najśmieszniejsze jest to, że zespół wie. Tylko na tym etapie nie ma już jak zawrócić.</p>
+    <p>„Poprawimy w następnym sprincie”.</p>
+    <p>To się naprawdę dzieje. To właśnie skutek dążenia na skróty. Bezrefleksyjnego klikania.</p>
+    <p>Patrzę na te rzeczy i widzę Czupel w listopadzie. Błoto po kostki. Mokre kamienie. Drzewa bez liści. Mgła, przez którą nic nie widać dalej niż na dziesięć metrów.</p>
+    <p>Tak właśnie wygląda sztampa. <span class="fx fx-cyk">Cyk</span>.</p>
+    <hr>
+    <p>Nie mam problemu z tym, że narzędzia są coraz lepsze. Sam coraz częściej projektuję za pomocą słów i promptów. Współpracuję z AI. Mówię, co chcę osiągnąć. Iteruję. Sprawdzam. Zmieniam.</p>
+    <p>Traktuję to jak kolejną przygodę. To po prostu nowe narzędzie. Nowy teren do poznania. Nowe mapy. Nowe spojrzenie na górę.</p>
+    <p class="thesis"><strong>Sztuczna inteligencja nie zabiera nam góry. Odciąża nas z części sprzętu, którym do tej pory się po niej poruszaliśmy.</strong></p>
+    <p>Tylko że sprzęt, którego nie nosisz, przestaje Cię obciążać. A mięsień, który nie jest obciążany, słabnie. Zanika. Przestaje pracować.</p>
+    <p>Dlatego to narzędzie działa tylko w jedną stronę. Trzeba wiedzieć, co się chce zrobić. Dokąd się zmierza. I na każdym kroku weryfikować, czy kierunek jest właściwy.</p>
+    <hr>
+    <p>Coraz częściej jesteśmy rozliczani z dowiezienia. Nie ze zrozumienia. A skoro i tak rzadko się dowiadujemy, które decyzje były dobre, to różnica między zrozumieniem a wygenerowaniem staje się w praktyce niewidoczna.</p>
+    <p>Wysiłek był kiedyś filtrem. Musiałeś przemyśleć coś kilka razy, żeby dojść do sedna problemu. Żeby w ogóle zacząć pracę. Teraz to coś zamieniło się w skopiowanie zawartości całego zadania do odpowiedniego okienka. Kilka sekund. Kilka ruchów palców. <span class="fx fx-klik">Klik</span>. <span class="fx fx-klik">Klik</span>.</p>
+    <p>I to jest paradoks pamięci mięśniowej. Robisz to automatycznie, a mięśnie i tak zanikają.</p>
+    <p>Przynajmniej przez jakiś czas.</p>
+    <p>Bo lata schodzą na naprawianiu produktu po dziesiątkach złych decyzji, które zdążyły zrosnąć się z jego fundamentem. A potem to, co wreszcie zaczęło działać, psujemy od nowa. Tym razem szybciej.</p>
+    <p><span class="fx fx-klik">Klik</span>. <span class="fx fx-klik">Klik</span>. <span class="fx fx-klik">Klik</span>.</p>
+    <p>I wracamy tam, skąd wyszliśmy. Tylko z ładniejszymi ekranami.</p>
+    <p>Piszemy przy tym coraz więcej. Dokumentacja, standardy, zapisy ustaleń. Transkrypcje całych spotkań. Tylko że czyta to już nie człowiek, a model — i to on wyciąga z tego wnioski, których nikt nie sprawdził.</p>
+    <p>AI w rękach specjalisty naprawdę jest potężnym narzędziem. Tylko że narzędzie nie zna kontekstu Twojego produktu. Zna wzorzec. Często nawet nie wiesz, skąd ten wzorzec trafił do jego pamięci.</p>
+    <p>To trochę jak raki. Pozwalają wejść tam, gdzie bez nich byś nie poszedł. Ale w rękach kogoś, kto nie umie ich używać, nie zwiększają bezpieczeństwa. Czasem wręcz przeciwnie. W wariancie optymistycznym zrobisz sobie dziurę w spodniach. Rzeczywistość bywa bardziej bolesna.</p>
+    <hr>
+    <p>W projektowaniu możemy dziś bardzo szybko wygenerować rozwiązanie. Zamiast budować coś od zera, wykorzystujemy design system. Sprawdzone patterny. Gotowe frameworki. Narzędzia pozwalają przeskoczyć etapy, które kiedyś zajmowały dni albo tygodnie. I bardzo dobrze. Po to powstały.</p>
+    <p>Tylko że stworzenie rozwiązania często jest łatwiejsze niż zrozumienie problemu. Jeszcze trudniej jest rozłożyć go na części. Jak zabawkę. I zobaczyć zależności. Albo zadać właściwe pytanie.</p>
+    <p>A najtrudniej zauważyć, że to pierwsze pytanie, od którego zaczęliśmy, było błędne.</p>
+    <p>A co, jeżeli od początku iterujemy zły problem? I w ogóle nie mamy o tym pojęcia?</p>
+    <p>Może to kwestia charakteru. Może lubisz w kółko reprodukować te same rozwiązania w ten sam sposób. W kółko i w kółko. Może czujesz się dzięki temu bezpieczniej. Skryty jak świstak. Schowany za sprawdzonym rozwiązaniem w swojej norce.</p>
+    <p>Ale czy zauważyłeś, że od kiedy to jest łatwe, robisz w kółko to samo?</p>
+    <p class="lines">
+      <span class="line">Zadaj sobie jedno pytanie: czy potrafiłbyś zbudować coś od zera?</span><br>
+      <span class="line">Postawić krok na nieznanym terenie.</span><br>
+      <span class="line">Wymyślić świeży koncept.</span><br>
+      <span class="line">Przeprowadzić analizę i samodzielnie się pod nią podpisać.</span><br>
+      <span class="line">Pokonać drogę na szczyt samemu?</span>
+    </p>
+    <p class="thesis"><strong>Narzędzi można nauczyć się szybko. Myślenia już niekoniecznie.</strong></p>
+    <hr>
+    <p>Jestem ciekaw, co zostanie z projektanta, który definiował siebie wyłącznie przez jedno narzędzie. Jeden wygodny sposób poruszania się. Po znanej ścieżce.</p>
+    <p>Co się stanie, kiedy zmieni się teren? Kiedy sprawdzony sposób zawiedzie? Kiedy narzędzie przestanie być Twoją przewagą?</p>
+    <p>Kiedyś poprosiłem projektanta, żeby na chwilę porzucił swój dobrze znany stack i spróbował rozwiązać podobny problem w zupełnie innym środowisku. Padło na vibe coding.</p>
+    <p>Nie chodziło o to, że nie znał narzędzia. Chodziło o to, że kiedy zniknął bezpieczny interfejs i gotowe klocki, zniknęły też jego myśli. Nie potrafił opisać, co właściwie chce zbudować — bo do tej pory robił to za niego design system, gotowe ekrany albo koledzy z zespołu.</p>
+    <p>Wynik?</p>
+    <p>Zamiast zwinnej kozicy górskiej dostaliśmy niezgrabnego, chaotycznego pingwina.</p>
+    <p>Uwielbiam pingwiny. Tylko nie jestem pewien, czy chciałbym z którymś iść na Grossglocknera.</p>
+    <p>Kiedyś mówiło się: pokaż mi swój kod, a powiem Ci, jak myślisz.</p>
+    <p class="thesis"><strong>Dziś wystarczy prompt.</strong></p>
+    <p class="chapter-end">koniec rozdziału 5 z 11 · do końca ok. 24 min</p>
+  </section>
+
+  <section class="chapter" id="everest" aria-labelledby="everest-tytul">
+    <header class="chapter-head">
+      <h2 id="everest-tytul">Everest</h2>
+      <p class="chapter-meta"><span>6 z 11</span> <span class="sep" aria-hidden="true">·</span> <span>8849 m n.p.m.</span> <span class="sep" aria-hidden="true">·</span> <span class="coords">27°59′N 86°56′E</span> <span class="sep sep-note" aria-hidden="true">·</span> <span class="note">[adnotacja]</span></p>
+    </header>
+    <figure class="sketch">
+      <picture>
+        <source srcset="assets/web/everest.webp" type="image/webp">
+        <img src="assets/web/everest.jpg" width="1024" height="1024" loading="lazy" decoding="async" alt="Szkic węglem: maska tlenowa z karbowanym przewodem, leżąca na ziemi.">
+      </picture>
+    </figure>
+    <p>Nigdy nie byłem na Evereście. Nigdy nawet nie byłem wyżej niż pięć tysięcy metrów. Ale mam w głowie pewien obraz tej góry.</p>
+    <p>I szczerze? Nie wiem, czy chciałbym tam pojechać. Bo jaka to frajda poznawać majestatyczną górę, stojąc na niej w kolejce jak po mięso w osiedlowym sklepie? Zimą.</p>
+    <p>Tylko że ta kolejka jest tam z konkretnego powodu.</p>
+    <p>Za odpowiednie pieniądze można dziś kupić wersję skróconą. Klasyczna wyprawa trwa około sześciu tygodni. Przyspieszona — trzy, i kosztuje o jakieś trzydzieści tysięcy euro więcej. Najdroższy pakiet to prywatny przewodnik, własna obsługa i dwieście tysięcy euro.</p>
+    <p>Aklimatyzację odbywasz wcześniej. W namiocie hipoksyjnym. We własnym mieszkaniu. Osiem tygodni.</p>
+    <p>Operator uczciwie przyznaje, że łącznie spędzasz na wysokości więcej czasu niż przy klasycznej wyprawie. Tylko że większość z tego w sypialni.<sup class="fn-ref"><a href="#przypis-2" id="odnosnik-2" aria-label="Przypis 2">2</a></sup></p>
+    <p class="thesis"><strong>Nie kupujesz więc czasu. Kupujesz to, żeby nie musieć go spędzić na górze.</strong></p>
+    <p>I bardzo często to działa. Ludzie wracają cało, z tym jednym zdjęciem. <span class="fx fx-cyk">Cyk</span>. I opowieścią na całe życie.</p>
+    <p>W środowisku górskim to gorący temat. Nie będę go komentował.</p>
+    <p>Problem zaczyna się wtedy, kiedy zmienia się pogoda. Bo wtedy zostaje tylko to, czego nie da się kupić.</p>
+    <hr>
+    <p>Podobne wyprawy organizujemy dziś w firmach.</p>
+    <p>Ogłaszamy strategię AI-first. Tniemy dwadzieścia procent zespołu. Przebudowujemy roadmapę pod technologię, o której jest jeszcze za wcześnie, by mieć pewne zdanie.</p>
+    <p>Nie twierdzę, że wiem lepiej. Nie znam ich liczb.</p>
+    <p>Niepokoi mnie co innego: oni też ich nie znają.</p>
+    <p>Nikt nie wdroży AI w kwartał. Model trzeba osadzić w procesie. Ludzi przeszkolić. A potem przez pół roku poprawiać to, co wychodzi.</p>
+    <p>Jeśli ktoś zwalnia po kwartale, to nie wdrożył AI.</p>
+    <p class="thesis"><strong>Zwolnił ludzi i nazwał to strategią.</strong></p>
+    <p>I nie jest to decyzja głupia. Dla człowieka, który ją podejmuje, jest racjonalna. Działa od razu. Koszt przychodzi za dwa lata — i często dostaje nim rykoszetem ktoś inny.</p>
+    <p>Trudno oczekiwać, że ktoś wybierze wolniejszą drogę, skoro rozliczamy go z tego, jak szybko dowozi. Zwolniliśmy część zespołu, ale hej, mamy AI. Powinniśmy dowozić jeszcze szybciej.</p>
+    <hr>
+    <p>Zwalniamy kogoś. Trudna decyzja, wszyscy to rozumiemy.</p>
+    <p>A potem piszemy o tym post. Że po roku ta osoba podziękowała. Że znalazła coś lepszego. Że czasem to, co wygląda na porażkę, jest początkiem czegoś nowego.</p>
+    <p>Dostajemy komentarze. Ktoś dopisuje metaforę. Ktoś inny nazywa to procesem dojrzewania.</p>
+    <p>Tylko że ta osoba nie odeszła sama. A jej podziękowanie to kurtuazja. Nikt nie mówi w twarz, co naprawdę myśli o miejscu, z którego go wyproszono.</p>
+    <p>Może po prostu trafiła gdzieś, gdzie jest mniej patologicznie.</p>
+    <p>Nie napisałbym takiego posta. Ale rozumiem, skąd się bierze — łatwiej żyć z trudną decyzją, kiedy ma dobre zakończenie.</p>
+    <p>To nadal nie jest nasza historia.</p>
+    <hr>
+    <p>A skoro strategia została ogłoszona, trzeba pokazać, że to się dzieje.</p>
+    <p class="lines">
+      <span class="line">Polityka użycia AI.</span><br>
+      <span class="line">Standardy promptowania.</span><br>
+      <span class="line">Wytyczne dla zespołów.</span><br>
+      <span class="line">Matryca odpowiedzialności.</span><br>
+      <span class="line">Rejestr przypadków użycia.</span><br>
+      <span class="line">Karta oceny ryzyka.</span>
+    </p>
+    <p>Ktoś to wszystko napisał. W godzinach pracy. Ktoś inny mu to zlecił.</p>
+    <p>Sprawdzam. Niczym w pokerze. Wchodzę na Confluence i klikam.</p>
+    <p>Nikt tego nie czyta.</p>
+    <p>Ktoś spędził tydzień, żeby wyprodukować coś, na czyje przeczytanie zespół straciłby rok. To trochę jak badania pod tezę. Albo malowanie trawy na zielono.</p>
+    <p>Tylko że ta sama osoba jeszcze pół roku temu robiła coś innego. Dowoziła płatne projekty.</p>
+    <p>Więc jeśli ktoś przesuwa ludzi z pracy, za którą klient płaci, do pisania dokumentów o tym, jak pracujemy z AI — to nie jest transformacja.</p>
+    <p>To jest zamiana produkcji na sprawozdanie z produkcji.</p>
+    <hr>
+    <p>I tu jest paradoks, który zastanawia mnie najbardziej.</p>
+    <p>Decyzja, która ma być dowodem wizjonerstwa, bywa dokładnie odwrotnością wizji. Jest ucieczką od trudniejszej roboty — od zrozumienia, dlaczego produkt tak naprawdę nie zarabia. Od rozmowy o procesach, których nikt nie ogarnia. O długu, który narastał latami.</p>
+    <p>Może problem od początku leżał gdzie indziej? Może obiecaliśmy klientom za dużo. Może zaufaliśmy komuś, kto prowadził nas złą drogą.</p>
+    <p>AI brzmi nowocześnie. Tłumaczy reorganizację. Pozwala uniknąć rozmowy o tym, co naprawdę nie działało.</p>
+    <p>To jest kolejka na poziomie strategii. Wjeżdżasz szybko, robisz zdjęcie, mówisz, że byłeś na szczycie. <span class="fx fx-cyk">Cyk</span>.</p>
+    <p>Tylko że firma została na tarasie widokowym.</p>
+    <hr>
+    <p>Jest jeszcze jedna rzecz, o której mówi się najmniej.</p>
+    <p>Praca, którą dziś generuje się promptem, była kiedyś motorem napędowym nauki. Nudna. Powtarzalna. Wykonawcza. Dokładnie ta, na której ludzie budowali swoją pamięć mięśniową.</p>
+    <p>To trudny temat i nic nie jest tu zerojedynkowe. Ciężko wskazać palcem, gdzie dokładnie leży błąd i kto go popełnił. Każda firma z osobna postępuje racjonalnie, kiedy tnie juniorów, bo model zrobi to taniej. Suma tych racjonalnych decyzji to branża bez ludzi, którzy za dziesięć lat mieliby doświadczenie.</p>
+    <p>A może się mylę? Może junior z odpowiednim modelem wchodzi dziś wyżej i szybciej, niż wchodził ktokolwiek przed nim. Może to nie jest udawanie. Tlen naprawdę działa.</p>
+    <p>Tylko że nikt nie wie, na jakiej wysokości ten człowiek potrafi jeszcze samodzielnie oddychać.</p>
+    <p>A co, jeśli zabraknie tlenu?</p>
+    <p class="thesis"><strong>Schody nie znikają. Znika umiejętność wchodzenia po nich.</strong></p>
+    <p>W Beskidzie Żywieckim jest góra, która nazywa się Oszust. Nazwa nie wzięła się z przypadku. Od strony Sobolówki podejście wygląda na krótkie. Jest jednak bardziej strome i o wiele dłuższe, niż się na pierwszy rzut oka wydaje.</p>
+    <p>Może każdy z nas ma teraz swojego Oszusta.</p>
+    <p>Ja też nie wiem, w którym miejscu tego podejścia jestem.</p>
+    <aside class="footnotes" aria-label="Przypisy">
+      <p id="przypis-2"><span class="fn-num">2</span>Ceny i terminy wypraw na sezon 2026 oraz opis pre-aklimatyzacji hipoksyjnej: Furtenbach Adventures — <a href="https://www.furtenbachadventures.com/en/guidebook/what-are-flash-expeditions/" target="_blank" rel="noopener">furtenbachadventures.com/en/guidebook/what-are-flash-expeditions/</a><a class="fn-back" href="#odnosnik-2" aria-label="Wróć do tekstu">↩︎</a></p>
+    </aside>
+    <p class="chapter-end">koniec rozdziału 6 z 11 · do końca ok. 21 min</p>
+  </section>
+
+  <section class="chapter" id="babia-gora" aria-labelledby="babia-gora-tytul">
+    <header class="chapter-head">
+      <h2 id="babia-gora-tytul">Babia Góra</h2>
+      <p class="chapter-meta"><span>7 z 11</span> <span class="sep" aria-hidden="true">·</span> <span>1725 m n.p.m.</span> <span class="sep" aria-hidden="true">·</span> <span class="coords">49°34′N 19°32′E</span> <span class="sep sep-note" aria-hidden="true">·</span> <span class="note">zima, nie pamiętam którego roku</span></p>
+    </header>
+    <figure class="sketch">
+      <picture>
+        <source srcset="assets/web/babia-gora.webp" type="image/webp">
+        <img src="assets/web/babia-gora.jpg" width="1024" height="1024" loading="lazy" decoding="async" alt="Szkic węglem: czołówka z otwartą komorą baterii, obok dwie baterie.">
+      </picture>
+    </figure>
+    <p>Latem wejście na Babią należy do tych mniej wymagających. Szeroki szlak, sporo ludzi, kopiec na szczycie widać z daleka.</p>
+    <p>Bywałem tam też zimą. Jednej nocy nie zapomnę.</p>
+    <p>Zamieć. Zerowa widoczność. Ślady, które zostawiałeś, znikały w błyskawicznym tempie. Zimno takie, że zmiana baterii w czołówce zaczyna boleć — czynność, która latem trwa pięć sekund i nic nie kosztuje. Takie sceny widziałem wcześniej tylko w filmach o ekstremalnie wysokich górach. A to był najwyższy szczyt Beskidów.</p>
+    <p>Było nas czterech albo pięciu, dokładnie już nie pamiętam. Ekipa, z którą wychodziłem w góry wiele razy. Mieliśmy sporo górskich aktywności w CV. Ale wtedy pierwszy raz zobaczyłem, że są autentycznie wystraszeni. Sam zresztą też miałem swoje obawy.</p>
+    <p>Gdyby ktoś wcześniej powiedział mi, że bał się w Beskidach, pewnie potraktowałbym to z przymrużeniem oka.</p>
+    <p>Nie mogliśmy znaleźć szczytu. Babia Góra ma ogromny, charakterystyczny kopiec — nie da się go przeoczyć. Tamtej nocy staliśmy kilkadziesiąt metrów od niego i go nie widzieliśmy.</p>
+    <p>Żadnych śladów. Żadnych oznaczeń. Żadnego życia. Zresztą prawie nic nie widzieliśmy poza nieustannie szczypiącą nas bielą.</p>
+    <p>A od tego kopca zaczynała się droga do schroniska na Markowych Szczawinach.</p>
+    <p>Chaos i dziesiątki nieoczywistych decyzji. Weszliśmy dzięki GPS-owi. Kiedy mieliśmy już punkt odniesienia, zejście okazało się prostsze.</p>
+    <p>Ten sam szlak. Ta sama góra. Zupełnie inne doświadczenie.</p>
+    <p>Kroki, które latem stawiasz bez namysłu, zimą mają strategiczne znaczenie. A kiedy robisz coś ciągle w ten sam sposób, przestajesz patrzeć pod nogi. Tracisz czujność. Przy zmiennych warunkach nietrudno wtedy o bolesne potknięcie.</p>
+    <p class="thesis"><strong>Dlatego doświadczenie może być mapą. Ale może też stać się klatką.</strong></p>
+    <hr>
+    <p>Czasami patrzę na ludzi z ogromnym stażem. Wielkie marki. Bogate portfolio. Dwadzieścia lat w branży. To naprawdę dużo.</p>
+    <p class="lines thesis">
+      <span class="line"><strong>Ale dwadzieścia lat doświadczenia nie zawsze oznacza dwadzieścia lat uczenia się.</strong></span><br>
+      <span class="line"><strong>Czasami to po prostu jeden rok doświadczenia powtórzony dwadzieścia razy.</strong></span><br>
+      <span class="line"><strong>Niektórzy zdobyli swój szczyt tak dawno temu, że zdążyli zbudować na nim dom.</strong></span><br>
+      <span class="line"><strong>I siedzą w nim do dzisiaj.</strong></span>
+    </p>
+    <p>Ukryci za szczelnymi oknami utartych procesów. Z wygodnego fotela. Przy swoim pięknym kominku. Tłumaczą wszystkim dookoła, jak wygląda prawdziwa góra. Znają jeden szlak. Ten, którym weszli dwadzieścia lat temu.</p>
+    <p>Tylko że góra za oknem zdążyła się zmienić.</p>
+    <hr>
+    <p>Długo myślałem, że to kwestia wygody. Że po prostu bezpieczniej i łatwiej powtarzać to, co się zna. Dziś myślę, że nie jest to takie oczywiste.</p>
+    <p>Może tu nie chodzi o czas. Im dłużej jesteś kimś, kto wie, tym drożej kosztuje przyznanie, że przestałeś wiedzieć.</p>
+    <p>Bo przyznając się do błędu albo niewiedzy, rozmontowujemy kawałek własnego obrazu. Tworzymy nieidealny portret.</p>
+    <p>Człowiek z dwudziestoletnim stażem coraz rzadziej broni metody. Coraz częściej staje w defensywie za swoją historią, w której ta metoda działała.</p>
+    <hr>
+    <p>Nie każdy dom jest wyborem. Część ludzi została tam, gdzie jest, bo nie mieli dokąd pójść. Branża potrafi być bezlitosna dla tych, którzy przekroczyli pewien wiek. Nie lubię o tym myśleć, ale widzę to za każdym razem, kiedy ktoś znajomy szuka pracy.</p>
+    <p>Znam też osoby, które całą karierę poświęciły jednej firmie. I raczej na podobnym stanowisku. To trochę tak, jakby w schronisku zawsze zamawiać to samo danie. Może być naprawdę dobre. Tylko nigdy się nie dowiesz, czy gdzieś obok nie stało lepsze.</p>
+    <p>Zastanawiam się też, ile ja desek wniosłem na swój własny szczyt.</p>
+    <p>Mam nadzieję, że niewiele.</p>
+    <p>Inni odchodzą. I rzadko z powodu, o którym się mówi. Nie dlatego, że produkt jest słaby. Odchodzą przez pieniądze. Przez monotonię. Przez to, że nikt nie zauważył, kiedy zrobili coś dobrze. Czasem jedynym spoiwem, które ich jeszcze trzyma, jest zespół.</p>
+    <hr>
+    <p>Bo dom buduje się wtedy, kiedy przestaje się pytać.</p>
+    <p>Dziecko nie zna heurystyk. Nie ma pięknego portfolio. Nie słyszało o design thinking, personach i podwójnym diamencie. Nie zna frameworków i nie potrzebuje korpomowy. Po prostu pyta „dlaczego?” tak długo, aż zacznie rozumieć.</p>
+    <p>Nie boi się popełnić błędu. Bo błąd to część drogi, którą trzeba przebyć. <strong>Czasami to rysa na ciele, która przypomina o cennej lekcji.</strong></p>
+    <p>I dlatego jego obraz świata jest zawsze aktualny.</p>
+    <p>Twój był aktualny wtedy, kiedy ostatnio sprawdzałeś.</p>
+    <p>Więc <strong>kiedy ostatnio zmieniłeś zdanie w czymś zawodowym?</strong> Nie „czego się nauczyłeś” — na to każdy ma gotową odpowiedź. Co uważałeś za pewne trzy lata temu, a dziś uważasz inaczej?</p>
+    <p>Jeśli nic — możliwe, że masz jeden rok doświadczenia. Powtórzony.</p>
+    <p class="chapter-end">koniec rozdziału 7 z 11 · do końca ok. 18 min</p>
+  </section>
+
+  <section class="chapter" id="rysy" aria-labelledby="rysy-tytul">
+    <header class="chapter-head">
+      <h2 id="rysy-tytul">Rysy</h2>
+      <p class="chapter-meta"><span>8 z 11</span> <span class="sep" aria-hidden="true">·</span> <span>2499 m n.p.m.</span> <span class="sep" aria-hidden="true">·</span> <span class="coords">49°11′N 20°05′E</span></p>
+    </header>
+    <figure class="sketch">
+      <picture>
+        <source srcset="assets/web/rysy.webp" type="image/webp">
+        <img src="assets/web/rysy.jpg" width="1024" height="1024" loading="lazy" decoding="async" alt="Szkic węglem: pusta drewniana rama na obraz, położona krzywo.">
+      </picture>
+    </figure>
+    <p>Latem 2026 roku TOPR ratował w polskich Tatrach 541 osób.</p>
+    <p>Dwieście dwadzieścia cztery potknięcia i upadki. Sto siedemdziesiąt jeden nagłych zachorowań. Trzydzieści trzy przypadki opisane w statystyce jako brak umiejętności. Siedemnaście upadków z wysokości. Piętnaście — nieodpowiednie wyposażenie. Dwanaście zabłądzeń. Siedem śmierci.<sup class="fn-ref"><a href="#przypis-3" id="odnosnik-3" aria-label="Przypis 3">3</a></sup></p>
+    <p>Brak umiejętności ma w tych zestawieniach własną rubrykę.</p>
+    <hr>
+    <p>Rysy to najczęściej fotografowany polski szczyt. Chciałoby się rzec — polski Everest. Zagraniczni przewodnicy, z którymi miałem okazję rozmawiać, byli wręcz zdziwieni tym fenomenem. Być może wynika to z tego, że mamy dość ograniczone górskie zasoby.</p>
+    <p>W maju w dolinie jest wiosna. Powyżej Czarnego Stawu wciąż leży śnieg. To nadal zimowy teren.</p>
+    <p>Chciałbym napisać, że z dołu tego nie widać. Ale to nieprawda. U podstaw działa polskie tatrzańskie metro. Turysta za turystą, od Palenicy w stronę Morskiego Oka. A potem dalej.</p>
+    <p>Widać więc tłum. I tłum staje się dowodem. Skoro idą wszyscy, to znaczy, że można. A skoro można, to dam radę i ja.</p>
+    <hr>
+    <p>Czasami przeglądam górskie grupy. Na zdjęciach wszystko wygląda tak samo. Ten sam szczyt, to samo światło, ta sama panorama. <span class="fx fx-cyk">Cyk</span>.</p>
+    <p>A czasami patrzę na kolejny kadr i nie wiem, o co chodzi. Szczytu prawie nie widać, bo przysłania go pozująca postać. Sesja zdjęciowa, która przypadkiem odbywa się na dwóch i pół tysiącach metrów.</p>
+    <p>Kto to właściwie jest? Wspinacz? Turysta? Ktoś, kogo ktoś inny tam wyprowadził?</p>
+    <p>Nie wiem. I szczerze — po zdjęciu nigdy tego nie widać.</p>
+    <p>A kiedy wszystkie kadry wyglądają tak samo, przestajemy dostrzegać nie tylko kompetencję. Ale i człowieka.</p>
+    <p class="thesis"><strong>Bo zdjęcie nie przenosi kompetencji. Przenosi obraz.</strong></p>
+    <p>Pozowanie w uprzęży tam, gdzie nie jest do niczego potrzebna. Selfie z mądrej konferencji. „Strategia produktowa” wpisana tam, gdzie był jeden warsztat.</p>
+    <p>To rekwizyty. Dowodzą przynależności, nie umiejętności.</p>
+    <p>Discovery. Framework. Mindset. Strategia. Leadership. <span class="fx fx-cyk">Cyk</span>.</p>
+    <hr>
+    <p>I tu jest rzecz, o której mówi się najmniej: to nie jest niczyja wada charakteru.</p>
+    <p>Nagradzamy to, co widać.</p>
+    <p>Trzy lata utrzymywania produktu to czasami zero slajdów. Miesiąc redesignu to dziesięć. Rozmontowanie czyjejś złej decyzji sprzed roku nie ma ładnego „before / after”. Bywa i tak, że uratowanie projektu przed katastrofą wygląda w portfolio dokładnie tak samo jak brak projektu.</p>
+    <p>Więc jeśli chcesz, żeby ktoś zobaczył Twoją pracę, musisz wybrać taką, którą da się pokazać.</p>
+    <p>I to nie jest niczyja wina. To po prostu to, za co się płaci.</p>
+    <hr>
+    <p>Jest jeszcze druga strona tej samej monety.</p>
+    <p>Efektowne portfolio wymaga projektów, które wolno pokazać. A najtrudniejsze rzeczy w tej branży dzieją się za NDA. W systemach wewnętrznych, których nikt nigdy nie zobaczy. Paradoks polega na tym, że możesz mieć ogromny staż i wiedzę, a jednocześnie najmniej do pokazania.</p>
+    <p class="thesis"><strong>Czasami najbardziej porysowanego sprzętu po prostu nie wyjmujesz ze swojego plecaka.</strong></p>
+    <hr>
+    <p>Pamiętam jedną konferencję. Dużą, znaną w całej Polsce. Siedziałem na sali i w pewnym momencie jako jedyny parsknąłem śmiechem.</p>
+    <p>Wiem. Mało kulturalne.</p>
+    <p>Nie wytrzymałem.</p>
+    <p>Pomyślałem wtedy, że to trochę tak, jakby ktoś stanął przed pełną salą i wytłumaczył, jak zdobyć wysoką górę w gumiakach.</p>
+    <p class="lines">
+      <span class="line">Krok pierwszy: zdefiniuj swój szczyt.</span><br>
+      <span class="line">Krok drugi: zbuduj mindset zdobywcy.</span><br>
+      <span class="line">Krok trzeci: zaufaj procesowi.</span><br>
+      <span class="line">Krok czwarty: iteruj podejście.</span><br>
+      <span class="line">Krok piąty: świętuj sukces.</span>
+    </p>
+    <p>A cała sala notuje.</p>
+    <p>Nikt nie pyta, jaka to góra. Jaka jest pogoda. Czy te gumiaki mają jakąkolwiek przyczepność. Czy człowiek, który o tym opowiada, wyszedł w nich kiedykolwiek poza teren parkingu.</p>
+    <p>Wszyscy kiwają głowami. I zapisują te kroki. Jakby to był magiczny przepis na sukces.</p>
+    <p>Ale sala nie jest głupia. Sala przyszła po konkretne instrukcje. Po coś namacalnego. Po coś, co da się wdrożyć w poniedziałek. Albo opowiedzieć na pierwszym daily.</p>
+    <p>Bo pięć kroków łatwo zapisać w notatniku.</p>
+    <p>Niepewności nie da się.</p>
+    <hr>
+    <p>Mamy niezwykłą zdolność ubierania zwykłych rzeczy w specjalne słowa. Czasami tak skutecznie, że banalna obserwacja zaczyna wyglądać jak odkrycie.</p>
+    <p class="lines">
+      <span class="line">Potem odkrycie dostaje nazwę.</span><br>
+      <span class="line">Nazwa dostaje framework.</span><br>
+      <span class="line">Framework dostaje slajdy.</span><br>
+      <span class="line">Slajdy dostają scenę.</span><br>
+      <span class="line">Scena dostaje bilet.</span>
+    </p>
+    <p>I nagle coś, co było prostym spostrzeżeniem, zaczyna tworzyć całą duchowość, którą można sprzedać w formie kursu, warsztatu albo książki.</p>
+    <p>Problem zaczyna się wtedy, <strong>kiedy ładna opowieść zaczyna udawać rzeczywistość.</strong></p>
+    <hr>
+    <p>Sam też nie jestem od tego wolny.</p>
+    <p>Zdarzyło mi się przedstawiać proces mądrzejszym, niż był naprawdę. Na spotkaniu z biznesem. Na rozmowie rekrutacyjnej. Decyzja podjęta na przeczucie stawała się w opowieści wnioskiem z analizy. Trzy nieudane próby znikały — została ta czwarta, która zadziałała.</p>
+    <p>I powiem szczerze: czasem tak trzeba. Projektowanie to także sprzedawanie i negocjowanie. Rozwiązanie, którego nie umiesz obronić, nie zostanie wdrożone. Nawet jeśli jest dobre.</p>
+    <p>Granica jest w tym, komu to opowiadasz.</p>
+    <p class="thesis"><strong>Stakeholderowi sprzedajesz rozwiązanie. Sobie nie musisz.</strong></p>
+    <p>Robi się niebezpiecznie dopiero wtedy, kiedy sam zaczynasz wierzyć w wersję ze slajdu. Kiedy sam zaczynasz pamiętać drogę bez potknięć.</p>
+    <hr>
+    <p class="thesis"><strong>Zaczynamy projektować nie tylko produkty. Zaczynamy projektować dowody na to, że jesteśmy dobrymi projektantami.</strong></p>
+    <p>Czy to przypadek, że tak wiele case studies wygląda identycznie?</p>
+    <p>Problem → Research → Framework → Warsztat → Insight → Piękny interfejs → Wynik → Sukces.</p>
+    <p>Jakby wszystkie te historie powstawały na jednym kursie.</p>
+    <p>Bywa i tak, że mając gotowe rozwiązanie, ktoś wstecznie doprojektowuje do niego całe discovery. Tylko po to, żeby udowodnić, że jest „pełnowymiarowym” projektantem.</p>
+    <p>A przecież rzeczywistość rzadko jest tak elegancka. Czasami decyzja była przypadkowa. Czasami się pomyliliśmy. Czasami broniliśmy rozwiązania, które nie było dobre, bo zdążyliśmy się do niego przywiązać — a ciężko przyznać się do błędu, kiedy ma się ego. Czasami coś zadziałało przez czysty przypadek. A czasami dobry wynik był efektem dziesięciu złych prób, których nikt później nie pokazuje.</p>
+    <p class="lines">
+      <span class="line">Nie wszystkie decyzje mają mądre uzasadnienie.</span><br>
+      <span class="line">Nie każda próba prowadzi do celu.</span><br>
+      <span class="line">Nie każdy dzień kończy się sukcesem.</span>
+    </p>
+    <p>Może warto czasami pokazać również błoto? Może warto przypomnieć sobie, jak wygląda Czupel przy gorszej pogodzie?</p>
+    <p>Może właśnie tam te gumiaki byłyby idealne.</p>
+    <p>Góra nie wie, jak dobrze wygląda na Instagramie. Produkt też nie.</p>
+    <p>Ten tekst zresztą też jest obrazem. Pisząc go, buduję coś o sobie. I wiesz co? Nadal nie wiem, czy robię to dobrze.</p>
+    <p>Coraz więcej rzeczy robimy tak, żeby dało się potem pokazać, że się je robiło.</p>
+    <hr>
+    <p>Byłem na Rysach. W sezonie rzeczywiście bywa tłoczno na szczycie. Ostatniej zimy też się tam wybierałem.</p>
+    <p class="thesis"><strong>Nie doszedłem.</strong></p>
+    <aside class="footnotes" aria-label="Przypisy">
+      <p id="przypis-3"><span class="fn-num">3</span>Statystyki działań ratowniczych TOPR, lato 2026 — <a href="https://topr.pl/statystyki/" target="_blank" rel="noopener">topr.pl/statystyki/</a><a class="fn-back" href="#odnosnik-3" aria-label="Wróć do tekstu">↩︎</a></p>
+    </aside>
+    <p class="chapter-end">koniec rozdziału 8 z 11 · do końca ok. 14 min</p>
+  </section>
+
+  <section class="chapter" id="gran-paradiso" aria-labelledby="gran-paradiso-tytul">
+    <header class="chapter-head">
+      <h2 id="gran-paradiso-tytul">Gran Paradiso</h2>
+      <p class="chapter-meta"><span>9 z 11</span> <span class="sep" aria-hidden="true">·</span> <span>4061 m n.p.m.</span> <span class="sep" aria-hidden="true">·</span> <span class="coords">45°31′N 7°16′E</span></p>
+    </header>
+    <figure class="sketch">
+      <picture>
+        <source srcset="assets/web/gran-paradiso.webp" type="image/webp">
+        <img src="assets/web/gran-paradiso.jpg" width="1024" height="1024" loading="lazy" decoding="async" alt="Szkic węglem: kopczyk z pięciu kamieni ustawionych jeden na drugim.">
+      </picture>
+    </figure>
+    <p>Często, kiedy myślimy o wielkich szczytach, myślimy przez pryzmat obrazu. Rzadziej o tym, jak bardzo trzeba wyjść poza swoją strefę komfortu, żeby zrealizować cel. Z uwagi na wiele zmiennych większe szczyty rozkłada się zwykle na etapy.</p>
+    <p>Z Gran Paradiso było podobnie.</p>
+    <p>Dnia pierwszego docieramy do schroniska Vittorio Emanuele II. 2735 metrów. Prawie trzygodzinny marsz z ciężkimi plecakami. Potem aklimatyzacja. Wspólny, rodzinny posiłek z innymi wspinaczami. I próba snu.</p>
+    <p>Tego dnia nie zdobyliśmy niczego. Weszliśmy wyżej i położyliśmy się spać. O to właśnie chodziło.</p>
+    <p>Pobudka o trzeciej w nocy. Czołówki na kaski i w drogę.</p>
+    <hr>
+    <p>Zimno. W ciemności widać poruszające się świetliki.</p>
+    <p>W pewnej chwili zauważasz, że te świetliki idą różnymi drogami. Część w lewo, część prosto. Nikt się nie zatrzymuje. Każdy jest przekonany, że idzie dobrze.</p>
+    <p>Obie drogi były zresztą oznakowane. Tylko że dostrzeżenie kilku kamieni ustawionych jeden na drugim, w nocy, w morzu innych kamieni — to sztuka. Po pewnej chwili widzimy, że świetliki znalazły jeszcze jedną drogę. Gwieździste niebo i symfonia świateł.</p>
+    <p>Szliśmy za ekipą, która przeszła potok. Kopczyki się zgadzały. Nasza mapa pokazywała, że idziemy w dobrym kierunku.</p>
+    <p>Nie sprawdziliśmy tylko jednego: czy to ta droga, którą chcieliśmy iść.</p>
+    <p>Były też ekipy, które kopczyków nie widziały wcale. Kiedy ktoś je wyprzedzał, zaczynały mieć problem z czytaniem terenu. Część uznała, że pójdzie za nami.</p>
+    <p>To śmieszne, jak w trudnych warunkach ufamy innym ludziom.</p>
+    <p>Był moment, w którym nie widzieliśmy ścieżki i trzeba było trochę się powspinać. W nocy. Przy ograniczonej widoczności. To miejsce odbiegało od tego, co widzieliśmy na materiałach sprzed wejścia.</p>
+    <p data-step="swit">Świt pokazał coś innego.</p>
+    <p>Byliśmy na Laveciau — lodowcu, którym idzie się od zupełnie innego schroniska. Ta sama góra, ten sam szczyt, ale wariant, którego nie planowaliśmy.</p>
+    <p>I ten lodowiec wyglądał zupełnie inaczej niż na materiałach, z których robiliśmy research przed wyprawą. Więcej szczelin. Seraki. Teren, który na zdjęciach wyglądał spokojnie.</p>
+    <p>Przerażające, jak głębokie potrafią być te szczeliny.</p>
+    <p class="thesis"><strong>Mapa się nie zmieniła. My byliśmy gdzie indziej.</strong></p>
+    <p>To nie był moment, w którym coś poszło źle. Może nie było tu złej decyzji. W końcu rzeczy się zgadzały. Kopczyki, inni wspinacze, mapa. Tylko trochę inny teren, niż planowaliśmy.</p>
+    <p>Widzieliśmy, gdzie jesteśmy, i zdaliśmy sobie sprawę, że zboczyliśmy z kursu. To nie znaczy, że nie znaliśmy otoczenia. Wiedzieliśmy, że jest inna droga. Wiedzieliśmy również o ferracie. Ale nie spodziewaliśmy się, że dojdziemy tam od strony innego lodowcowego podejścia.</p>
+    <p>Gdzieś w oddali zobaczyliśmy, że ekipa, która szła za nami, poszła w stronę ferrat. Nie wiem, czy je zrobili.</p>
+    <p>Do dziś nie wiem, czy wiedzieli, gdzie są.</p>
+    <p>Poszliśmy dalej. Na Schiena d'Asino nasza droga połączyła się z tą klasyczną. Od tego miejsca wszyscy szli już identycznie. Ci, którzy przyszli łatwiejszym wariantem, i my. Razem z kilkoma innymi ekipami, które szły tą samą drogą co my.</p>
+    <p>Na szczycie, zmęczeni, szybko zdaliśmy sobie sprawę, że to dopiero połowa przygody.</p>
+    <hr>
+    <p>I chyba właśnie wtedy najlepiej widać, czy ktoś potrafi poruszać się w górach. Nie wtedy, kiedy wszystko idzie zgodnie z planem. Wtedy, kiedy plan przestaje odpowiadać terenowi.</p>
+    <p>Rozmowa rekrutacyjna jest bardzo podobnym środowiskiem.</p>
+    <p>Twoje portfolio może być dopracowane do ostatniego piksela. Case study wygląda jak idealnie zaplanowana wyprawa. Figma otwarta dokładnie tam, gdzie trzeba. Metoda pasuje do każdej okazji.</p>
+    <p>Wszystko lśni. Lśni niczym Twój nowy czekan. Wypolerowany. Bez żadnej skazy. Bez żadnej rysy.</p>
+    <p>Turysta przechodzący obok będzie pod wrażeniem. Doświadczony przewodnik szybko wyłapie niuanse.</p>
+    <p>Sprzęt może wyglądać świetnie — tylko czy ktoś go kiedykolwiek używał?</p>
+    <p>Dlatego dobry rekruter, zupełnie jak przewodnik, szybko odłoży na bok ładne obrazki i zapyta o coś innego. Dlaczego to zrobiłeś? Co tu było naprawdę ważne? A co, gdybyśmy zrobili odwrotnie? Czego nauczyłeś się na tym błędzie? Co zrobiłbyś dziś inaczej?</p>
+    <p>Zastanawialiśmy się kiedyś ze znajomymi, jak dziś wygląda cykl życia ogłoszenia o pracę.</p>
+    <p>Generujemy ogłoszenie. <span class="fx fx-klik">Klik</span>. Na wygenerowane ogłoszenie przychodzą wygenerowane odpowiedzi. <span class="fx fx-klik">Klik</span>. Wygenerowane historie. <span class="fx fx-klik">Klik</span>. Wygenerowane prace. <span class="fx fx-klik">Klik</span>.</p>
+    <p>Model opowiada te historie innemu modelowi. Przy kawie, która też jest wygenerowana.</p>
+    <p>Firma dostaje najlepszy output.</p>
+    <p>Z kim my właściwie rozmawiamy?</p>
+    <p>Enter.</p>
+    <p>I nikt nie robi tu nic głupiego. Kandydat generuje, bo trzystu innych generuje. Rekruter filtruje modelem, bo dostał trzysta zgłoszeń zamiast trzydziestu.</p>
+    <p>Narzędzie niczego nie zepsuło.</p>
+    <p>Tylko że człowiek produkuje dziś dowód dla maszyny, która ma go rozpoznać po tym dowodzie.</p>
+    <hr>
+    <p>Aklimatyzacji nie da się przyspieszyć chęcią.</p>
+    <p>W górach nie wejdziesz zbyt wysoko i zbyt szybko tylko dlatego, że bardzo chcesz coś udowodnić. Organizm ma swoje tempo. Możesz mieć doskonałą kondycję i świetny plan, a mimo to wejść za szybko. Wtedy wysokość przypomni Ci, że przygotowanie do wejścia to nie to samo co gotowość na szczyt.</p>
+    <p>Z projektowaniem jest podobnie. Czasami tak bardzo chcemy pokazać, że wszystko potrafimy, że próbujemy od razu przeskoczyć poziom wyżej.</p>
+    <p>Ale coraz częściej to nie my chcemy wejść szybciej. To ktoś nas pcha. Awans po roku, bo brakuje ludzi. Junior prowadzący projekt, bo senior odszedł i nie ma kim go zastąpić. Tytuł, który przyszedł wcześniej niż doświadczenie.</p>
+    <p>Nikt nie robi tego złośliwie. Po prostu ktoś musi.</p>
+    <p>Podczas wspinaczki dochodzimy do momentu przekraczania granicy. Mięśnie pieką. Tętno daje o sobie znać. Potrzebujemy oddechu. To naturalne. Zawsze jest pewna granica.</p>
+    <p>Dlaczego więc w pracy myślimy, że jest inaczej? Multitasking. Automatyzujemy zadania po to, żeby dorzucić sobie kolejne. Nieustanne przebodźcowanie. Ciągły sprint pod górę.</p>
+    <p>Przychodzi taki czas, że nasz procesor po prostu nie nadąża. Czasami po prostu nie dasz rady. Nie pokonasz wysokości samą chęcią. Ani cudzą.</p>
+    <hr>
+    <p>Najgorzej jest wtedy, kiedy warunki zmieniają się w kilka minut.</p>
+    <p>W Górach Fogaraskich złapała nas burza. Byliśmy na grani. Pioruny uderzały w wierzchołki obok — na tyle blisko, że hałas był fizyczny.</p>
+    <p>Huk armat. Wystrzały.</p>
+    <p>I wtedy zobaczyłem coś, czego nie zapomnę. Grupa przestała być grupą.</p>
+    <p>Jedni zaczęli zbiegać w dół. Inni chowali się pod kamieniami. A ktoś po prostu stał sparaliżowany. Każdy robił coś innego i każdy miał swoje uzasadnienie. Nikt nie zachował się głupio — po prostu każdy zachował się racjonalnie na swój własny sposób.</p>
+    <p>To jest znacznie trudniejsze niż sama burza. Bo nagle nie masz nad niczym kontroli, a sekundy decydują o mikrodecyzjach, których nikt nie zdąży skonsultować.</p>
+    <p>Znam to z pracy. Zmiana terminów. Klient wycofujący się z ustaleń. Nieprzewidziana awaria. Ustępstwa, żeby zdążyć na czas. Przycinanie zakresu. Projektanci zakochani w swoich rozwiązaniach. Ktoś eskaluje ponad głowami zespołu. Ktoś inny zmienia ustalenia. Chaotyczne spotkania, które mogłyby być mailem. I na koniec wzajemne nakręcanie się.</p>
+    <p>Każdy ruch z osobna może być sensowny. Zebrane razem tworzą chaos.</p>
+    <p>Zupełnie jak w górach, kiedy zaczynamy tracić kontrolę nad zmieniającą się sytuacją.</p>
+    <hr>
+    <p>Bywa też odwrotnie. Zamiast chaosu dostajemy przerost formy.</p>
+    <p>Kiedy mamy rozwiązać prosty problem, a zamiast tego uruchamiamy cały podręcznikowy proces. Bo przecież „trzeba” zrobić discovery. Warsztat z dwudziestoma interesariuszami. Mapy, persony, dokumentacja, slajdy. A na końcu wrzucić to do portfolio. <span class="fx fx-cyk">Cyk</span>.</p>
+    <p>Bo przecież tak wygląda idealny proces. Bo przecież tak nas tego uczono.</p>
+    <p>Jeśli do przesunięcia jednego elementu przy skromnym budżecie angażujesz całą analitykę i potężny research, to jest czysty przerost formy nad treścią. To trochę tak, jakby wejść na spacerową Rysiankę w pełnym wspinaczkowym szpeju, łącznie z liną i karabinkami.</p>
+    <p>Albo na odwrót. Zamiast sięgnąć po rozwiązanie, które działa od lat, wymyślamy je od nowa. Bo proste wydaje się za mało oryginalne. A potem dorabiamy do tego uzasadnienie. Często z naszego bogatego katalogu. Kontekstu.</p>
+    <p>Bywa i tak, że warsztat nie służy temu, żeby się czegoś dowiedzieć. Służy temu, żeby dwadzieścia osób miało swoją karteczkę na tablicy i za trzy miesiące nie powiedziało: „ja o tym nie wiedziałem”.</p>
+    <p class="thesis"><strong>To nie jest discovery. To spektakl.</strong></p>
+    <p>Czasami potrzebny. Tylko nazwijmy go po imieniu. To jest budowanie poparcia, nie metoda projektowa.</p>
+    <hr>
+    <p>Jest jeszcze jedna sytuacja, o której mówi się rzadko.</p>
+    <p>Czasami produkt nie jest górą, na którą wchodzisz. Jest kraterem, do którego wpadłeś. I w którym siedzisz po dziś dzień.</p>
+    <p>Zostały w nim lata złych decyzji, dług technologiczny, rzeczy zrobione naprędce, bo trzeba było dowieźć. I nagle ktoś przychodzi z audytem. Robi przegląd, wypisuje sto znalezisk. Każde poprawne.</p>
+    <p>I nie robi tego złośliwie. To naprawdę solidna robota. Ale gdyby przyszedł z trzema, to czy pomyślałbyś, że się przyłożył?</p>
+    <p>Tylko że nie ma ludzi. Nie ma budżetu. Firma musi w tym kwartale dowozić to, o co prosi klient.</p>
+    <p class="thesis"><strong>Wtedy lista znalezisk nie jest mapą. Jest cudzym długiem wypisanym na kartce i podanym komuś, kto już siedzi na dole.</strong></p>
+    <p>Z krateru wychodzi się odpowiednią techniką. Podciągasz się na linie, przekładasz prusik. Powoli, jednym ruchem naraz. Potem znowu, kolejnym.</p>
+    <p>Dlatego audyt bez priorytetów i bez kalkulacji kosztów to po prostu zbiór pretensji.</p>
+    <p>Takiego produktu nie wyprowadza się na prostą w kilka sprintów. Nawet z dwudziestoma utalentowanymi osobami na pokładzie. To są lata.</p>
+    <p>A może w tym całym sprincie zapominamy o jeszcze jednym? Może nie chodzi o to, że ktoś nie dowozi. Może jednak dowozi dokładnie to, o co go poproszono. Ale może nikt nie sprawdził, czy to jest to, co było na dany moment potrzebne?</p>
+    <p>Z takiego krateru rzadko wychodzisz z całym sprzętem. Zabierasz tylko to, co jesteś w stanie unieść.</p>
+    <p>Więc nie dorzucaj kolejnych stu problemów. <strong>Zacznij od trzech. Mierzalnych i takich, które naprawdę da się naprawić.</strong></p>
+    <hr>
+    <p class="lines">
+      <span class="line">Czasami mamy bardzo ograniczone środki.</span><br>
+      <span class="line">Czasami mamy drastycznie mało czasu.</span><br>
+      <span class="line">Czasami musimy po prostu dowieźć.</span>
+    </p>
+    <p>I wtedy pojawia się prawdziwe pytanie: zatrzymujesz wyprawę, bo nie masz idealnej mapy? Czy uczysz się czytać teren na żywo?</p>
+    <p class="lines">
+      <span class="line">Nie każda sytuacja wymaga pełnego procesu.</span><br>
+      <span class="line">Nie każdy problem wymaga warsztatu.</span><br>
+      <span class="line">Nie każda decyzja potrzebuje dwudziestu wywiadów.</span><br>
+      <span class="line">Nie każdy projekt czeka na kolejny framework.</span>
+    </p>
+    <p>Zanim zaczniesz badania, warto zadać jedno pytanie: <strong>jaki wynik zmieniłby naszą decyzję?</strong></p>
+    <p>Jeśli odpowiedź brzmi „żaden”, właśnie oszczędziłeś trzy tygodnie. I wszyscy wiedzą, na czym stoją.</p>
+    <hr>
+    <p>Tymczasem kompetencji nie da się przyspieszyć wpisaniem ich do CV.</p>
+    <p class="lines thesis">
+      <span class="line"><strong>Seniority nie polega na tym, że zawsze znamy odpowiedź.</strong></span><br>
+      <span class="line"><strong>Polega na tym, że potrafimy zauważyć moment, w którym nasza wiedza przestaje wystarczać.</strong></span>
+    </p>
+    <p>I wtedy potrafimy powiedzieć: „Nie wiem”.</p>
+    <p class="chapter-end">koniec rozdziału 9 z 11 · do końca ok. 7 min</p>
+  </section>
+
+  <section class="chapter" id="skalka" aria-labelledby="skalka-tytul">
+    <header class="chapter-head">
+      <h2 id="skalka-tytul">Via ferrata na Skalce</h2>
+      <p class="chapter-meta"><span>10 z 11</span> <span class="sep" aria-hidden="true">·</span> <span>1236 m n.p.m.</span> <span class="sep" aria-hidden="true">·</span> <span class="coords">48°44′N 19°00′E</span> <span class="sep sep-note" aria-hidden="true">·</span> <span class="note">pierwsza ferrata</span></p>
+    </header>
+    <figure class="sketch">
+      <picture>
+        <source srcset="assets/web/skalka.webp" type="image/webp">
+        <img src="assets/web/skalka.jpg" width="1024" height="1024" loading="lazy" decoding="async" alt="Szkic węglem: uprząż z lonżą do via ferraty i dwoma zakręcanymi karabinkami.">
+      </picture>
+    </figure>
+    <p>To była moja pierwsza przygoda z ferratami. Pojechaliśmy większą grupą znajomych.</p>
+    <p>Do dziś pamiętam, jak nieporadnie zakładałem uprząż. Jak niezgrabnie mocowałem lonżę przez łącznik. Sprzęt, który dla wszystkich wokół był oczywisty, w moich rękach nie chciał współpracować.</p>
+    <p>I pamiętam jeszcze jedno. Ten most śnił mi się przed wyjazdem.</p>
+    <p>Bałem się czegoś, czego nawet nie widziałem na oczy. Znałem go tylko ze zdjęć — osiemdziesiąt metrów stalowej konstrukcji rozpiętej między skałami. To wystarczyło, żeby wracał w nocy.</p>
+    <p>Zanim zdążyłem cokolwiek zacząć, zobaczyłem coś, czego się nie spodziewałem.</p>
+    <p>Kobieta wisiała na lonży, na wysokości koron drzew. Odpadła. Lonża się rozwinęła i po prostu wisiała, czekając na pomoc.</p>
+    <p>Patrzyłem na to kilka minut przed tym, jak sam miałem tam wejść.</p>
+    <hr>
+    <p>Przeszedłem ten most.</p>
+    <p>I pamiętam moment, w którym stanąłem po drugiej stronie. Strach nie zniknął. Nadal tam był. Zmieniło się co innego — zacząłem wierzyć, że to jest możliwe.</p>
+    <p>Parę lat później byłem na Intersport Klettersteig. Ferrata na Großer Donnerkogel, którą wszyscy znają jako „Schody do nieba”. Pionowa drabina zawieszona nad przepaścią, dwa tysiące metrów, zdjęcie, które co sezon obiega internet.</p>
+    <p>Trochę mnie to bawi, kiedy o tym myślę. Człowiek, któremu śnił się most na Skalce.</p>
+    <p class="thesis"><strong>Odwaga nie polega na tym, że przestajesz się bać. Czasami polega na tym, że robisz kolejny krok, mimo że nadal się boisz.</strong></p>
+    <hr>
+    <p>Ale nie zrobiłem tego sam.</p>
+    <p>Na żadną z tych gór nie wszedłem naprawdę sam. Czasami ktoś był przede mną i pokazywał drogę. Czasami to ja szedłem pierwszy. Czasami ktoś czekał. A czasami ktoś pociągnął mnie dalej, kiedy sam miałem już dosyć.</p>
+    <p>Byli ludzie, od których nauczyłem się rzeczy, których sam prawdopodobnie nigdy bym nie odkrył. Byli też tacy, którzy po prostu byli obok. I czasami to wystarczało.</p>
+    <p>Początkowo chciałem w tym miejscu wymienić wszystkie te osoby. Szybko jednak zrozumiałem, że nie potrafię. Taka lista zawsze byłaby niepełna.</p>
+    <p>Dlatego pisząc ten tekst, byłem myślami przy każdej osobie, z którą na którymkolwiek etapie zrobiłem coś, co wydawało mi się wtedy niemożliwe.</p>
+    <hr>
+    <p>Dziś stoję po drugiej stronie liny.</p>
+    <p>Prowadzę zespół. To znaczy, że ktoś inny idzie teraz na swój pierwszy most, a ja mam być tym, kto stoi obok.</p>
+    <p>I odkryłem przy tym rzecz, której się nie spodziewałem.</p>
+    <p>Każdy chce dawać dużo feedbacku. Ukierunkować cudze rozwiązanie na swoją myśl. Pokazać lepszą drogę. Bo przecież każdy z nas wie najlepiej.</p>
+    <p>Tylko że to nie zawsze jest pomoc. Czasami to jest wspinanie za kogoś.</p>
+    <p>Każdy z nas myśli inaczej. Każdy jest zbiorem innych doświadczeń. I każdy czasami musi się przewrócić, żeby coś zrozumieć.</p>
+    <p>Długo próbowałem to nadrabiać. Poprawiać. Podpowiadać. Na dłuższą metę tak się nie da — i nie jest to zdrowe dla nikogo.</p>
+    <hr>
+    <p>Asekuracja nie jest jedną rzeczą.</p>
+    <p>Kiedy ktoś idzie na wędce, lina jest nad nim. Odpadnie — zawiśnie w miejscu. Nic się nie stanie.</p>
+    <p>Kiedy prowadzi, lina jest pod nim. Sam decyduje, kiedy się wpiąć. Gdy odpadnie, może to być realny lot. Może nawet Ciebie mocno pociągnąć. Jedyne, co możesz zrobić, to dobrze wybrać linę na czas.</p>
+    <p>Ale kiedy idzie tradowo, Twoja asekuracja na niewiele się zda, jeśli źle osadzi punkty.</p>
+    <p>Cała trudność polega na tym, żeby rozpoznać, na jakim etapie ktoś jest. Bo trzymanie kogoś na wędce, kiedy dawno prowadzi, jest równie kosztowne jak puszczenie go na trad, zanim nauczył się osadzać punkty.</p>
+    <p>To ciekawe, że w górach nikt się nie obraża, że dziś idzie drugi. U nas prawie nikt nie powie, że w tym cyfrowym terenie woli iść za kimś.</p>
+    <p>Czasami zaś jesteśmy nadopiekuńczy. Kiedy ktoś potrzebuje Twojej pomocy, jesteś potrzebny. Kiedy przestaje potrzebować — trzeba znaleźć sobie inne miejsce w tej historii.</p>
+    <p>A może czasami nie chodzi o troskę, tylko o bycie tym, który wie lepiej?</p>
+    <hr>
+    <p>Ale jest różnica między puszczeniem kogoś a zostawieniem go samego.</p>
+    <p>Ta kobieta na Skalce odpadła. To nie był wypadek. Lonża zadziałała dokładnie tak, jak miała zadziałać.</p>
+    <p class="thesis"><strong>Odpadnięcie na dobrej asekuracji to lekcja. Bez asekuracji to zupełnie inna historia.</strong></p>
+    <p>Rola prowadzącego nie polega na podciąganiu kogoś za linę. Polega na tym, żeby lot był bezpieczny.</p>
+    <p>I jeszcze jedno. Asekuracji nie widać, kiedy działa. Nikt nie dziękuje za to, że nic się nie stało.</p>
+    <p>Ale ona jest powodem, dla którego ktoś w ogóle spróbował.</p>
+    <hr>
+    <p class="thesis"><strong>Samodzielność nie oznacza samotności.</strong></p>
+    <p>W projektowaniu łatwo wpaść w pułapkę myślenia, że dobry projektant powinien wszystko potrafić sam.</p>
+    <p class="lines">
+      <span class="line">Sam znaleźć problem.</span><br>
+      <span class="line">Sam zrobić research.</span><br>
+      <span class="line">Sam podjąć decyzję.</span><br>
+      <span class="line">Sam obronić rozwiązanie.</span><br>
+      <span class="line">Sam dowieźć projekt.</span>
+    </p>
+    <p>Tylko że gór nie zdobywa się w ten sposób. I produktów też nie.</p>
+    <p>Najlepsze zespoły nie składają się z ludzi, którzy znają tę samą drogę. Składają się z ludzi, którzy patrzą na tę samą górę i widzą różne rzeczy.</p>
+    <p class="lines">
+      <span class="line">Ktoś zauważy szczelinę.</span><br>
+      <span class="line">Ktoś inny znajdzie przejście.</span><br>
+      <span class="line">Ktoś powie, że pogoda się zmienia.</span><br>
+      <span class="line">Ktoś przypomni, że może warto zawrócić.</span>
+    </p>
+    <p>A czasami ktoś po prostu powie:</p>
+    <p class="thesis"><strong>„Dawaj. Jeszcze kawałek.”</strong></p>
+    <p class="chapter-end">koniec rozdziału 10 z 11 · do końca ok. 4 min</p>
+  </section>
+
+  <section class="chapter" id="grossglockner" aria-labelledby="grossglockner-tytul">
+    <header class="chapter-head">
+      <h2 id="grossglockner-tytul">Grossglockner</h2>
+      <p class="chapter-meta"><span>11 z 11</span> <span class="sep" aria-hidden="true">·</span> <span>3798 m n.p.m.</span> <span class="sep" aria-hidden="true">·</span> <span class="coords">47°04′N 12°42′E</span></p>
+    </header>
+    <figure class="sketch">
+      <picture>
+        <source srcset="assets/web/grossglockner.webp" type="image/webp">
+        <img src="assets/web/grossglockner.jpg" width="1024" height="1024" loading="lazy" decoding="async" alt="Szkic węglem: lina wspinaczkowa z zawiązanym węzłem.">
+      </picture>
+    </figure>
+    <p>Pobudka po czwartej. Wyjście przed siódmą.</p>
+    <p>Za późno.</p>
+    <p>Na szczyt weszliśmy w dobrych warunkach. Pogoda trzymała, widoczność była, wszystko według planu. Problem zaczął się dopiero w drodze powrotnej.</p>
+    <p>Wiatr narastał z każdą godziną. Na lodowcu czułem, że realnie mnie znosi — człowieka, który razem z obciążonym plecakiem dobijał wtedy do stu kilogramów.</p>
+    <p>Potem zaczęły się granie. Eksponowane. Obite żelazną drogą.</p>
+    <p>Kiedy stoisz na takiej grani i wali w Ciebie wiatr, naturalnie zaczynasz się zastanawiać, czy to na pewno dobry pomysł. Iść dalej? Przeczekać? Zejść niżej na lodowiec i obejść inaczej?</p>
+    <p class="thesis"><strong>Problem polega na tym, że nie ma idealnej odpowiedzi.</strong></p>
+    <p>Przeczekanie kosztuje czas, a na wieczór zapowiadano burzę. Obejście oznacza teren, którego nie planowaliśmy i do końca nie znamy. Pójście dalej — to, co widzisz przed sobą.</p>
+    <p>Wróciliśmy tak, jak zakładaliśmy. Kilka godzin w dół, w pogodzie, która stopniowo się psuła.</p>
+    <p>Naszym jedynym błędem była ta godzina rano.</p>
+    <hr>
+    <p>Rano to nie wygląda na decyzję.</p>
+    <p>Rano to jest dodatkowa herbata. Zaspane oczy. Jeszcze jedno sprawdzenie sprzętu. Dziesięć minut w cieple. Nogi, które jeszcze się nie rozgrzały.</p>
+    <p>Konsekwencje przychodzą dwanaście godzin później, na grani, w wietrze, kiedy nie masz już dobrych opcji — tylko mniej złe.</p>
+    <hr>
+    <p>W projektach jest dokładnie tak samo. Najtrudniejsze momenty są zwykle konsekwencją czegoś, co przespaliśmy na starcie.</p>
+    <p>Tylko że wtedy to nie wyglądało na decyzję. To był jeden tydzień poślizgu. Jedna rozmowa przełożona na później. Jedno „ustalimy to w trakcie”.</p>
+    <p>Nikt tego nie zapisuje jako ryzyka. Zapisuje się to później, jako wniosek z retrospektywy.</p>
+    <hr>
+    <p>W projektowaniu bardzo lubimy moment wejścia na szczyt.</p>
+    <p class="lines">
+      <span class="line">Launch.</span><br>
+      <span class="line">Sukces.</span><br>
+      <span class="line">Nagroda.</span><br>
+      <span class="line">Case study.</span><br>
+      <span class="line">Publikacja.</span><br>
+      <span class="line">Zdjęcie.</span><br>
+      <span class="line"><span class="fx fx-cyk">Cyk</span>.</span>
+    </p>
+    <p>I koniec.</p>
+    <p>Tylko że w górach wejście na szczyt jest często połową drogi. Czasami tą łatwiejszą. Bo potem trzeba zejść.</p>
+    <p>A przecież właśnie wtedy zaczyna się prawdziwe życie produktu.</p>
+    <p>Użytkownicy robią rzeczy, których się nie spodziewaliśmy. Pojawiają się błędy. Zmienia się rynek. Trzeba coś uprościć. Coś usunąć. Coś napisać od nowa. Przyznać, że decyzja sprzed sześciu miesięcy była zła.</p>
+    <p>Zrobić rzeczy, których nie da się wrzucić do portfolio.</p>
+    <p>To nie jest spektakularne. Ale jest prawdziwe. I to właśnie jest większość życia produktu.</p>
+    <p>Ta część, której już nie uwieczniamy na zdjęciu. Bo przecież zdobyliśmy nasz szczyt. Prawda?</p>
+    <p>Czasem nie da się zejść tą samą drogą, którą się weszło.</p>
+    <p>Wtedy budujesz stanowisko i zjeżdżasz na linie. Sam osadzasz punkty. Sam je sprawdzasz. Nikt Ci nie powie, czy zrobiłeś to dobrze.</p>
+    <p>Dowiesz się w chwili, w której obciążysz linę.</p>
+    <p>Wchodziłeś, patrząc w górę. Zjeżdżasz tyłem. To nie jest ta sama umiejętność.</p>
+    <hr>
+    <p>Jest jeszcze decyzja trudniejsza od zejścia.</p>
+    <p>Zawrócenie.</p>
+    <p>W maju byliśmy pod Rysami. We dwoje, po szkoleniu zimowym, z pełnym sprzętem. Cały dzień padał deszcz — nawet na wysokości Czarnego Stawu. Staliśmy tam i co kilka minut widzieliśmy schodzące lawinki.</p>
+    <p>Zawróciliśmy.</p>
+    <p>Przez pewien moment obserwowaliśmy z daleka kilka osób, które powiedziały: sprawdzam. Pod Bulą też zawróciły. Zysk nie był wart ryzyka.</p>
+    <p>Nic się nie stało. Nikogo nie zasypało. Nikt nie ucierpiał.</p>
+    <p>Poza naszymi ambicjami.</p>
+    <hr>
+    <p>Zawrócenie jest jedyną decyzją w górach, której nie da się zweryfikować. Jeśli wszedłeś i wróciłeś cało — masz szczyt. Jeśli zawróciłeś i nic się nie wydarzyło — nie masz nic. Żadnego zdjęcia, żadnej historii, żadnego potwierdzenia.</p>
+    <p class="thesis"><strong>Dlatego tak mało ludzi zawraca. Nie z braku odwagi. Z braku nagrody.</strong></p>
+    <hr>
+    <p>W projektowaniu jest tak samo.</p>
+    <p>Kiedy ostatnio widziałeś case study o projekcie, który ktoś zatrzymał?</p>
+    <p>Kiedy słyszałeś, że ktoś zatrzymał produkt po trzech miesiącach, żeby zaoszczędzić zespołowi rok?</p>
+    <p>Kiedy ktoś powiedział wprost przełożonemu: to nie ma sensu, zawracamy?</p>
+    <p>A to bywa najlepsza decyzja w całej karierze. Tylko że nie zostaje po niej nic.</p>
+    <hr>
+    <p>W górach jest na to pewien sposób.</p>
+    <p>Godzinę zwrotu ustala się na dole. Przed wyjściem. Kiedy głowa jeszcze pracuje trzeźwo. O tej godzinie zawracasz, niezależnie od tego, jak blisko będziesz.</p>
+    <p>Nie ustala się jej na grani. Na grani każdy argument przegra ze szczytem, który widać wyżej. Który jest już na wyciągnięcie ręki.</p>
+    <p>Może w produktach warto spojrzeć na to z podobnej perspektywy? <strong>Zdefiniować warunek porażki. Spisać go wtedy, kiedy nikt nie jest jeszcze emocjonalnie zaangażowany.</strong></p>
+    <p>Bo im więcej kroków wykonasz, tym trudniej jest zawrócić.</p>
+    <hr>
+    <p>Najbardziej lubimy moment wejścia na szczyt. A zejście? Tego zwykle nie ma na zdjęciu.</p>
+    <p class="lines thesis">
+      <span class="line"><strong>Sukcesem nie jest samo zdobycie szczytu.</strong></span><br>
+      <span class="line"><strong>Sukcesem jest bezpieczny powrót do domu.</strong></span>
+    </p>
+    <p class="chapter-end">koniec rozdziału 11 z 11 · do końca ok. 1 min</p>
+  </section>
+
+  <section class="chapter coda" id="zakonczenie" aria-labelledby="zakonczenie-tytul">
+    <header class="chapter-head">
+      <h2 id="zakonczenie-tytul">Nie każdy, kto był na szczycie, jest <em>alpinistą</em></h2>
+    </header>
+    <figure class="sketch">
+      <picture>
+        <source srcset="assets/web/zakonczenie.webp" type="image/webp">
+        <img src="assets/web/zakonczenie.jpg" width="1024" height="1024" loading="lazy" decoding="async" alt="Szkic węglem: pusty emaliowany kubek.">
+      </picture>
+    </figure>
+    <p>Pod koniec września czeka mnie kolejna górska przygoda. Prawdopodobnie trudniejsza od poprzednich. I chyba właśnie dlatego tak bardzo na nią czekam.</p>
+    <p>Jest w tym trochę strachu. Trochę ekscytacji. Dużo niewiadomych.</p>
+    <p>W pracy jest podobnie. Nowe wyzwania. Nowe problemy. Nowe tereny. Nie znam wszystkich dróg — byłbym szaleńcem, gdybym twierdził inaczej. Nie wiem, czy wybiorę najlepszą.</p>
+    <p>I chyba już nie chcę tego wiedzieć.</p>
+    <p>Bo nie chodzi o to, żeby znać wszystkie góry. Chodzi o to, żeby być gotowym wejść na kolejną.</p>
+    <p>Najlepsze rozmowy o górach nie odbywają się zresztą na szczycie. Odbywają się w schronisku, kiedy wszyscy już zeszli i nikt nie ma nic do udowodnienia.</p>
+    <hr>
+    <p class="thesis"><strong>Nie każdy, kto był na szczycie, jest alpinistą.</strong></p>
+    <p>Ja też nie jestem.</p>
+    <p>Nie chcę zamknąć się w jednym określeniu. Jednej specjalizacji. Jednym narzędziu. Jednym procesie. Jednej mapie.</p>
+    <p>Nie chcę być człowiekiem, który całe życie chodzi jedną trasą tylko dlatego, że zna ją na pamięć.</p>
+    <p>Chcę umieć wejść na górę, której jeszcze nie znam.</p>
+    <p class="lines">
+      <span class="line">Znaleźć drogę.</span><br>
+      <span class="line">Zapytać „dlaczego?”.</span><br>
+      <span class="line">Przyznać „nie wiem”.</span><br>
+      <span class="line">Zmienić zdanie.</span><br>
+      <span class="line">Zawrócić, kiedy trzeba.</span><br>
+      <span class="line">Poprosić o pomoc.</span><br>
+      <span class="line">I wejść na kolejny szczyt.</span>
+    </p>
+    <p>A co najważniejsze — czerpać z tego radość.</p>
+    <p class="thesis"><strong>Bo szczyt nie jest końcem drogi. Jest tylko miejscem, z którego widać, ile gór jeszcze przed nami.</strong></p>
+  </section>
+
+  <footer class="colophon" aria-label="O tekście i autorze">
+    <p class="colophon-pdf"><a href="nie-kazdy-kto-byl-na-szczycie.pdf" download>pobierz PDF</a></p>
+  </footer>
+
+</article>
+</main>
+</body>
+</html>

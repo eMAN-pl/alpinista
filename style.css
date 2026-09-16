@@ -1,0 +1,1071 @@
+/* =========================================================
+   Nie każdy, kto był na szczycie, jest alpinistą
+   Tekst, typografia, pauzy, rozdziały, trasa w spisie,
+   ekran tytułowy, pasek postępu, powrót do miejsca czytania,
+   kopiowanie z linkiem, koniec strony, druk.
+   ========================================================= */
+
+/* Newsreader (SIL Open Font License) — tylko tytuł i nagłówki; plik z polskimi znakami
+   ładuje się dopiero, gdy jest potrzebny (unicode-range). Z własnego serwera, nie od Google. */
+@font-face {
+  font-family: "Newsreader";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/newsreader-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Newsreader";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/newsreader-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Newsreader";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/newsreader-italic-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Newsreader";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/newsreader-italic-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+:root {
+  /* Kolory: ciemne tło, jasny tekst. Kolory tekstu treści ≥ 7:1 do tła. */
+  --bg: #1a1917;           /* ciepły grafit, w stronę tonu szkiców węglem (ich tło ~#262422) */
+  --text: #d6d1c6;         /* treść        ~11.5:1 */
+  --text-strong: #f7f3ea;  /* tezy: ~15% jaśniejsze od treści, bez koloru */
+  --text-quiet: #ada79c;   /* metadane     ~7.3:1  */
+  --nav-quiet: #4a4947;    /* nawigacja nieaktywna: ~28% jasności tekstu (ma znikać przy zmrużeniu oczu) */
+  --accent: #c2a57a;       /* jeden akcent, przygaszony bursztyn (~7.5:1). Tylko: aktywny punkt trasy,
+                              zaznaczenie, focus, linki w przypisach, siatka gór. */
+  --rule: #4d4943;         /* kreski, podkreślenia (dekoracja) */
+  --dot: #5e5a53;          /* pasek postępu */
+
+  /* Kroje: tekst systemowym szeryfem (bez pobierania), tytuł i nagłówki Newsreaderem */
+  --serif: "Iowan Old Style", "Charter", "Bitstream Charter", "Sitka Text",
+           Cambria, Georgia, "Noto Serif", serif;
+  --serif-display: "Newsreader", "Iowan Old Style", "Charter", "Sitka Banner", Georgia, serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono", Menlo,
+          Consolas, "Liberation Mono", monospace;
+
+  /* Stopień i kolumna */
+  --fs: clamp(1.125rem, 0.95rem + 0.6vw, 1.25rem);   /* 18px mobile → 20px desktop */
+  --measure: 34em;                                   /* ~62–68 znaków w wierszu */
+  --edge: 24px;                                      /* minimalny margines od krawędzi */
+
+  /* Rytm pionowy — jedna skala, w wielokrotnościach interlinii.
+     Liczby w nawiasach: odległość od wiersza do wiersza (1× = zwykły wiersz),
+     margines = nadwyżka ponad jeden wiersz. */
+  --leading: 1.75;
+  --line: calc(var(--fs) * var(--leading));
+  --sp-para: var(--line);                  /* między akapitami — każdy Enter tak samo (2×) */
+  --sp-group: calc(var(--line) * 1.8);     /* przed startem (2,8×) */
+  --sp-break: calc(var(--line) * 3);       /* separator --- i koniec rozdziału (4×) */
+  --sp-chapter: calc(var(--line) * 4);     /* przed nagłówkiem rozdziału (5×) */
+  --sp-head: calc(var(--line) * 2);        /* po nagłówku rozdziału   (3×) */
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scrollbar-color: #34322e var(--bg);      /* pasek przewijania w tonacji tła */
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: var(--fs);
+  line-height: var(--leading);
+  font-kerning: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ziarno papieru: statyczny szum, niezauważalny przy przewijaniu, wyczuwalny przy czytaniu.
+   Spina tło z ilustracjami węglem. Nie blokuje zaznaczania. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  opacity: 0.05;
+}
+
+::selection {
+  background: #4c4131;
+  background: color-mix(in srgb, var(--accent) 32%, var(--bg));  /* akcent, przygaszony */
+  color: var(--text-strong);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---------- Sceny rozdziałów ----------
+   Każdy rozdział ma własny ton tła: wyczuwalny, ale cichy — ciepłe góry, zimne góry, noc.
+   script.js ustawia html[data-scene] (rozdział) i html[data-step] (etap w rozdziale),
+   tło przechodzi płynnie w 1,5 s. Treść, metadane i akcent zostają ≥ 7:1 na każdym tonie.
+   Ozdobniki rysuje scenes.js na warstwie .scene — pod tekstem, nad tłem.
+   Tylko na ekranie: druk zostaje biały. */
+
+@property --bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #1a1917;
+}
+
+@media screen {
+  :root {
+    transition: --bg 1.5s ease;
+  }
+
+  :root[data-scene="pilsko"] {
+    --bg: #231a0f;         /* bursztyn: słoneczny dzień dzieciństwa */
+  }
+
+  :root[data-scene="dolina-pieciu-stawow"] {
+    --bg: #151a21;         /* chłodne srebro: „księżycowe piękno” */
+  }
+
+  :root[data-scene="kozi-wierch"] {
+    --bg: #1b1b17;         /* ziemia, mapa */
+  }
+
+  :root[data-scene="mnich"] {
+    --bg: #1b1b1e;         /* szarość granitu */
+  }
+
+  :root[data-scene="marmolada"] {
+    --bg: #121a21;         /* lód */
+  }
+
+  :root[data-scene="everest"] {
+    --bg: #0f1620;         /* najzimniej, rozrzedzone powietrze */
+  }
+
+  :root[data-scene="babia-gora"] {
+    --bg: #101723;         /* zimowa noc */
+  }
+
+  :root[data-scene="rysy"] {
+    --bg: #241714;         /* czerwień */
+  }
+
+  :root[data-scene="gran-paradiso"] {
+    --bg: #0b0d14;         /* noc, pobudka o trzeciej */
+  }
+
+  :root[data-scene="gran-paradiso"][data-step="swit"] {
+    --bg: #231a1a;         /* „Świt pokazał coś innego” */
+  }
+
+  :root[data-scene="skalka"] {
+    --bg: #241a11;         /* ciepło */
+  }
+
+  :root[data-scene="grossglockner"] {
+    --bg: #131a1e;         /* chłodny wiatr */
+  }
+
+  :root[data-scene="zakonczenie"] {
+    --bg: #271b0f;         /* najcieplej: lampa w schronisku */
+  }
+}
+
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: -1;             /* nad tłem strony, pod tekstem i szkicami */
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ---------- Kolumna ---------- */
+
+article {
+  padding: 0 var(--edge) 10rem;
+  overflow-x: clip;        /* nic szerszego od ekranu nie rozpycha strony na boki */
+}
+
+.intro,
+.chapter {
+  max-width: var(--measure);
+  margin-inline: auto;
+}
+
+/* ---------- Ekran tytułowy ---------- */
+
+/* Falująca siatka gór (hero.js) na cały ekran, na niej tytuł.
+   Dół siatki wygasa w tło. Animacja stoi, gdy ten ekran nie jest widoczny. */
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  height: 100svh;
+  margin-inline: calc(-1 * var(--edge));
+  padding-inline: var(--edge);
+  overflow: hidden;
+}
+
+.hero canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  -webkit-mask-image: linear-gradient(to bottom, #000 60%, transparent);
+  mask-image: linear-gradient(to bottom, #000 60%, transparent);
+}
+
+.hero h1 {
+  position: relative;
+  margin: 0;
+  text-align: center;
+}
+
+/* Przełącznik „wyłącz efekty” (hero.js) — widoczny, cichy, w rogu ekranu tytułowego */
+.effects-toggle {
+  position: absolute;
+  right: var(--edge);
+  bottom: 1rem;
+  z-index: 2;
+  min-height: 44px;        /* obszar dotyku ≥ 44 px */
+  padding: 0 12px;
+  border: 0;
+  background: none;
+  font: 11px/1 var(--mono);
+  letter-spacing: 0.04em;
+  color: var(--text-quiet);
+  cursor: pointer;
+}
+
+.effects-toggle:hover {
+  color: var(--text);
+}
+
+@media print {
+  .effects-toggle {
+    display: none;
+  }
+}
+
+/* Znaczniki gór na terenie (hero.js): punkt, pochylona kreska, nazwa i wysokość.
+   Wyrastają z rosnącego grzbietu, znikają, gdy opada. Bez JS i bez WebGL niewidoczne. */
+.hero-markers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.marker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 1.2s ease-in-out;
+  will-change: transform, opacity;
+}
+
+.marker.is-visible {
+  opacity: 1;
+}
+
+.marker-dot {
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* Kreska: 45 px w górę pod kątem 45°, potem 140 px w poziomie */
+.marker-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 140px;
+  height: 45px;
+  border-top: 1px solid;
+  border-left: 1px solid;
+  border-color: color-mix(in srgb, var(--accent) 85%, transparent);
+  transform: skewX(-45deg);
+  transform-origin: bottom left;
+}
+
+/* Podpis wyraźnie jaśniejszy od siatki, żeby nie ginął w liniach terenu */
+.marker-label {
+  position: absolute;
+  bottom: 45px;
+  left: 45px;
+  padding: 0 0 4px 10px;
+  font: 12px/1.4 var(--mono);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-strong);
+  white-space: nowrap;
+}
+
+.marker-label span {
+  margin-left: 8px;
+  color: var(--text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marker {
+    transition: none;
+  }
+}
+
+/* Tytuł: Newsreader, który przy dużych stopniach sam przechodzi w krój tytułowy */
+h1 {
+  margin: 0 0 1.25rem;
+  font-family: var(--serif-display);
+  font-weight: 400;
+  font-size: clamp(2.5rem, 1.5rem + 3.6vw, 4rem); /* 40px mobile → 64px desktop */
+  line-height: 1.06;
+  letter-spacing: -0.01em;
+  color: var(--text-strong);
+}
+
+/* Trzy człony, trzy wiersze: „Nie każdy, / kto był na szczycie, / jest alpinistą” */
+h1 .t-line {
+  display: block;
+  text-wrap: balance;
+}
+
+/* Etykieta, o którą toczy się esej — kursywą, jak słowo w cudzysłowie. Bez koloru. */
+h1 em {
+  font-style: italic;
+}
+
+.chapter-meta,
+.chapter-end {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.72em;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  color: var(--text-quiet);
+}
+
+/* ---------- Akapity ---------- */
+
+p {
+  margin: 0 0 var(--sp-para);
+  text-wrap: pretty;       /* bez pojedynczego słowa w ostatnim wierszu */
+}
+
+/* Akapit z autorskimi złamaniami linii — każda linijka od nowego wiersza,
+   w zwykłej interlinii. Zawinięcie wygląda naturalnie, bez wcięcia. */
+p.lines .line {
+  display: block;
+}
+
+p.lines br {
+  display: none;
+}
+
+/* Zdania tezowe: jaśniejsze, ten sam stopień, bez koloru */
+strong {
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+/* Separator --- : zmiana biegu myśli. Samo powietrze. */
+hr {
+  height: 0;
+  margin: var(--sp-break) 0;
+  border: 0;
+}
+
+/* ---------- Szkice ----------
+   Po jednym na rozdział, pod nagłówkiem — scena otwiera rozdział, potem tekst.
+   Wszystkie tej samej szerokości co kolumna tekstu.
+   WebP, a w starszych przeglądarkach JPEG. */
+
+.sketch {
+  margin: var(--sp-break) 0;
+}
+
+/* Pod nagłówkiem: obraz blisko metadanych i tekstu — jeden wiersz nad i pod, jak między akapitami */
+.chapter-head:has(+ .sketch) {
+  margin-bottom: var(--line);
+}
+
+.chapter-head + .sketch {
+  margin-top: 0;
+  margin-bottom: var(--line);
+}
+
+/* Okno 4:3 na kwadratowy szkic — obraz jest niższy, a przy przewijaniu powoli jedzie w oknie */
+.sketch picture {
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: clip;          /* nie hidden — ten tworzyłby kontener przewijania i paralaksa by stała */
+  border-radius: 8px;
+}
+
+.sketch img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;     /* miejsce zarezerwowane — tekst nie skacze przy doładowaniu */
+  transform: translateY(-12.5%);   /* bez paralaksy: środek szkicu */
+}
+
+/* Paralaksa: szkic przesuwa się w oknie wolniej niż tekst — jakby leżał głębiej pod stroną.
+   Sam CSS (oś czasu przewijania), bez biblioteki i bez przejmowania przewijania.
+   Tylko gdy przeglądarka to obsługuje, przy włączonych efektach i bez „ogranicz ruch”;
+   w pozostałych przypadkach stoi środek szkicu. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    :root:not(.effects-off) .sketch img {
+      animation: sketch-depth linear both;
+      animation-timeline: view();
+    }
+  }
+}
+
+@keyframes sketch-depth {
+  from {
+    transform: translateY(-25%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Szkic przejmuje ton sceny: z obrazu zostaje sama jasność (rysunek bez zmian),
+   odcień bierze z tła rozdziału — sepia na Pilsku, chłód na Babiej, noc na Gran Paradiso.
+   Szary kwadrat nie odcina się od kolorowego tła. W druku obraz bez zmian. */
+@media screen {
+  .sketch img {
+    mix-blend-mode: luminosity;
+  }
+}
+
+/* ---------- Start (wstęp) ---------- */
+
+.intro {
+  margin-top: var(--sp-group);
+  scroll-margin-top: 2.5rem;   /* kliknięcie w ekran tytułowy zatrzymuje się tuż nad „Start” */
+}
+
+/* Ekran tytułowy jest klikalny — przewija do startu (script.js) */
+.js .hero {
+  cursor: pointer;
+}
+
+/* ---------- Rozdziały ---------- */
+
+.chapter {
+  margin-top: var(--sp-chapter);
+}
+
+/* Nagłówek: najpierw nazwa, pod nią numer, wysokość i współrzędne */
+.chapter-head {
+  margin-bottom: var(--sp-head);
+}
+
+.chapter-meta {
+  margin-top: 0.6rem;
+}
+
+.chapter-meta .sep {
+  margin-inline: 0.2em;
+}
+
+/* Adnotacja notatnika: ten sam zapis co reszta metadanych, bez wyróżnień.
+   Na telefonie w osobnym wierszu, żeby linia nie łamała się w przypadkowym miejscu. */
+@media (max-width: 40em) {
+  .chapter-meta .sep-note {
+    display: none;
+  }
+
+  .chapter-meta .note {
+    display: block;
+  }
+}
+
+h2 {
+  margin: 0;
+  font-family: var(--serif-display);
+  font-weight: 400;
+  font-size: clamp(1.9rem, 1.4rem + 1.6vw, 2.6rem);
+  line-height: 1.15;
+  letter-spacing: -0.005em;
+  color: var(--text-strong);
+  text-wrap: balance;
+}
+
+/* Koniec rozdziału: tu można przerwać bez straty */
+.chapter-end {
+  margin-top: var(--sp-break);
+}
+
+.footnotes + .chapter-end {
+  margin-top: var(--line);
+}
+
+/* ---------- Linki i przypisy ---------- */
+
+a {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: var(--rule);
+}
+
+a:hover {
+  text-decoration-color: currentColor;
+}
+
+.fn-ref {
+  font-family: var(--mono);
+  font-size: 0.68em;
+  line-height: 0;          /* nie rozpycha interlinii */
+  vertical-align: super;
+}
+
+.fn-ref a,
+.fn-back {
+  position: relative;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* Niewidoczny obszar dotyku ≥ 24×24 px — przypis trafialny kciukiem, układ bez zmian */
+.fn-ref a::after,
+.fn-back::after {
+  content: "";
+  position: absolute;
+  inset: -10px -9px;
+}
+
+.footnotes {
+  margin-top: var(--sp-break);
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--text-quiet);
+}
+
+.footnotes::before {
+  content: "";
+  display: block;
+  width: 3em;
+  margin-bottom: 1.25em;
+  border-top: 1px solid var(--rule);
+}
+
+.footnotes p {
+  overflow-wrap: anywhere;
+}
+
+.footnotes a[href^="http"] {
+  color: var(--accent);
+}
+
+.fn-num {
+  margin-right: 0.35em;
+  font-family: var(--mono);
+}
+
+.fn-back {
+  margin-left: 0.35em;
+}
+
+:target {
+  scroll-margin-top: 2rem;
+}
+
+.footnotes p:target {
+  color: var(--text);
+}
+
+/* ---------- Koniec strony ----------
+   Po ostatnim zdaniu, cicho: PDF bez bramki, dwa zdania o autorze, adres e-mail. */
+
+.colophon {
+  max-width: var(--measure);
+  margin: var(--sp-chapter) auto 0;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--text-quiet);
+}
+
+.colophon::before {
+  content: "";
+  display: block;
+  width: 3em;
+  margin-bottom: 1.5em;
+  border-top: 1px solid var(--rule);
+}
+
+.colophon p {
+  margin: 0 0 0.8em;
+}
+
+.colophon-pdf,
+.colophon-mail {
+  font-family: var(--mono);
+  font-size: 0.9em;
+}
+
+.colophon a {
+  color: var(--text);
+}
+
+/* ---------- Kopiowanie (script.js) ---------- */
+
+/* Pomocniczy kontener: poza ekranem, ale z tymi samymi stylami akapitów,
+   żeby skopiowany tekst miał właściwe złamania linii */
+.copy-holder {
+  position: fixed;
+  top: 0;
+  left: -200vw;
+  width: var(--measure);
+  pointer-events: none;
+}
+
+/* Mały przycisk nad zaznaczeniem: „kopiuj z linkiem” */
+.copy-link {
+  position: absolute;
+  z-index: 30;
+  min-height: 36px;
+  padding: 0 14px;
+  transform: translate(-50%, -100%);
+  border: 1px solid var(--rule);
+  border-radius: 18px;
+  background: #262422;
+  background: color-mix(in srgb, var(--text) 6%, var(--bg));
+  font: 12px/1 var(--mono);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.copy-link.is-below {
+  transform: translate(-50%, 0);
+}
+
+.copy-link[hidden] {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .copy-link {
+    min-height: 44px;      /* obszar dotyku ≥ 44 px */
+  }
+}
+
+/* ---------- „cyk” i „klik” (script.js) ----------
+   Efekty tylko po kliknięciu. Słowo bez koloru — tylko cicha kropkowana linia,
+   żeby dało się je znaleźć. Przy wyłączonych efektach linia znika. */
+
+.fx {
+  position: relative;      /* „klik” drga przez przesunięcie, bez zmiany układu wiersza */
+}
+
+.js:not(.effects-off) .fx {
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-decoration-color: var(--rule);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+}
+
+.js:not(.effects-off) .fx:hover {
+  text-decoration-color: var(--text-quiet);
+}
+
+/* „cyk” — błysk migawki: biała warstwa na cały ekran, 30% → 0 w 160 ms */
+.flash {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.flash.is-on {
+  animation: snap 160ms ease-out;
+}
+
+@keyframes snap {
+  from {
+    opacity: 0.3;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+/* „klik” — słowo drgnie o kilka pikseli */
+.fx.is-jolting {
+  animation: jolt 300ms ease-out;
+}
+
+@keyframes jolt {
+  20% {
+    left: -3px;
+  }
+
+  45% {
+    left: 3px;
+  }
+
+  70% {
+    left: -1.5px;
+  }
+
+  100% {
+    left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flash.is-on,
+  .fx.is-jolting {
+    animation: none;
+  }
+}
+
+@media print {
+  .fx {
+    text-decoration: none !important;
+  }
+
+  .flash {
+    display: none;
+  }
+}
+
+/* ---------- Trasa (desktop) ----------
+   Pionowa oś od „start” do „koniec”, punkty w równych odstępach —
+   kolejność rozdziałów, nie wysokość. Przy punktach wysokość (albo słowo przy starcie
+   i końcu). Nazwa góry pojawia się przy aktywnym punkcie, a także po najechaniu
+   i przy fokusie — żeby dało się skoczyć do rozdziału. */
+
+.profile-nav {
+  --axis: #2a2a2a;         /* oś: bardzo niski kontrast */
+  --row: 32px;             /* odstęp między punktami */
+  display: none;
+}
+
+.profile-nav ol {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Oś od pierwszego do ostatniego punktu — przy prawej krawędzi, stoi w miejscu */
+.profile-nav ol::before {
+  content: "";
+  position: absolute;
+  top: calc(var(--row) / 2);
+  bottom: calc(var(--row) / 2);
+  right: 3px;
+  border-left: 1px solid var(--axis);
+}
+
+/* Punkt na osi, tekst po lewej, wyrównany do prawej: „Rysy 2499 ●”.
+   Nazwa aktywnej góry wyrasta w lewo, w stronę tekstu. */
+.profile-nav a {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 12px;
+  height: var(--row);
+  color: var(--nav-quiet);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* Punkt: obrys; tło zasłania oś */
+.pn-dot {
+  position: relative;
+  flex: none;
+  box-sizing: border-box;
+  width: 7px;
+  height: 7px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  background: var(--bg);
+}
+
+/* Nazwa: w DOM zawsze, na ekranie tylko przy aktywnym / wskazanym punkcie */
+.pn-name {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.profile-nav a:is([aria-current], :hover, :focus-visible) .pn-name {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+}
+
+.profile-nav a:hover,
+.profile-nav a:focus-visible {
+  color: var(--text-quiet);
+}
+
+.profile-nav a[aria-current] {
+  color: var(--accent);
+}
+
+.profile-nav a[aria-current] .pn-dot {
+  background: var(--accent);
+}
+
+/* Przyklejona do prawej krawędzi. Próg: kolumna + 6rem + najdłuższa aktywna nazwa
+   („Via ferrata na Skalce 1236”, ~190px) + 40px marginesu + pasek przewijania
+   mieszczą się od ~1360px. */
+@media (min-width: 85em) {
+  .profile-nav {
+    display: block;
+    position: fixed;
+    top: 50%;
+    right: 40px;
+    z-index: 5;
+    transform: translateY(-50%);
+    font: 11px/16px var(--mono);
+    transition: opacity 0.3s, visibility 0.3s;
+  }
+
+  /* Z JS spis czeka na start — ekran tytułowy zostaje czysty. Bez JS widać go zawsze. */
+  .js .profile-nav {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .js.nav-on .profile-nav {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-nav {
+    transition: none;
+  }
+}
+
+/* ---------- Powrót do miejsca czytania (script.js) ----------
+   Dyskretny pasek na dole: bez modala, bez wymuszania, można zignorować. */
+
+.resume {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 24px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-sizing: border-box;
+  width: max-content;      /* szerokość treści, wyśrodkowany marginesami */
+  max-width: calc(100% - 2 * var(--edge));
+  margin-inline: auto;
+  padding: 0 4px 0 18px;
+  border: 1px solid var(--rule);
+  border-radius: 22px;     /* pigułka w jednym wierszu, zaokrąglony prostokąt w dwóch */
+  background: #211f1d;
+  background: color-mix(in srgb, var(--text) 4%, var(--bg));   /* o włos jaśniejszy od tła */
+  font: 12px/1.4 var(--mono);
+  color: var(--text-quiet);
+  animation: resume-in 0.4s ease-out;
+}
+
+.resume a {
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.resume button {
+  min-width: 44px;         /* obszar dotyku ≥ 44×44 px */
+  min-height: 44px;
+  border: 0;
+  background: none;
+  color: var(--text-quiet);
+  font: 18px/1 var(--mono);
+  cursor: pointer;
+}
+
+.resume button:hover {
+  color: var(--text);
+}
+
+@keyframes resume-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resume {
+    animation: none;
+  }
+}
+
+/* ---------- Pasek postępu ---------- */
+
+/* Neutralny i cichy — akcent jest zarezerwowany dla kilku miejsc */
+.progress {
+  display: none;
+}
+
+.js .progress {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  height: 2px;
+  background: var(--dot);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  pointer-events: none;
+}
+
+/* ---------- Mobile ---------- */
+
+@media (max-width: 40em) {
+  :root {
+    --leading: 1.7;
+  }
+
+  /* Wąska kolumna + długie polskie słowa: dzielenie wyrazów wyrównuje prawą krawędź */
+  p {
+    hyphens: auto;
+  }
+}
+
+/* ---------- Druk i PDF ----------
+   Czysta typografia na białym papierze: bez animacji, spisu, paska i ziarna.
+   Każdy rozdział od nowej strony. */
+
+@media print {
+  @page {
+    margin: 18mm 20mm;
+  }
+
+  :root {
+    --bg: #fff;
+    --text: #111;
+    --text-strong: #000;
+    --text-quiet: #555;
+    --accent: #555;
+    --rule: #bbb;
+    --fs: 11pt;
+    --leading: 1.5;
+  }
+
+  body {
+    background: #fff;
+    color: var(--text);
+  }
+
+  body::after,
+  .progress,
+  .profile-nav,
+  .resume,
+  .copy-link,
+  .hero canvas,
+  .hero-markers,
+  .scene,
+  .fn-back {
+    display: none !important;
+  }
+
+  article {
+    padding: 0;
+  }
+
+  .hero {
+    display: block;
+    height: auto;
+    margin: 0 0 2rem;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .hero h1 {
+    text-align: left;
+  }
+
+  .intro,
+  .chapter,
+  .colophon {
+    max-width: none;
+  }
+
+  .chapter {
+    margin-top: 0;
+    break-before: page;
+  }
+
+  .chapter-head,
+  h2 {
+    break-after: avoid;
+  }
+
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+
+  .sketch {
+    width: 60%;
+    margin: 1.5rem auto;
+    break-inside: avoid;
+  }
+
+  /* Na papierze cały kwadrat, bez okna i ruchu */
+  .sketch picture {
+    aspect-ratio: auto;
+  }
+
+  .sketch img {
+    transform: none;
+    animation: none;
+  }
+
+  a {
+    text-decoration: none;
+  }
+}
