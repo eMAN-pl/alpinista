@@ -2,6 +2,6 @@
   <!-- Góra na czarnym tle: szczyt w kolorze akcentu, czapa śniegu, niższa grań z tyłu -->
   <rect width="32" height="32" rx="6" fill="#000"/>
   <path fill="#6b655c" d="M15 26 22.5 13.5 29 26z"/>
-  <path fill="#c2a57a" d="M3 26 13 7.5 23 26z"/>
+  <path fill="#8ab4e0" d="M3 26 13 7.5 23 26z"/>
   <path fill="#f7f3ea" d="M13 7.5 16.5 14 14.6 12.8 13 14.6 11.4 12.8 9.5 14z"/>
 </svg>

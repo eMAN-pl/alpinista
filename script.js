@@ -330,7 +330,7 @@
       bg: style.getPropertyValue("--bg").trim() || "#1a1917",
       text: style.getPropertyValue("--text-strong").trim() || "#f7f3ea",
       quiet: style.getPropertyValue("--text-quiet").trim() || "#ada79c",
-      accent: style.getPropertyValue("--accent").trim() || "#c2a57a",
+      accent: style.getPropertyValue("--accent").trim() || "#8ab4e0",
       serif: style.getPropertyValue("--serif").trim(),
       mono: style.getPropertyValue("--mono").trim(),
     };

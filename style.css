@@ -42,14 +42,14 @@
   --text-strong: #f7f3ea;  /* tezy: ~15% jaśniejsze od treści, bez koloru */
   --text-quiet: #ada79c;   /* metadane     ~7.3:1  */
   --nav-quiet: #4a4947;    /* nawigacja nieaktywna: ~28% jasności tekstu (ma znikać przy zmrużeniu oczu) */
-  --accent: #c2a57a;       /* jeden akcent, przygaszony bursztyn (~7,5:1). Tylko: aktywny punkt trasy,
+  --accent: #8ab4e0;       /* jeden akcent, chłodny błękit (~8,1:1). Tylko: aktywny punkt trasy,
                               zaznaczenie, focus, linki w przypisach, siatka gór.
                               Jeden kolor nie utrzyma 7:1 na obu tłach (potrzebowałby jasności
                               ≥ 0,086 na ciemnym i ≤ 0,080 na jasnym), więc każdy motyw ma
                               własną wartość tego samego odcienia. Zamienniki — zmiana w dwóch
                               linijkach (tu i w motywie jasnym):
-                              bursztyn  #c2a57a / #634716   (7,49 / 7,42)
                               błękit    #8ab4e0 / #1f4e86   (8,10 / 7,28)
+                              bursztyn  #c2a57a / #634716   (7,49 / 7,42)
                               czerwień  #d3907f / #8d3a26   (6,75 / 6,56) */
   --rule: #4d4943;         /* kreski, podkreślenia (dekoracja) */
   --dot: #5e5a53;          /* pasek postępu */
@@ -98,7 +98,7 @@
   --text-strong: #14120e;
   --text-quiet: #4f4940;
   --nav-quiet: #b3aa9a;
-  --accent: #634716;
+  --accent: #1f4e86;
   --rule: #cfc7b8;
   --dot: #b3a894;
   --flash: #14120e;
@@ -206,7 +206,7 @@ body::after {
 }
 
 ::selection {
-  background: #4c4131;
+  background: #3e4b57;
   background: color-mix(in srgb, var(--accent) 32%, var(--bg));  /* akcent, przygaszony */
   color: var(--text-strong);
 }
