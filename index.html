@@ -16,11 +16,10 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#1a1917">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="preload" href="fonts/newsreader-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/anton-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="style.css">
   <script>document.documentElement.className = "js";</script>
   <script src="script.js" defer></script>
-  <script src="hero.js" defer></script>
   <script src="scenes.js" defer></script>
 </head>
 <body>
@@ -47,23 +46,21 @@
 <main>
 <article>
 
-  <div class="hero">
-    <canvas aria-hidden="true"></canvas>
-    <div class="hero-markers" aria-hidden="true">
-      <div class="marker"><span class="marker-dot"></span><span class="marker-line"></span><span class="marker-label">Pilsko <span>1557 m</span></span></div>
-      <div class="marker"><span class="marker-dot"></span><span class="marker-line"></span><span class="marker-label">Pięć Stawów <span>1900 m</span></span></div>
-      <div class="marker"><span class="marker-dot"></span><span class="marker-line"></span><span class="marker-label">Kozi Wierch <span>2291 m</span></span></div>
-      <div class="marker"><span class="marker-dot"></span><span class="marker-line"></span><span class="marker-label">Mnich <span>2068 m</span></span></div>
-      <div class="marker"><span class="marker-dot"></span><span class="marker-line"></span><span class="marker-label">Marmolada <span>3343 m</span></span></div>
-      <div class="marker"><span class="marker-dot"></span><span class="marker-line"></span><span class="marker-label">Everest <span>8849 m</span></span></div>
-      <div class="marker"><span class="marker-dot"></span><span class="marker-line"></span><span class="marker-label">Babia Góra <span>1725 m</span></span></div>
-      <div class="marker"><span class="marker-dot"></span><span class="marker-line"></span><span class="marker-label">Rysy <span>2499 m</span></span></div>
-      <div class="marker"><span class="marker-dot"></span><span class="marker-line"></span><span class="marker-label">Gran Paradiso <span>4061 m</span></span></div>
-      <div class="marker"><span class="marker-dot"></span><span class="marker-line"></span><span class="marker-label">Skalka <span>1236 m</span></span></div>
-      <div class="marker"><span class="marker-dot"></span><span class="marker-line"></span><span class="marker-label">Grossglockner <span>3798 m</span></span></div>
+  <header class="hero">
+    <div class="hero-type">
+      <p class="hero-meta">esej · 11 rozdziałów · 40 minut</p>
+      <h1><span class="t-line">Nie każdy,</span> <span class="t-line">kto był</span> <span class="t-line">na szczycie,</span><span class="hand">jest alpinistą</span></h1>
+      <p class="hero-foot"><a href="#wstep">przewiń</a><span>Marcin Chruściel</span></p>
     </div>
-    <h1><span class="t-line">Nie każdy,</span> <span class="t-line">kto był na szczycie,</span> <span class="t-line">jest <em>alpinistą</em></span></h1>
-  </div>
+    <picture class="hero-shot">
+      <source media="(max-width: 51.25em)" type="image/webp" srcset="assets/web/tytul-pion-600.webp 600w, assets/web/tytul-pion-800.webp 800w, assets/web/tytul-pion-1000.webp 1000w" sizes="100vw">
+      <source media="(max-width: 51.25em)" srcset="assets/web/tytul-pion-600.jpg 600w, assets/web/tytul-pion-800.jpg 800w, assets/web/tytul-pion-1000.jpg 1000w" sizes="100vw">
+      <source type="image/webp" srcset="assets/web/tytul-1000.webp 1000w, assets/web/tytul-1400.webp 1400w, assets/web/tytul-1800.webp 1800w" sizes="54vw">
+      <img src="assets/web/tytul-1400.jpg" srcset="assets/web/tytul-1000.jpg 1000w, assets/web/tytul-1400.jpg 1400w, assets/web/tytul-1800.jpg 1800w" sizes="54vw"
+           width="1400" height="1050" fetchpriority="high" decoding="async"
+           alt="Zdjęcie: grań i lodowiec w porannej mgle, na pierwszym planie stalowa lina poręczowa wśród skalnego rumowiska.">
+    </picture>
+  </header>
 
   <section class="intro" id="wstep" aria-labelledby="wstep-tytul">
     <header class="chapter-head">
@@ -887,7 +884,7 @@
 
   <section class="chapter coda" id="zakonczenie" aria-labelledby="zakonczenie-tytul">
     <header class="chapter-head">
-      <h2 id="zakonczenie-tytul">Nie każdy, kto był na szczycie, jest <em>alpinistą</em></h2>
+      <h2 id="zakonczenie-tytul">Nie każdy, kto był na szczycie, <span class="hand">jest alpinistą</span></h2>
     </header>
     <figure class="sketch">
       <picture>

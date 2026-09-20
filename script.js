@@ -12,7 +12,6 @@
 
   const article = document.querySelector("article");
   const bar = document.querySelector(".progress");
-  const hero = document.querySelector(".hero");
   const intro = document.getElementById("wstep");
   const sections = [intro, ...document.querySelectorAll(".chapter")].filter(Boolean);
   const links = new Map(
@@ -20,7 +19,7 @@
   );
 
   const PLACE_KEY = "alpinista:miejsce";   // localStorage: rozdział + miejsce w nim
-  const EFFECTS_KEY = "alpinista:efekty";  // localStorage: wybór z przełącznika (hero.js)
+  const EFFECTS_KEY = "alpinista:efekty";  // localStorage: wybór z przełącznika w stopce
   const SAVE_EVERY = 1000;                 // zapis najwyżej raz na sekundę
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
@@ -193,7 +192,7 @@
 
   const NOT_COPIED =
     ".chapter-meta, .chapter-end, .fn-ref, .fn-num, .fn-back, " +
-    ".profile-nav, .hero-markers, .resume, .copy-link";
+    ".profile-nav, .resume, .copy-link";
 
   function cleanText(range) {
     const holder = document.createElement("div");
@@ -528,15 +527,37 @@
   });
   wide.addEventListener("change", () => setRoute(false));
 
-  // Kropkowana linia pod słowami tylko wtedy, gdy efekty działają (hero.js aktualizuje przy przełączaniu)
-  document.documentElement.classList.toggle("effects-off", !effectsEnabled());
+  // --- Przełącznik efektów (stopka) ---
+  // Jedno miejsce dla wszystkiego, co się rusza: scen rozdziałów, paralaksy szkiców
+  // i efektów przy słowach. Wybór pamiętany w localStorage; bez wyboru decyduje system.
+  const colophon = document.querySelector(".colophon");
+  const toggle = document.createElement("button");
+  toggle.type = "button";
+  toggle.className = "effects-toggle";
+  colophon?.append(toggle);
 
-  // --- Kliknięcie w ekran tytułowy przewija do startu ---
-  // Płynnie; przy „ogranicz ruch” albo wyłączonych efektach — od razu.
-  // Nie reaguje na przełącznik efektów ani na zaznaczanie tytułu.
-  hero?.addEventListener("click", (event) => {
-    if (event.target.closest("button, a") || !getSelection().isCollapsed) return;
-    intro?.scrollIntoView({ behavior: effectsEnabled() ? "smooth" : "auto", block: "start" });
+  function setEffects(on) {
+    try {
+      localStorage.setItem(EFFECTS_KEY, on ? "on" : "off");
+    } catch {
+      // bez pamięci wybór działa do końca wizyty
+    }
+    document.documentElement.classList.toggle("effects-off", !on);
+    toggle.textContent = on ? "wyłącz efekty" : "włącz efekty";
+  }
+
+  toggle.addEventListener("click", () => setEffects(document.documentElement.classList.contains("effects-off")));
+  setEffects(effectsEnabled());
+
+  // Zmiana ustawienia „ogranicz ruch” działa tylko wtedy, gdy czytelnik sam nic nie wybrał
+  reduceMotion.addEventListener("change", (event) => {
+    let stored = null;
+    try {
+      stored = localStorage.getItem(EFFECTS_KEY);
+    } catch {
+      // bez pamięci idziemy za ustawieniem systemu
+    }
+    if (!stored) setEffects(!event.matches);
   });
 
   // --- Druk i PDF: szkice ładują się dopiero przy przewijaniu — przed drukiem wszystkie ---

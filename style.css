@@ -5,41 +5,42 @@
    kopiowanie z linkiem, koniec strony, druk.
    ========================================================= */
 
-/* Newsreader (SIL Open Font License) — tylko tytuł i nagłówki; plik z polskimi znakami
-   ładuje się dopiero, gdy jest potrzebny (unicode-range). Z własnego serwera, nie od Google. */
+/* Anton i Caveat (SIL Open Font License) — nagłówki i jeden odręczny dopisek.
+   Pliki z polskimi znakami ładują się tylko wtedy, gdy są potrzebne (unicode-range).
+   Z własnego serwera, nie od Google. */
 @font-face {
-  font-family: "Newsreader";
+  font-family: "Anton";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url("fonts/newsreader-latin.woff2") format("woff2");
+  src: url("fonts/anton-latin.woff2") format("woff2");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @font-face {
-  font-family: "Newsreader";
+  font-family: "Anton";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url("fonts/newsreader-latin-ext.woff2") format("woff2");
+  src: url("fonts/anton-latin-ext.woff2") format("woff2");
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
 @font-face {
-  font-family: "Newsreader";
-  font-style: italic;
-  font-weight: 400;
+  font-family: "Caveat";
+  font-style: normal;
+  font-weight: 700;
   font-display: swap;
-  src: url("fonts/newsreader-italic-latin.woff2") format("woff2");
+  src: url("fonts/caveat-latin.woff2") format("woff2");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @font-face {
-  font-family: "Newsreader";
-  font-style: italic;
-  font-weight: 400;
+  font-family: "Caveat";
+  font-style: normal;
+  font-weight: 700;
   font-display: swap;
-  src: url("fonts/newsreader-italic-latin-ext.woff2") format("woff2");
+  src: url("fonts/caveat-latin-ext.woff2") format("woff2");
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
@@ -55,10 +56,12 @@
   --rule: #4d4943;         /* kreski, podkreślenia (dekoracja) */
   --dot: #5e5a53;          /* pasek postępu */
 
-  /* Kroje: tekst systemowym szeryfem (bez pobierania), tytuł i nagłówki Newsreaderem */
+  /* Cztery role: nagłówki Antonem, tekst systemowym szeryfem (bez pobierania),
+     metadane monospace, a jeden dopisek ręką (Caveat) */
   --serif: "Iowan Old Style", "Charter", "Bitstream Charter", "Sitka Text",
            Cambria, Georgia, "Noto Serif", serif;
-  --serif-display: "Newsreader", "Iowan Old Style", "Charter", "Sitka Banner", Georgia, serif;
+  --display: "Anton", "Haettenschweiler", "Arial Narrow", Impact, sans-serif;
+  --hand: "Caveat", "Segoe Script", cursive;
   --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono", Menlo,
           Consolas, "Liberation Mono", monospace;
 
@@ -66,6 +69,7 @@
   --fs: clamp(1.125rem, 0.95rem + 0.6vw, 1.25rem);   /* 18px mobile → 20px desktop */
   --measure: 34em;                                   /* ~62–68 znaków w wierszu */
   --edge: 24px;                                      /* minimalny margines od krawędzi */
+  --hero-pad: clamp(30px, 4.8vw, 104px);             /* margines wewnątrz płaszczyzny tytułowej */
 
   /* Rytm pionowy — jedna skala, w wielokrotnościach interlinii.
      Liczby w nawiasach: odległość od wiersza do wiersza (1× = zwykły wiersz),
@@ -216,45 +220,137 @@ article {
   margin-inline: auto;
 }
 
-/* ---------- Ekran tytułowy ---------- */
+/* ---------- Ekran tytułowy ----------
+   Dwie płaszczyzny i twarda krawędź: tekst na tle strony, zdjęcie obok.
+   Tytuł nigdy nie leży na zdjęciu, więc kontrast nie zależy od kadru.
+   Szeroki ekran dzieli w pionie, telefon w poziomie (zdjęcie na górze). */
 
-/* Falująca siatka gór (hero.js) na cały ekran, na niej tytuł.
-   Dół siatki wygasa w tło. Animacja stoi, gdy ten ekran nie jest widoczny. */
 .hero {
+  display: grid;
+  grid-template-columns: minmax(0, 46fr) minmax(0, 54fr);
+  height: 100svh;
+  min-height: 520px;
+  margin-inline: calc(-1 * var(--edge));
+}
+
+.hero-type {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   position: relative;
+  padding: var(--hero-pad) clamp(32px, 3.4vw, 72px) var(--hero-pad) var(--hero-pad);
+}
+
+.hero-meta {
   display: flex;
   align-items: center;
-  justify-content: center;
-  height: 100vh;
-  height: 100svh;
-  margin-inline: calc(-1 * var(--edge));
-  padding-inline: var(--edge);
+  gap: 14px;
+  margin: 0 0 clamp(26px, 3.6vh, 44px);
+  font: 11px/1 var(--mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-quiet);
+}
+
+/* kreska dopowiadająca linię metadanych */
+.hero-meta::after {
+  content: "";
+  flex: 1;
+  max-width: 120px;
+  height: 1px;
+  background: var(--rule);
+}
+
+.hero-foot {
+  position: absolute;
+  left: var(--hero-pad);
+  right: clamp(32px, 3.4vw, 72px);
+  bottom: var(--hero-pad);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0;
+  font: 11px/1 var(--mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.hero-foot a,
+.hero-foot span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-quiet);
+  text-decoration: none;
+}
+
+.hero-foot span {
+  color: #6b665f;
+}
+
+.hero-foot a::after,
+.hero-foot span::after {
+  content: "";
+  width: 40px;
+  height: 1px;
+  background: var(--rule);
+}
+
+/* Zdjęcie jako warstwa wypełniająca płaszczyznę — nigdy nie wyznacza wysokości ekranu */
+.hero-shot {
+  position: relative;
+  display: block;
   overflow: hidden;
 }
 
-.hero canvas {
+.hero-shot img {
   position: absolute;
   inset: 0;
+  display: block;
   width: 100%;
   height: 100%;
-  -webkit-mask-image: linear-gradient(to bottom, #000 60%, transparent);
-  mask-image: linear-gradient(to bottom, #000 60%, transparent);
+  object-fit: cover;
+  object-position: 58% 46%;
 }
 
-.hero h1 {
-  position: relative;
-  margin: 0;
-  text-align: center;
+/* Telefon i tablet: te same dwie płaszczyzny, tylko podział poziomy */
+@media (max-width: 51.25em) {
+  .hero {
+    grid-template-columns: 1fr;
+    grid-template-rows: 58svh 1fr;
+  }
+
+  .hero-shot {
+    order: -1;
+  }
+
+  .hero-type {
+    justify-content: flex-start;
+    padding: var(--hero-pad) var(--hero-pad) clamp(24px, 3.4vh, 32px);
+  }
+
+  .hero-foot {
+    position: static;
+    margin-top: auto;
+    padding-top: 24px;
+  }
+
+  .hero-foot a {
+    display: none;        /* „przewiń” zbędne przy dotyku */
+  }
 }
 
-/* Przełącznik „wyłącz efekty” (hero.js) — widoczny, cichy, w rogu ekranu tytułowego */
+/* Niski i szeroki ekran: kadr wędruje w górę, żeby grań została w polu widzenia */
+@media (max-height: 760px) and (min-width: 900px) {
+  .hero-shot img {
+    object-position: 60% 38%;
+  }
+}
+
+/* Przełącznik „wyłącz efekty” (script.js) — w stopce, przy linku do PDF */
 .effects-toggle {
-  position: absolute;
-  right: var(--edge);
-  bottom: 1rem;
-  z-index: 2;
   min-height: 44px;        /* obszar dotyku ≥ 44 px */
-  padding: 0 12px;
+  padding: 0;
   border: 0;
   background: none;
   font: 11px/1 var(--mono);
@@ -273,95 +369,37 @@ article {
   }
 }
 
-/* Znaczniki gór na terenie (hero.js): punkt, pochylona kreska, nazwa i wysokość.
-   Wyrastają z rosnącego grzbietu, znikają, gdy opada. Bez JS i bez WebGL niewidoczne. */
-.hero-markers {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.marker {
-  position: absolute;
-  top: 0;
-  left: 0;
-  opacity: 0;
-  transition: opacity 1.2s ease-in-out;
-  will-change: transform, opacity;
-}
-
-.marker.is-visible {
-  opacity: 1;
-}
-
-.marker-dot {
-  position: absolute;
-  top: -3px;
-  left: -3px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--accent);
-}
-
-/* Kreska: 45 px w górę pod kątem 45°, potem 140 px w poziomie */
-.marker-line {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 140px;
-  height: 45px;
-  border-top: 1px solid;
-  border-left: 1px solid;
-  border-color: color-mix(in srgb, var(--accent) 85%, transparent);
-  transform: skewX(-45deg);
-  transform-origin: bottom left;
-}
-
-/* Podpis wyraźnie jaśniejszy od siatki, żeby nie ginął w liniach terenu */
-.marker-label {
-  position: absolute;
-  bottom: 45px;
-  left: 45px;
-  padding: 0 0 4px 10px;
-  font: 12px/1.4 var(--mono);
-  letter-spacing: 0.15em;
+/* Tytuł i nagłówki: Anton, wersaliki. Jeden krój niesie całą hierarchię,
+   różnicuje ją tylko stopień pisma. */
+h1 {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(2.1rem, 1.2rem + 2.4vw, 4.6rem);
+  line-height: 1;          /* ciaśniej niż 1 wiersze zaczynają na siebie nachodzić */
+  letter-spacing: -0.005em;
   text-transform: uppercase;
   color: var(--text-strong);
-  white-space: nowrap;
 }
 
-.marker-label span {
-  margin-left: 8px;
-  color: var(--text);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .marker {
-    transition: none;
-  }
-}
-
-/* Tytuł: Newsreader, który przy dużych stopniach sam przechodzi w krój tytułowy */
-h1 {
-  margin: 0 0 1.25rem;
-  font-family: var(--serif-display);
-  font-weight: 400;
-  font-size: clamp(2.5rem, 1.5rem + 3.6vw, 4rem); /* 40px mobile → 64px desktop */
-  line-height: 1.06;
-  letter-spacing: -0.01em;
-  color: var(--text-strong);
-}
-
-/* Trzy człony, trzy wiersze: „Nie każdy, / kto był na szczycie, / jest alpinistą” */
+/* Trzy wiersze łamane sensem, nie szerokością: „Nie każdy, / kto był / na szczycie,” */
 h1 .t-line {
   display: block;
-  text-wrap: balance;
 }
 
-/* Etykieta, o którą toczy się esej — kursywą, jak słowo w cudzysłowie. Bez koloru. */
-h1 em {
-  font-style: italic;
+/* Dopisek ręką — komentarz pod zdaniem, jedyne miejsce z tym krojem i kolorem */
+.hand {
+  display: block;
+  margin-top: 0.2em;
+  font-family: var(--hand);
+  font-weight: 700;
+  font-size: clamp(2rem, 1.15rem + 2.3vw, 4.35rem);
+  line-height: 0.9;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--accent);
+  transform: rotate(-1.6deg);
+  transform-origin: left center;
 }
 
 .chapter-meta,
@@ -484,11 +522,6 @@ hr {
   scroll-margin-top: 2.5rem;   /* kliknięcie w ekran tytułowy zatrzymuje się tuż nad „Start” */
 }
 
-/* Ekran tytułowy jest klikalny — przewija do startu (script.js) */
-.js .hero {
-  cursor: pointer;
-}
-
 /* ---------- Rozdziały ---------- */
 
 .chapter {
@@ -522,13 +555,20 @@ hr {
 
 h2 {
   margin: 0;
-  font-family: var(--serif-display);
+  font-family: var(--display);
   font-weight: 400;
-  font-size: clamp(1.9rem, 1.4rem + 1.6vw, 2.6rem);
-  line-height: 1.15;
-  letter-spacing: -0.005em;
+  font-size: clamp(1.5rem, 1.15rem + 1.1vw, 2.1rem);
+  line-height: 1.08;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
   color: var(--text-strong);
   text-wrap: balance;
+}
+
+/* Zakończenie powtarza tytuł, więc i tu ostatnie słowa idą ręką */
+h2 .hand {
+  margin-top: 0.1em;
+  font-size: 1.15em;
 }
 
 /* Koniec rozdziału: tu można przerwać bez straty */
@@ -1344,8 +1384,7 @@ article.is-shaken {
   .profile-nav,
   .resume,
   .copy-link,
-  .hero canvas,
-  .hero-markers,
+  .hero-shot,
   .scene,
   .route-toggle,
   .route-backdrop,
