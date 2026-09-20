@@ -38,6 +38,7 @@
     const span = box.height - vh;
     const progress = span > 0 ? Math.min(1, Math.max(0, -box.top / span)) : 1;
     bar.style.transform = `scaleX(${progress})`;
+    document.documentElement.style.setProperty("--read", progress.toFixed(3));   // oś spisu
 
     // Aktywny punkt trasy: ostatnia część, której początek minął górną trzecią ekranu
     let active = null;

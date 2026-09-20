@@ -16,8 +16,17 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#1a1917">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="canonical" href="https://eman-pl.github.io/alpinista/">
   <link rel="preload" href="fonts/anton-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/caveat-subset.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" as="image" type="image/avif" media="(max-width: 51.25em)"
+        imagesrcset="assets/web/tytul-pion-600.avif 600w, assets/web/tytul-pion-800.avif 800w, assets/web/tytul-pion-1000.avif 1000w"
+        imagesizes="100vw" fetchpriority="high">
+  <link rel="preload" as="image" type="image/avif" media="(min-width: 51.26em)"
+        imagesrcset="assets/web/tytul-1000.avif 1000w, assets/web/tytul-1400.avif 1400w, assets/web/tytul-1800.avif 1800w"
+        imagesizes="54vw" fetchpriority="high">
   <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Nie każdy, kto był na szczycie, jest alpinistą", "description": "W branży projektowej wszyscy są już na szczycie. Wszyscy wygłaszają wzniosłe inwokacje. Wszyscy mają przepiękne kadry. A coraz mniej osób chce się wspinać.", "inLanguage": "pl", "author": {"@type": "Person", "name": "Marcin Chruściel", "sameAs": ["https://www.linkedin.com/in/marcin-chrusciel/", "https://www.instagram.com/proxima_marcin/"]}, "mainEntityOfPage": "https://eman-pl.github.io/alpinista/", "image": "https://eman-pl.github.io/alpinista/assets/og/index.jpg", "wordCount": 9586, "timeRequired": "PT50M"}</script>
   <script>document.documentElement.className = "js";</script>
   <script src="script.js" defer></script>
   <script src="scenes.js" defer></script>
@@ -46,15 +55,19 @@
 <main>
 <article>
 
-  <header class="hero">
+  <a class="skip" href="#wstep">przejdź do tekstu</a>
+
+  <header class="hero" id="poczatek">
     <div class="hero-type">
-      <p class="hero-meta">esej · 11 rozdziałów · 40 minut</p>
+      <p class="hero-meta">esej · 11 rozdziałów · 50 minut</p>
       <h1><span class="t-line">Nie każdy,</span> <span class="t-line">kto był</span> <span class="t-line">na szczycie,</span><span class="hand">jest alpinistą</span></h1>
       <p class="hero-foot"><a href="#wstep">przewiń</a><span>Marcin Chruściel</span></p>
     </div>
     <picture class="hero-shot">
+      <source media="(max-width: 51.25em)" type="image/avif" srcset="assets/web/tytul-pion-600.avif 600w, assets/web/tytul-pion-800.avif 800w, assets/web/tytul-pion-1000.avif 1000w" sizes="100vw">
       <source media="(max-width: 51.25em)" type="image/webp" srcset="assets/web/tytul-pion-600.webp 600w, assets/web/tytul-pion-800.webp 800w, assets/web/tytul-pion-1000.webp 1000w" sizes="100vw">
       <source media="(max-width: 51.25em)" srcset="assets/web/tytul-pion-600.jpg 600w, assets/web/tytul-pion-800.jpg 800w, assets/web/tytul-pion-1000.jpg 1000w" sizes="100vw">
+      <source type="image/avif" srcset="assets/web/tytul-1000.avif 1000w, assets/web/tytul-1400.avif 1400w, assets/web/tytul-1800.avif 1800w" sizes="54vw">
       <source type="image/webp" srcset="assets/web/tytul-1000.webp 1000w, assets/web/tytul-1400.webp 1400w, assets/web/tytul-1800.webp 1800w" sizes="54vw">
       <img src="assets/web/tytul-1400.jpg" srcset="assets/web/tytul-1000.jpg 1000w, assets/web/tytul-1400.jpg 1400w, assets/web/tytul-1800.jpg 1800w" sizes="54vw"
            width="1400" height="1050" fetchpriority="high" decoding="async"
@@ -62,11 +75,7 @@
     </picture>
   </header>
 
-  <section class="intro" id="wstep" aria-labelledby="wstep-tytul">
-    <header class="chapter-head">
-      <h2 id="wstep-tytul">Start</h2>
-      <p class="chapter-meta">esej · 11 rozdziałów · 40 minut</p>
-    </header>
+  <section class="intro" id="wstep" aria-label="Wstęp">
     <p class="lines">
       <span class="line">W branży projektowej wszyscy są już na szczycie.</span><br>
       <span class="line">Wszyscy wygłaszają wzniosłe inwokacje.</span><br>
@@ -89,13 +98,31 @@
     <p class="thesis"><strong>Czy tak naprawdę wiesz, jak się wspinać?</strong></p>
   </section>
 
+  <nav class="route" aria-label="Trasa eseju">
+    <h2>Trasa</h2>
+    <ol>
+      <li><a href="#pilsko"><span class="route-num">01</span><span class="route-name">Pilsko</span><span class="route-alt">1557 m</span></a></li>
+      <li><a href="#dolina-pieciu-stawow"><span class="route-num">02</span><span class="route-name">Dolina Pięciu Stawów</span><span class="route-alt">1900 m</span></a></li>
+      <li><a href="#kozi-wierch"><span class="route-num">03</span><span class="route-name">Kozi Wierch</span><span class="route-alt">2291 m</span></a></li>
+      <li><a href="#mnich"><span class="route-num">04</span><span class="route-name">Mnich</span><span class="route-alt">2068 m</span></a></li>
+      <li><a href="#marmolada"><span class="route-num">05</span><span class="route-name">Marmolada</span><span class="route-alt">3343 m</span></a></li>
+      <li><a href="#everest"><span class="route-num">06</span><span class="route-name">Everest</span><span class="route-alt">8849 m</span></a></li>
+      <li><a href="#babia-gora"><span class="route-num">07</span><span class="route-name">Babia Góra</span><span class="route-alt">1725 m</span></a></li>
+      <li><a href="#rysy"><span class="route-num">08</span><span class="route-name">Rysy</span><span class="route-alt">2499 m</span></a></li>
+      <li><a href="#gran-paradiso"><span class="route-num">09</span><span class="route-name">Gran Paradiso</span><span class="route-alt">4061 m</span></a></li>
+      <li><a href="#skalka"><span class="route-num">10</span><span class="route-name">Via ferrata na Skalce</span><span class="route-alt">1236 m</span></a></li>
+      <li><a href="#grossglockner"><span class="route-num">11</span><span class="route-name">Grossglockner</span><span class="route-alt">3798 m</span></a></li>
+    </ol>
+  </nav>
+
   <section class="chapter" id="pilsko" aria-labelledby="pilsko-tytul">
     <header class="chapter-head">
       <h2 id="pilsko-tytul">Pilsko</h2>
-      <p class="chapter-meta"><span>1 z 11</span> <span class="sep" aria-hidden="true">·</span> <span>1557 m n.p.m.</span> <span class="sep" aria-hidden="true">·</span> <span class="coords">49°32′N 19°19′E</span> <span class="sep sep-note" aria-hidden="true">·</span> <span class="note">[adnotacja]</span></p>
+      <p class="chapter-meta"><span>1 z 11</span> <span class="sep" aria-hidden="true">·</span> <span>1557 m n.p.m.</span> <span class="sep" aria-hidden="true">·</span> <span class="coords">49°32′N 19°19′E</span></p>
     </header>
     <figure class="sketch">
       <picture>
+        <source srcset="assets/web/pilsko.avif" type="image/avif">
         <source srcset="assets/web/pilsko.webp" type="image/webp">
         <img src="assets/web/pilsko.jpg" width="1024" height="1024" loading="lazy" decoding="async" alt="Szkic węglem: wieża z pięciu drewnianych klocków, szósty klocek leży obok, przewrócony.">
       </picture>
@@ -119,7 +146,7 @@
     <p>Piękno tych terenów sprawiło, że z każdą wizytą poruszałem się po nich coraz sprawniej. Z każdą herbatą wypitą w ich towarzystwie czułem się coraz pewniej. Stały się moim domem. Którędy najszybciej wejść. Na którym rozwidleniu skręcić. Czego spodziewać się po dobrze znanej drodze.</p>
     <p class="thesis"><strong>Byłem bardzo dobry w poruszaniu się po znanym terenie.</strong></p>
     <p>Wtedy jeszcze nie wiedziałem, że nie wszystkie góry wyglądają tak samo. Ani jak brutalne może okazać się wyjście poza wydeptany szlak.</p>
-    <p class="chapter-end">koniec rozdziału 1 z 11 · do końca ok. 38 min</p>
+    <p class="chapter-end">do końca wędrówki ok. 45 min</p>
   </section>
 
   <section class="chapter" id="dolina-pieciu-stawow" aria-labelledby="dolina-pieciu-stawow-tytul">
@@ -129,6 +156,7 @@
     </header>
     <figure class="sketch">
       <picture>
+        <source srcset="assets/web/dolina-pieciu-stawow.avif" type="image/avif">
         <source srcset="assets/web/dolina-pieciu-stawow.webp" type="image/webp">
         <img src="assets/web/dolina-pieciu-stawow.jpg" width="1024" height="1024" loading="lazy" decoding="async" alt="Szkic węglem: stalowy łańcuch zwisający z kotwy wbitej w skałę.">
       </picture>
@@ -168,7 +196,7 @@
     <p>Przyszedł czas na lęk wysokości. Ferraty. Wspinanie. Jura. Drogi taternickie. Dłonie coraz rzadziej zdradzały niepewność. Następnie kursy i podejścia alpejskie. Kolejne góry i kolejne wyzwania.</p>
     <p>I chyba w tym momencie zacząłem rozumieć coś ważnego:</p>
     <p class="thesis"><strong>Im więcej wiem o górach, tym bardziej wiem, jak dużo jeszcze o nich nie wiem.</strong></p>
-    <p class="chapter-end">koniec rozdziału 2 z 11 · do końca ok. 36 min</p>
+    <p class="chapter-end">do końca wędrówki ok. 43 min</p>
   </section>
 
   <section class="chapter" id="kozi-wierch" aria-labelledby="kozi-wierch-tytul">
@@ -178,6 +206,7 @@
     </header>
     <figure class="sketch">
       <picture>
+        <source srcset="assets/web/kozi-wierch.avif" type="image/avif">
         <source srcset="assets/web/kozi-wierch.webp" type="image/webp">
         <img src="assets/web/kozi-wierch.jpg" width="1024" height="1024" loading="lazy" decoding="async" alt="Szkic węglem: mapa z poziomicami, złożona w cztery, z wydartym rogiem.">
       </picture>
@@ -231,7 +260,7 @@
     <aside class="footnotes" aria-label="Przypisy">
       <p id="przypis-1"><span class="fn-num">1</span>Masyw Mont Blanc rozpada się w rekordowym tempie — wspinanie.pl, sierpień 2026: <a href="https://wspinanie.pl/2026/08/mont-blanc-smiglowiec/" target="_blank" rel="noopener">wspinanie.pl/2026/08/mont-blanc-smiglowiec/</a><a class="fn-back" href="#odnosnik-1" aria-label="Wróć do tekstu">↩︎</a></p>
     </aside>
-    <p class="chapter-end">koniec rozdziału 3 z 11 · do końca ok. 32 min</p>
+    <p class="chapter-end">do końca wędrówki ok. 38 min</p>
   </section>
 
   <section class="chapter" id="mnich" aria-labelledby="mnich-tytul">
@@ -241,6 +270,7 @@
     </header>
     <figure class="sketch">
       <picture>
+        <source srcset="assets/web/mnich.avif" type="image/avif">
         <source srcset="assets/web/mnich.webp" type="image/webp">
         <img src="assets/web/mnich.jpg" width="1024" height="1024" loading="lazy" decoding="async" alt="Szkic węglem: pojedynczy but wspinaczkowy na rzepy.">
       </picture>
@@ -274,7 +304,7 @@
     <p>Bolało.</p>
     <p>To, co osiągnąłem, było dobre. Do dziś tak uważam. Tylko że skończyły się środki, zanim skończyła się droga.</p>
     <p class="thesis"><strong>Doświadczenie nie polega na tym, że wiesz wszystko. Polega na tym, że szybciej rozpoznajesz, czego jeszcze nie wiesz.</strong></p>
-    <p class="chapter-end">koniec rozdziału 4 z 11 · do końca ok. 29 min</p>
+    <p class="chapter-end">do końca wędrówki ok. 35 min</p>
   </section>
 
   <section class="chapter" id="marmolada" aria-labelledby="marmolada-tytul">
@@ -284,6 +314,7 @@
     </header>
     <figure class="sketch">
       <picture>
+        <source srcset="assets/web/marmolada.avif" type="image/avif">
         <source srcset="assets/web/marmolada.webp" type="image/webp">
         <img src="assets/web/marmolada.jpg" width="1024" height="1024" loading="lazy" decoding="async" alt="Szkic węglem: para starych raków z paskami i ostrymi zębami.">
       </picture>
@@ -364,16 +395,17 @@
     <p>Uwielbiam pingwiny. Tylko nie jestem pewien, czy chciałbym z którymś iść na Grossglocknera.</p>
     <p>Kiedyś mówiło się: pokaż mi swój kod, a powiem Ci, jak myślisz.</p>
     <p class="thesis"><strong>Dziś wystarczy prompt.</strong></p>
-    <p class="chapter-end">koniec rozdziału 5 z 11 · do końca ok. 24 min</p>
+    <p class="chapter-end">do końca wędrówki ok. 29 min</p>
   </section>
 
   <section class="chapter" id="everest" aria-labelledby="everest-tytul">
     <header class="chapter-head">
       <h2 id="everest-tytul">Everest</h2>
-      <p class="chapter-meta"><span>6 z 11</span> <span class="sep" aria-hidden="true">·</span> <span>8849 m n.p.m.</span> <span class="sep" aria-hidden="true">·</span> <span class="coords">27°59′N 86°56′E</span> <span class="sep sep-note" aria-hidden="true">·</span> <span class="note">[adnotacja]</span></p>
+      <p class="chapter-meta"><span>6 z 11</span> <span class="sep" aria-hidden="true">·</span> <span>8849 m n.p.m.</span> <span class="sep" aria-hidden="true">·</span> <span class="coords">27°59′N 86°56′E</span></p>
     </header>
     <figure class="sketch">
       <picture>
+        <source srcset="assets/web/everest.avif" type="image/avif">
         <source srcset="assets/web/everest.webp" type="image/webp">
         <img src="assets/web/everest.jpg" width="1024" height="1024" loading="lazy" decoding="async" alt="Szkic węglem: maska tlenowa z karbowanym przewodem, leżąca na ziemi.">
       </picture>
@@ -444,7 +476,7 @@
     <aside class="footnotes" aria-label="Przypisy">
       <p id="przypis-2"><span class="fn-num">2</span>Ceny i terminy wypraw na sezon 2026 oraz opis pre-aklimatyzacji hipoksyjnej: Furtenbach Adventures — <a href="https://www.furtenbachadventures.com/en/guidebook/what-are-flash-expeditions/" target="_blank" rel="noopener">furtenbachadventures.com/en/guidebook/what-are-flash-expeditions/</a><a class="fn-back" href="#odnosnik-2" aria-label="Wróć do tekstu">↩︎</a></p>
     </aside>
-    <p class="chapter-end">koniec rozdziału 6 z 11 · do końca ok. 21 min</p>
+    <p class="chapter-end">do końca wędrówki ok. 25 min</p>
   </section>
 
   <section class="chapter" id="babia-gora" aria-labelledby="babia-gora-tytul">
@@ -454,6 +486,7 @@
     </header>
     <figure class="sketch">
       <picture>
+        <source srcset="assets/web/babia-gora.avif" type="image/avif">
         <source srcset="assets/web/babia-gora.webp" type="image/webp">
         <img src="assets/web/babia-gora.jpg" width="1024" height="1024" loading="lazy" decoding="async" alt="Szkic węglem: czołówka z otwartą komorą baterii, obok dwie baterie.">
       </picture>
@@ -499,7 +532,7 @@
     <p>Twój był aktualny wtedy, kiedy ostatnio sprawdzałeś.</p>
     <p>Więc <strong>kiedy ostatnio zmieniłeś zdanie w czymś zawodowym?</strong> Nie „czego się nauczyłeś” — na to każdy ma gotową odpowiedź. Co uważałeś za pewne trzy lata temu, a dziś uważasz inaczej?</p>
     <p>Jeśli nic — możliwe, że masz jeden rok doświadczenia. Powtórzony.</p>
-    <p class="chapter-end">koniec rozdziału 7 z 11 · do końca ok. 18 min</p>
+    <p class="chapter-end">do końca wędrówki ok. 21 min</p>
   </section>
 
   <section class="chapter" id="rysy" aria-labelledby="rysy-tytul">
@@ -509,6 +542,7 @@
     </header>
     <figure class="sketch">
       <picture>
+        <source srcset="assets/web/rysy.avif" type="image/avif">
         <source srcset="assets/web/rysy.webp" type="image/webp">
         <img src="assets/web/rysy.jpg" width="1024" height="1024" loading="lazy" decoding="async" alt="Szkic węglem: pusta drewniana rama na obraz, położona krzywo.">
       </picture>
@@ -600,7 +634,7 @@
     <aside class="footnotes" aria-label="Przypisy">
       <p id="przypis-3"><span class="fn-num">3</span>Statystyki działań ratowniczych TOPR, lato 2026 — <a href="https://topr.pl/statystyki/" target="_blank" rel="noopener">topr.pl/statystyki/</a><a class="fn-back" href="#odnosnik-3" aria-label="Wróć do tekstu">↩︎</a></p>
     </aside>
-    <p class="chapter-end">koniec rozdziału 8 z 11 · do końca ok. 14 min</p>
+    <p class="chapter-end">do końca wędrówki ok. 16 min</p>
   </section>
 
   <section class="chapter" id="gran-paradiso" aria-labelledby="gran-paradiso-tytul">
@@ -610,6 +644,7 @@
     </header>
     <figure class="sketch">
       <picture>
+        <source srcset="assets/web/gran-paradiso.avif" type="image/avif">
         <source srcset="assets/web/gran-paradiso.webp" type="image/webp">
         <img src="assets/web/gran-paradiso.jpg" width="1024" height="1024" loading="lazy" decoding="async" alt="Szkic węglem: kopczyk z pięciu kamieni ustawionych jeden na drugim.">
       </picture>
@@ -719,7 +754,7 @@
       <span class="line"><strong>Polega na tym, że potrafimy zauważyć moment, w którym nasza wiedza przestaje wystarczać.</strong></span>
     </p>
     <p>I wtedy potrafimy powiedzieć: „Nie wiem”.</p>
-    <p class="chapter-end">koniec rozdziału 9 z 11 · do końca ok. 7 min</p>
+    <p class="chapter-end">do końca wędrówki ok. 8 min</p>
   </section>
 
   <section class="chapter" id="skalka" aria-labelledby="skalka-tytul">
@@ -729,6 +764,7 @@
     </header>
     <figure class="sketch">
       <picture>
+        <source srcset="assets/web/skalka.avif" type="image/avif">
         <source srcset="assets/web/skalka.webp" type="image/webp">
         <img src="assets/web/skalka.jpg" width="1024" height="1024" loading="lazy" decoding="async" alt="Szkic węglem: uprząż z lonżą do via ferraty i dwoma zakręcanymi karabinkami.">
       </picture>
@@ -796,7 +832,7 @@
     </p>
     <p>A czasami ktoś po prostu powie:</p>
     <p class="thesis"><strong>„Dawaj. Jeszcze kawałek.”</strong></p>
-    <p class="chapter-end">koniec rozdziału 10 z 11 · do końca ok. 4 min</p>
+    <p class="chapter-end">do końca wędrówki ok. 4 min</p>
   </section>
 
   <section class="chapter" id="grossglockner" aria-labelledby="grossglockner-tytul">
@@ -806,6 +842,7 @@
     </header>
     <figure class="sketch">
       <picture>
+        <source srcset="assets/web/grossglockner.avif" type="image/avif">
         <source srcset="assets/web/grossglockner.webp" type="image/webp">
         <img src="assets/web/grossglockner.jpg" width="1024" height="1024" loading="lazy" decoding="async" alt="Szkic węglem: lina wspinaczkowa z zawiązanym węzłem.">
       </picture>
@@ -879,7 +916,7 @@
       <span class="line"><strong>Sukcesem nie jest samo zdobycie szczytu.</strong></span><br>
       <span class="line"><strong>Sukcesem jest bezpieczny powrót do domu.</strong></span>
     </p>
-    <p class="chapter-end">koniec rozdziału 11 z 11 · do końca ok. 1 min</p>
+    <p class="chapter-end">do końca wędrówki ok. 1 min</p>
   </section>
 
   <section class="chapter coda" id="zakonczenie" aria-labelledby="zakonczenie-tytul">
@@ -888,6 +925,7 @@
     </header>
     <figure class="sketch">
       <picture>
+        <source srcset="assets/web/zakonczenie.avif" type="image/avif">
         <source srcset="assets/web/zakonczenie.webp" type="image/webp">
         <img src="assets/web/zakonczenie.jpg" width="1024" height="1024" loading="lazy" decoding="async" alt="Szkic węglem: pusty emaliowany kubek.">
       </picture>
@@ -917,11 +955,27 @@
     <p class="thesis"><strong>Bo szczyt nie jest końcem drogi. Jest tylko miejscem, z którego widać, ile gór jeszcze przed nami.</strong></p>
   </section>
 
-  <footer class="colophon" aria-label="O tekście i autorze">
-    <p class="colophon-pdf"><a href="nie-kazdy-kto-byl-na-szczycie.pdf" download>pobierz PDF</a></p>
+  <footer class="colophon" aria-label="O autorze">
+    <div class="author">
+      <picture>
+        <source srcset="assets/web/avatar-96.webp 96w, assets/web/avatar-192.webp 192w"
+                sizes="72px" type="image/webp">
+        <img src="assets/web/avatar-96.jpg" srcset="assets/web/avatar-96.jpg 96w, assets/web/avatar-192.jpg 192w"
+             sizes="72px" width="96" height="96" loading="lazy" decoding="async" alt="">
+      </picture>
+      <div>
+        <p class="author-name">Marcin Chruściel</p>
+        <p class="author-line">Nadal się wspinam.</p>
+        <p class="author-links">
+          <a href="https://www.linkedin.com/in/marcin-chrusciel/" target="_blank" rel="noopener">linkedin</a>
+          <a href="https://www.instagram.com/proxima_marcin/" target="_blank" rel="noopener">instagram</a>
+        </p>
+      </div>
+    </div>
+    <p class="colophon-utils">
+      <a href="nie-kazdy-kto-byl-na-szczycie.pdf" download>pobierz PDF</a>
+      <a href="#poczatek">na górę</a>
+    </p>
   </footer>
-
-</article>
-</main>
 </body>
 </html>

@@ -31,17 +31,8 @@
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url("fonts/caveat-latin.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-@font-face {
-  font-family: "Caveat";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("fonts/caveat-latin-ext.woff2") format("woff2");
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  /* tylko znaki z „jest alpinistą” — 5 kB zamiast 51 kB */
+  src: url("fonts/caveat-subset.woff2") format("woff2");
 }
 
 :root {
@@ -1002,6 +993,156 @@ article.is-shaken {
   }
 }
 
+/* ---------- Przejdź do tekstu ----------
+   Widoczne dopiero przy nawigacji klawiaturą */
+
+.skip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 60;
+  padding: 12px 18px;
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  font: 12px/1 var(--mono);
+  color: var(--text);
+  transform: translateY(-120%);
+}
+
+.skip:focus-visible {
+  transform: none;
+}
+
+/* ---------- Trasa jako treść ----------
+   Plan wyprawy po wstępie: numer, nazwa, wysokość. Twarde linie, bez ozdób. */
+
+.route {
+  max-width: var(--measure);
+  margin: var(--sp-chapter) auto 0;
+}
+
+.route h2 {
+  margin-bottom: var(--sp-para);
+}
+
+.route ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--rule);
+}
+
+.route a {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  min-height: 44px;        /* obszar dotyku ≥ 44 px */
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.route-num {
+  font: 11px/1 var(--mono);
+  color: var(--text-quiet);
+}
+
+.route-name {
+  font-family: var(--display);
+  font-size: 1.05em;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.route-alt {
+  margin-left: auto;
+  font: 12px/1 var(--mono);
+  color: var(--text-quiet);
+}
+
+.route a:hover .route-name,
+.route a:focus-visible .route-name {
+  color: var(--accent);
+}
+
+/* ---------- Stopka: karta autora ---------- */
+
+.author {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding-top: var(--sp-para);
+}
+
+.author img {
+  display: block;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;      /* jedyne koło na stronie — twarz, nie kształt */
+  object-fit: cover;
+}
+
+.author p {
+  margin: 0;
+}
+
+.author-name {
+  font-family: var(--display);
+  font-size: 1.15em;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-strong);
+}
+
+.author-line {
+  color: var(--text-quiet);
+}
+
+.author-links {
+  display: flex;
+  gap: 18px;
+  margin-top: 0.4rem !important;
+  font: 12px/1 var(--mono);
+}
+
+.author-links a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.author-links a:hover {
+  text-decoration: underline;
+}
+
+.colophon-utils {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: center;
+  margin-top: var(--sp-group) !important;
+  padding-top: var(--sp-para);
+  border-top: 1px solid var(--rule);
+  font: 11px/1 var(--mono);
+}
+
+.colophon-utils a {
+  color: var(--text-quiet);
+  text-decoration: none;
+}
+
+.colophon-utils a:hover {
+  color: var(--text);
+}
+
+@media print {
+  .skip,
+  .route,
+  .colophon-utils {
+    display: none;
+  }
+}
+
 /* ---------- Trasa (desktop) ----------
    Pionowa oś od „start” do „koniec”, punkty w równych odstępach —
    kolejność rozdziałów, nie wysokość. Przy punktach wysokość (albo słowo przy starcie
@@ -1010,7 +1151,7 @@ article.is-shaken {
 
 .profile-nav {
   --axis: #2a2a2a;         /* oś: bardzo niski kontrast */
-  --row: 32px;             /* odstęp między punktami */
+  --row: 40px;             /* odstęp między punktami */
   display: none;
 }
 
@@ -1031,6 +1172,17 @@ article.is-shaken {
   border-left: 1px solid var(--axis);
 }
 
+/* Ta sama oś pokazuje postęp czytania — akcent rośnie od startu do miejsca, w którym jesteś */
+.profile-nav ol::after {
+  content: "";
+  position: absolute;
+  top: calc(var(--row) / 2);
+  right: 3px;
+  width: 1px;
+  height: calc((100% - var(--row)) * var(--read, 0));
+  background: var(--accent);
+}
+
 /* Punkt na osi, tekst po lewej, wyrównany do prawej: „Rysy 2499 ●”.
    Nazwa aktywnej góry wyrasta w lewo, w stronę tekstu. */
 .profile-nav a {
@@ -1049,8 +1201,8 @@ article.is-shaken {
   position: relative;
   flex: none;
   box-sizing: border-box;
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border: 1px solid currentColor;
   border-radius: 50%;
   background: var(--bg);
@@ -1097,7 +1249,7 @@ article.is-shaken {
     right: 40px;
     z-index: 5;
     transform: translateY(-50%);
-    font: 11px/16px var(--mono);
+    font: 12px/16px var(--mono);
     transition: opacity 0.3s, visibility 0.3s;
   }
 
