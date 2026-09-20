@@ -628,7 +628,23 @@ hr {
 /* ---------- Rozdziały ---------- */
 
 .chapter {
-  margin-top: var(--sp-chapter);
+  margin-top: calc(var(--sp-chapter) / 2);
+}
+
+/* Granica rozdziału: kreska na szerokość kolumny, z równym powietrzem po obu stronach.
+   Suma odstępu zostaje ta sama co wcześniej — zmienia się tylko to, że widać krawędź. */
+.chapter::before {
+  content: "";
+  display: block;
+  height: 1px;
+  margin-bottom: calc(var(--sp-chapter) / 2);
+  background: var(--rule);
+}
+
+@media print {
+  .chapter::before {
+    display: none;
+  }
 }
 
 /* Nagłówek: najpierw nazwa, pod nią numer, wysokość i współrzędne */
