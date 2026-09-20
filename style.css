@@ -80,6 +80,15 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   scrollbar-color: #34322e var(--bg);      /* pasek przewijania w tonacji tła */
+  scroll-padding-top: 2.5rem;              /* cel skoku nie przykleja się do krawędzi */
+}
+
+/* Skok do rozdziału, przypisu czy na górę jedzie płynnie — widać, w którą stronę
+   przesuwa się strona. Przy „ogranicz ruch” i wyłączonych efektach zostaje skok. */
+@media (prefers-reduced-motion: no-preference) {
+  html:not(.effects-off) {
+    scroll-behavior: smooth;
+  }
 }
 
 body {
