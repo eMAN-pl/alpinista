@@ -294,7 +294,7 @@
 
   // --- „cyk”, „klik”, „WTF” i „Enter”: efekty na kliknięcie ---
   // „cyk”   — podwójny błysk flesza na cały ekran.
-  // „klik”  — trzęsie się linijka albo zdanie ze słowem.
+  // „klik”  — linijka albo zdanie ze słowem pisze się od nowa, jak generowane.
   // „WTF”   — słowo się rozsypuje, a tekst szarpie się i na moment odwraca kolory.
   // „Enter” — słowo wciska się jak klawisz.
   // Tylko po kliknięciu, nigdy samo. Nie przy zaznaczaniu tekstu, nie przy wyłączonych efektach.
@@ -336,23 +336,79 @@
     restart(article, "is-shaken");
   }
 
-  // „klik” — trzęsie się linijka albo zdanie ze słowem:
-  //   w bloku z pojedynczymi Enterami — linijka („Klik. Kolejna aplikacja.”),
-  //   w krótkim akapicie (jedna linijka) — cały akapit („Klik. Klik. Klik.”),
-  //   w dłuższym akapicie — zdanie przed słowem razem z nim („Generujemy ogłoszenie. Klik.”).
-  // Zdanie na chwilę dostaje pomocniczy element; po trzęsieniu tekst wraca do dawnej postaci.
+  // „klik” — linijka albo zdanie ze słowem pisze się od nowa, jak generowane:
+  //   znika w całości i wraca porcjami po kilka znaków, nierówno, z migającym kursorem na końcu.
+  //   Cel: linijka w bloku z pojedynczymi Enterami („Klik. Kolejna aplikacja.”),
+  //   krótki akapit („Klik. Klik. Klik.”) albo zdanie przed słowem („Generujemy ogłoszenie. Klik.”).
+  //   Znaki są tylko przezroczyste, więc tekst nie skacze; po wszystkim wraca oryginalny HTML.
   const SHORT = 60;                        // znaków: akapit mieszczący się w jednej linijce
+  const TYPE_MS = 1100;                    // tyle najwyżej trwa wpisywanie
 
-  function shake(word) {
-    const target = word.closest(".jolt-wrap") ?? word.closest(".line") ?? shortParagraph(word) ?? wrapSentence(word);
-    restart(target, "is-jolting");
-    if (!target.classList.contains("jolt-wrap")) return;
-    clearTimeout(target.unwrapTimer);
-    target.unwrapTimer = setTimeout(() => {
-      const parent = target.parentNode;
-      target.replaceWith(...target.childNodes);
-      parent.normalize();
-    }, 400);
+  function retype(word) {
+    const target = word.closest(".fx-wrap") ?? word.closest(".line") ?? shortParagraph(word) ?? wrapSentence(word);
+    if (target.dataset.typing) return;
+    target.dataset.typing = "true";
+    const original = target.innerHTML;
+    const chars = hideChars(target);
+    const caret = document.createElement("span");
+    caret.className = "type-caret";
+    caret.setAttribute("aria-hidden", "true");
+    target.prepend(caret);
+
+    // Rozkład porcji liczymy z góry: kilka znaków naraz, w nierównym rytmie, jak tokeny modelu.
+    // Każda klatka pokazuje to, co powinno być już wpisane — przy słabej płynności porcje są
+    // większe, ale linijka kończy się w tym samym czasie.
+    const chunks = [];
+    let at = 0;
+    let time = 0;
+    while (at < chars.length) {
+      at = Math.min(chars.length, at + 2 + Math.floor(Math.random() * 4));
+      time += 0.6 + Math.random() * 0.8;
+      chunks.push({ at, time });
+    }
+    const duration = Math.min(TYPE_MS, Math.max(280, chars.length * 22));
+    for (const chunk of chunks) chunk.time *= duration / time;
+
+    let shown = 0;
+    let next = 0;
+    let start = 0;
+
+    const step = (now) => {
+      start ||= now;
+      while (next < chunks.length && chunks[next].time <= now - start) {
+        for (const end = chunks[next++].at; shown < end; shown++) chars[shown].style.opacity = "";
+        chars[shown - 1].after(caret);
+      }
+      if (next < chunks.length) {
+        requestAnimationFrame(step);
+        return;
+      }
+      caret.remove();
+      target.innerHTML = original;
+      delete target.dataset.typing;
+      unwrap(target);
+    };
+    requestAnimationFrame(step);
+  }
+
+  // Każdy znak w osobnym elemencie, na razie przezroczysty
+  function hideChars(target) {
+    const walker = document.createTreeWalker(target, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    const chars = [];
+    for (const node of nodes) {
+      const fragment = document.createDocumentFragment();
+      for (const char of node.nodeValue) {
+        const span = document.createElement("span");
+        span.textContent = char;
+        span.style.opacity = "0";
+        chars.push(span);
+        fragment.append(span);
+      }
+      node.replaceWith(fragment);
+    }
+    return chars;
   }
 
   function shortParagraph(word) {
@@ -360,6 +416,14 @@
     return paragraph.textContent.trim().length < SHORT ? paragraph : null;
   }
 
+  function unwrap(target) {
+    if (!target.classList.contains("fx-wrap")) return;
+    const parent = target.parentNode;
+    target.replaceWith(...target.childNodes);
+    parent.normalize();
+  }
+
+  // Zdanie przed słowem razem z nim — na czas efektu w pomocniczym elemencie
   function wrapSentence(word) {
     const paragraph = word.closest("p");
     // Tekst akapitu jako jeden ciąg, z zapamiętanym początkiem każdego węzła tekstu
@@ -392,7 +456,7 @@
     if (word.contains(range.endContainer)) range.setEndAfter(word);
 
     const wrap = document.createElement("span");
-    wrap.className = "jolt-wrap";
+    wrap.className = "fx-wrap";
     wrap.append(range.extractContents());
     range.insertNode(wrap);
     return wrap;
@@ -402,7 +466,7 @@
     const word = event.target.closest(".fx");
     if (!word || !effectsEnabled() || !getSelection().isCollapsed) return;
     if (word.classList.contains("fx-cyk")) snap();
-    else if (word.classList.contains("fx-klik")) shake(word);
+    else if (word.classList.contains("fx-klik")) retype(word);
     else if (word.classList.contains("fx-wtf")) glitch(word);
     else restart(word, "is-pressed");
   });

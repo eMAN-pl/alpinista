@@ -899,32 +899,25 @@ article.is-shaken {
   }
 }
 
-/* „klik” — linijka albo zdanie drgnie o kilka pikseli (element wskazuje script.js) */
-.jolt-wrap,
-.line.is-jolting,
-p.is-jolting {
+/* „klik” — kursor wpisywania: migający prostokąt, nie zajmuje miejsca w wierszu */
+.type-caret {
   position: relative;
+  display: inline-block;
+  width: 0;
 }
 
-.is-jolting {
-  animation: jolt 300ms ease-out;
+.type-caret::after {
+  content: "▍";
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--accent);
+  animation: caret 0.9s steps(1, end) infinite;
 }
 
-@keyframes jolt {
-  20% {
-    left: -3px;
-  }
-
-  45% {
-    left: 3px;
-  }
-
-  70% {
-    left: -1.5px;
-  }
-
-  100% {
-    left: 0;
+@keyframes caret {
+  50% {
+    opacity: 0;
   }
 }
 
@@ -945,7 +938,7 @@ p.is-jolting {
 
 @media (prefers-reduced-motion: reduce) {
   .flash.is-on,
-  .is-jolting,
+  .type-caret::after,
   .fx.is-pressed,
   .fx-wtf.is-glitching,
   .fx-wtf.is-glitching::before,
