@@ -42,8 +42,15 @@
   --text-strong: #f7f3ea;  /* tezy: ~15% jaśniejsze od treści, bez koloru */
   --text-quiet: #ada79c;   /* metadane     ~7.3:1  */
   --nav-quiet: #4a4947;    /* nawigacja nieaktywna: ~28% jasności tekstu (ma znikać przy zmrużeniu oczu) */
-  --accent: #c2a57a;       /* jeden akcent, przygaszony bursztyn (~7.5:1). Tylko: aktywny punkt trasy,
-                              zaznaczenie, focus, linki w przypisach, siatka gór. */
+  --accent: #c2a57a;       /* jeden akcent, przygaszony bursztyn (~7,5:1). Tylko: aktywny punkt trasy,
+                              zaznaczenie, focus, linki w przypisach, siatka gór.
+                              Jeden kolor nie utrzyma 7:1 na obu tłach (potrzebowałby jasności
+                              ≥ 0,086 na ciemnym i ≤ 0,080 na jasnym), więc każdy motyw ma
+                              własną wartość tego samego odcienia. Zamienniki — zmiana w dwóch
+                              linijkach (tu i w motywie jasnym):
+                              bursztyn  #c2a57a / #634716   (7,49 / 7,42)
+                              błękit    #8ab4e0 / #1f4e86   (8,10 / 7,28)
+                              czerwień  #d3907f / #8d3a26   (6,75 / 6,56) */
   --rule: #4d4943;         /* kreski, podkreślenia (dekoracja) */
   --dot: #5e5a53;          /* pasek postępu */
   --flash: #fff;           /* błysk „cyk”; w jasnym motywie ciemny */
@@ -102,28 +109,12 @@
 /* Ziarno papieru musi być ciemne, inaczej na jasnym tle znika */
 :root[data-theme="jasny"] body::after {
   filter: invert(1);
-  opacity: 0.04;
+  opacity: 0.05;
 }
 
 /* Szkice węglem zostają sobą — na papierze nie przejmują tonu strony */
 :root[data-theme="jasny"] .sketch img {
   mix-blend-mode: normal;
-}
-
-@media screen {
-  :root[data-theme="jasny"][data-scene="pilsko"] { --bg: #f7eeda; }
-  :root[data-theme="jasny"][data-scene="dolina-pieciu-stawow"] { --bg: #eaeef4; }
-  :root[data-theme="jasny"][data-scene="kozi-wierch"] { --bg: #f1efe1; }
-  :root[data-theme="jasny"][data-scene="mnich"] { --bg: #eceef1; }
-  :root[data-theme="jasny"][data-scene="marmolada"] { --bg: #e8eef3; }
-  :root[data-theme="jasny"][data-scene="everest"] { --bg: #e7edf5; }
-  :root[data-theme="jasny"][data-scene="babia-gora"] { --bg: #e8eef6; }
-  :root[data-theme="jasny"][data-scene="rysy"] { --bg: #f7ebe4; }
-  :root[data-theme="jasny"][data-scene="gran-paradiso"] { --bg: #e9ecf3; }
-  :root[data-theme="jasny"][data-scene="gran-paradiso"][data-step="swit"] { --bg: #f6ece6; }
-  :root[data-theme="jasny"][data-scene="skalka"] { --bg: #f7edd9; }
-  :root[data-theme="jasny"][data-scene="grossglockner"] { --bg: #eaeff1; }
-  :root[data-theme="jasny"][data-scene="zakonczenie"] { --bg: #f9eed7; }
 }
 
 /* ---------- Czytanie: stopień pisma i motyw (script.js) ----------
@@ -207,9 +198,11 @@ body::after {
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 200px 200px;
-  opacity: 0.05;
+  /* Dwie warstwy szumu: drobna kropka i rzadsze skupiska. Sama drobna kropka wygląda
+     jak szum cyfrowy; dopiero większa plama nad nią daje ziarno kliszy. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.26' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23d)'/%3E%3Crect width='100%25' height='100%25' filter='url(%23s)' opacity='0.4'/%3E%3C/svg%3E");
+  background-size: 240px 240px;
+  opacity: 0.065;
 }
 
 ::selection {
@@ -225,80 +218,11 @@ body::after {
 }
 
 /* ---------- Sceny rozdziałów ----------
-   Każdy rozdział ma własny ton tła: wyczuwalny, ale cichy — ciepłe góry, zimne góry, noc.
-   script.js ustawia html[data-scene] (rozdział) i html[data-step] (etap w rozdziale),
-   tło przechodzi płynnie w 1,5 s. Treść, metadane i akcent zostają ≥ 7:1 na każdym tonie.
-   Ozdobniki rysuje scenes.js na warstwie .scene — pod tekstem, nad tłem.
-   Tylko na ekranie: druk zostaje biały. */
-
-@property --bg {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: #1a1917;
-}
-
-@media screen {
-  :root {
-    transition: --bg 1.5s ease;
-  }
-
-  /* zmiana motywu ma być natychmiastowa, a nie przejechana przez półtorej sekundy */
-  :root.theme-switch {
-    transition: none;
-  }
-
-  :root:not([data-theme="jasny"])[data-scene="pilsko"] {
-    --bg: #231a0f;         /* bursztyn: słoneczny dzień dzieciństwa */
-  }
-
-  :root:not([data-theme="jasny"])[data-scene="dolina-pieciu-stawow"] {
-    --bg: #151a21;         /* chłodne srebro: „księżycowe piękno” */
-  }
-
-  :root:not([data-theme="jasny"])[data-scene="kozi-wierch"] {
-    --bg: #1b1b17;         /* ziemia, mapa */
-  }
-
-  :root:not([data-theme="jasny"])[data-scene="mnich"] {
-    --bg: #1b1b1e;         /* szarość granitu */
-  }
-
-  :root:not([data-theme="jasny"])[data-scene="marmolada"] {
-    --bg: #121a21;         /* lód */
-  }
-
-  :root:not([data-theme="jasny"])[data-scene="everest"] {
-    --bg: #0f1620;         /* najzimniej, rozrzedzone powietrze */
-  }
-
-  :root:not([data-theme="jasny"])[data-scene="babia-gora"] {
-    --bg: #101723;         /* zimowa noc */
-  }
-
-  :root:not([data-theme="jasny"])[data-scene="rysy"] {
-    --bg: #241714;         /* czerwień */
-  }
-
-  :root:not([data-theme="jasny"])[data-scene="gran-paradiso"] {
-    --bg: #0b0d14;         /* noc, pobudka o trzeciej */
-  }
-
-  :root:not([data-theme="jasny"])[data-scene="gran-paradiso"][data-step="swit"] {
-    --bg: #231a1a;         /* „Świt pokazał coś innego” */
-  }
-
-  :root:not([data-theme="jasny"])[data-scene="skalka"] {
-    --bg: #241a11;         /* ciepło */
-  }
-
-  :root:not([data-theme="jasny"])[data-scene="grossglockner"] {
-    --bg: #131a1e;         /* chłodny wiatr */
-  }
-
-  :root:not([data-theme="jasny"])[data-scene="zakonczenie"] {
-    --bg: #271b0f;         /* najcieplej: lampa w schronisku */
-  }
-}
+   Tło jest jedno i nie zmienia się przez cały tekst: płaski ton plus ziarno.
+   Rozdziały różnią się tym, co dzieje się na warstwie .scene — śnieg na Babiej,
+   świetliki pod Gran Paradiso, światło schroniska na końcu (scenes.js).
+   script.js dalej ustawia html[data-scene] i html[data-step]; sterują już tylko
+   ozdobnikami, nie kolorem. */
 
 .scene {
   position: fixed;
@@ -342,6 +266,27 @@ article {
   justify-content: center;
   position: relative;
   padding: var(--hero-pad) clamp(32px, 3.4vw, 72px) var(--hero-pad) var(--hero-pad);
+}
+
+/* Avatar i nazwisko — pierwsza rzecz nad tytułem, w tej samej cichej tonacji co metryka */
+.hero-by {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 clamp(20px, 2.6vh, 32px);
+  font: 11px/1 var(--mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-quiet);
+}
+
+.hero-by img {
+  display: block;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.04) sepia(0.22);
 }
 
 .hero-meta {

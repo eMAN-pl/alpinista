@@ -692,11 +692,6 @@
   }
 
   function setTheme(next) {
-    // Tło scen przechodzi płynnie przez 1,5 s, więc przy zmianie motywu trzeba ten ruch
-    // wyłączyć — inaczej ciemny tekst siedziałby przez chwilę na ciemnym tle.
-    document.documentElement.classList.add("theme-switch");
-    requestAnimationFrame(() => requestAnimationFrame(() =>
-      document.documentElement.classList.remove("theme-switch")));
     document.documentElement.dataset.theme = next;
     theme.textContent = next === "jasny" ? "ciemny" : "jasny";
     theme.setAttribute("aria-label", next === "jasny" ? "Włącz ciemny motyw" : "Włącz jasny motyw");
