@@ -117,6 +117,17 @@
     return step;
   }
 
+  // Pamięć wyboru: w prywatnym oknie po prostu nie zapisujemy
+  function remember(key, value) {
+    try {
+      if (value === undefined) return localStorage.getItem(key);
+      localStorage.setItem(key, value);
+    } catch {
+      // bez pamięci wybór działa do końca wizyty
+    }
+    return value;
+  }
+
   // Efekty: wybór czytelnika z przełącznika, a bez wyboru — ustawienie systemowe „ogranicz ruch”
   function effectsEnabled() {
     try {
@@ -207,7 +218,7 @@
 
   const NOT_COPIED =
     ".chapter-meta, .chapter-end, .fn-ref, .fn-num, .fn-back, " +
-    ".profile-nav, .resume, .copy-link";
+    ".profile-nav, .resume, .copy-bar";
 
   function cleanText(range) {
     const holder = document.createElement("div");
@@ -241,12 +252,17 @@
   //   domena/rozdzial/
   // Link prowadzi do strony rozdziału (z własnym podglądem), która przenosi do #rozdzialu.
 
+  const copyBar = document.createElement("div");
+  copyBar.className = "copy-bar";
+  copyBar.hidden = true;
   const copyButton = document.createElement("button");
-  copyButton.type = "button";
-  copyButton.className = "copy-link";
+  const imageButton = document.createElement("button");
+  copyButton.type = imageButton.type = "button";
   copyButton.textContent = "kopiuj z linkiem";
-  copyButton.hidden = true;
-  document.body.append(copyButton);
+  imageButton.textContent = "obraz";
+  imageButton.setAttribute("aria-label", "Zapisz cytat jako obraz");
+  copyBar.append(copyButton, imageButton);
+  document.body.append(copyBar);
 
   let quote = null;          // { text, section }
   let selectionTimer = 0;
@@ -269,14 +285,14 @@
     const rect = range.getBoundingClientRect();
     const below = rect.top < 60;          // przy górnej krawędzi — pod zaznaczeniem
     copyButton.textContent = "kopiuj z linkiem";
-    copyButton.classList.toggle("is-below", below);
-    copyButton.style.left = `${Math.min(Math.max(rect.left + rect.width / 2, 80), innerWidth - 80)}px`;
-    copyButton.style.top = `${window.scrollY + (below ? rect.bottom + 10 : rect.top - 10)}px`;
-    copyButton.hidden = false;
+    copyBar.classList.toggle("is-below", below);
+    copyBar.style.left = `${Math.min(Math.max(rect.left + rect.width / 2, 80), innerWidth - 80)}px`;
+    copyBar.style.top = `${window.scrollY + (below ? rect.bottom + 10 : rect.top - 10)}px`;
+    copyBar.hidden = false;
   }
 
   function hideCopyButton() {
-    copyButton.hidden = true;
+    copyBar.hidden = true;
     quote = null;
   }
 
@@ -288,7 +304,7 @@
   }
 
   // Zaznaczenie nie znika przy kliknięciu w przycisk
-  copyButton.addEventListener("pointerdown", (event) => event.preventDefault());
+  copyBar.addEventListener("pointerdown", (event) => event.preventDefault());
   copyButton.addEventListener("click", async () => {
     if (!quote) return;
     const text = `„${quote.text}”\n\n— ${TITLE}\n${chapterLink(quote.section)}`;
@@ -299,6 +315,109 @@
       copyButton.textContent = "nie udało się skopiować";
     }
     setTimeout(hideCopyButton, 1200);
+  });
+
+
+  // --- Cytat jako obraz ---
+  // Karta 1200×630 rysowana w przeglądarce: cytat, tytuł i adres. Nic nie wychodzi na serwer.
+  // Na telefonie idzie do okna udostępniania, na komputerze zapisuje się jako plik.
+  const CARD_W = 1200;
+  const CARD_H = 630;
+
+  function cardColors() {
+    const style = getComputedStyle(document.documentElement);
+    return {
+      bg: style.getPropertyValue("--bg").trim() || "#1a1917",
+      text: style.getPropertyValue("--text-strong").trim() || "#f7f3ea",
+      quiet: style.getPropertyValue("--text-quiet").trim() || "#ada79c",
+      accent: style.getPropertyValue("--accent").trim() || "#c2a57a",
+      serif: style.getPropertyValue("--serif").trim(),
+      mono: style.getPropertyValue("--mono").trim(),
+    };
+  }
+
+  function wrap(ctx, text, maxWidth, maxLines) {
+    const words = text.split(/\s+/);
+    const lines = [];
+    let line = "";
+    for (const word of words) {
+      const candidate = line ? `${line} ${word}` : word;
+      if (ctx.measureText(candidate).width > maxWidth && line) {
+        lines.push(line);
+        line = word;
+        if (lines.length === maxLines) return [lines, true];
+      } else {
+        line = candidate;
+      }
+    }
+    lines.push(line);
+    return [lines, false];
+  }
+
+  async function quoteCard(text, section) {
+    await document.fonts.ready;
+    const colors = cardColors();
+    const canvas = document.createElement("canvas");
+    canvas.width = CARD_W;
+    canvas.height = CARD_H;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = colors.bg;
+    ctx.fillRect(0, 0, CARD_W, CARD_H);
+
+    const pad = 76;
+    let size = 44;
+    let lines;
+    let cut;
+    do {
+      ctx.font = `${size}px ${colors.serif}`;
+      [lines, cut] = wrap(ctx, `„${text}”`, CARD_W - pad * 2, 7);
+      if (!cut) break;
+      size -= 4;
+    } while (size > 26);
+
+    ctx.fillStyle = colors.text;
+    ctx.textBaseline = "alphabetic";
+    const lineHeight = size * 1.45;
+    let y = (CARD_H - lines.length * lineHeight) / 2 + size;
+    for (const line of lines) {
+      ctx.fillText(cut && line === lines.at(-1) ? `${line}…` : line, pad, y);
+      y += lineHeight;
+    }
+
+    // stopka karty: kreska akcentu, tytuł i adres
+    ctx.fillStyle = colors.accent;
+    ctx.fillRect(pad, CARD_H - 104, 56, 2);
+    ctx.fillStyle = colors.text;
+    ctx.font = `22px Anton, ${colors.mono}`;
+    ctx.fillText(TITLE.toUpperCase(), pad, CARD_H - 62);
+    ctx.fillStyle = colors.quiet;
+    ctx.font = `17px ${colors.mono}`;
+    ctx.fillText(chapterLink(section), pad, CARD_H - 34);
+    return canvas;
+  }
+
+  imageButton.addEventListener("click", async () => {
+    if (!quote) return;
+    imageButton.textContent = "rysuję…";
+    const canvas = await quoteCard(quote.text, quote.section);
+    const blob = await new Promise((done) => canvas.toBlob(done, "image/png"));
+    const file = new File([blob], "cytat.png", { type: "image/png" });
+    if (navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file] });
+      } catch {
+        // zamknięte okno udostępniania — nic się nie dzieje
+      }
+    } else {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "cytat.png";
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+    imageButton.textContent = "obraz";
+    setTimeout(hideCopyButton, 600);
   });
 
   document.addEventListener("selectionchange", () => {
@@ -541,6 +660,56 @@
     if (event.key === "Escape") setRoute(false);
   });
   wide.addEventListener("change", () => setRoute(false));
+
+  // --- Czytanie: stopień pisma i motyw ---
+  // Trzy stopnie pisma i jasny/ciemny. Wybór pamiętany; bez wyboru decyduje system.
+  // Motyw ustawia też skrypt w nagłówku dokumentu, żeby strona nie mignęła ciemnym tłem.
+  const SIZE_KEY = "alpinista:stopien";
+  const THEME_KEY = "alpinista:motyw";
+  const SIZES = [0.92, 1, 1.12];
+
+  const reader = document.createElement("div");
+  reader.className = "reader";
+  const smaller = document.createElement("button");
+  const bigger = document.createElement("button");
+  const theme = document.createElement("button");
+  smaller.type = bigger.type = theme.type = "button";
+  smaller.textContent = "A−";
+  bigger.textContent = "A+";
+  smaller.setAttribute("aria-label", "Mniejszy tekst");
+  bigger.setAttribute("aria-label", "Większy tekst");
+  reader.append(smaller, bigger, theme);
+  nav.append(reader);
+
+  let size = Number(remember(SIZE_KEY) ?? 1);
+
+  function setSize(next) {
+    size = Math.min(SIZES.length - 1, Math.max(0, next));
+    document.documentElement.style.setProperty("--fs-scale", SIZES[size]);
+    smaller.disabled = size === 0;
+    bigger.disabled = size === SIZES.length - 1;
+    remember(SIZE_KEY, String(size));
+  }
+
+  function setTheme(next) {
+    // Tło scen przechodzi płynnie przez 1,5 s, więc przy zmianie motywu trzeba ten ruch
+    // wyłączyć — inaczej ciemny tekst siedziałby przez chwilę na ciemnym tle.
+    document.documentElement.classList.add("theme-switch");
+    requestAnimationFrame(() => requestAnimationFrame(() =>
+      document.documentElement.classList.remove("theme-switch")));
+    document.documentElement.dataset.theme = next;
+    theme.textContent = next === "jasny" ? "ciemny" : "jasny";
+    theme.setAttribute("aria-label", next === "jasny" ? "Włącz ciemny motyw" : "Włącz jasny motyw");
+    remember(THEME_KEY, next);
+  }
+
+  smaller.addEventListener("click", () => setSize(size - 1));
+  bigger.addEventListener("click", () => setSize(size + 1));
+  theme.addEventListener("click", () =>
+    setTheme(document.documentElement.dataset.theme === "jasny" ? "ciemny" : "jasny"));
+
+  setSize(size);
+  setTheme(document.documentElement.dataset.theme || "ciemny");
 
   // --- Przełącznik efektów (stopka) ---
   // Jedno miejsce dla wszystkiego, co się rusza: scen rozdziałów, paralaksy szkiców

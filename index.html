@@ -14,9 +14,11 @@
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="theme-color" content="#1a1917">
+  <meta name="theme-color" content="#1a1917" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f2eee5" media="(prefers-color-scheme: light)">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="canonical" href="https://eman-pl.github.io/alpinista/">
+  <link rel="alternate" type="application/rss+xml" title="Nie każdy, kto był na szczycie, jest alpinistą" href="feed.xml">
   <link rel="preload" href="fonts/anton-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/caveat-subset.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" as="image" type="image/avif" media="(max-width: 51.25em)"
@@ -26,8 +28,22 @@
         imagesrcset="assets/web/tytul-1000.avif 1000w, assets/web/tytul-1400.avif 1400w, assets/web/tytul-1800.avif 1800w"
         imagesizes="54vw" fetchpriority="high">
   <link rel="stylesheet" href="style.css">
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Nie każdy, kto był na szczycie, jest alpinistą", "description": "W branży projektowej wszyscy są już na szczycie. Wszyscy wygłaszają wzniosłe inwokacje. Wszyscy mają przepiękne kadry. A coraz mniej osób chce się wspinać.", "inLanguage": "pl", "author": {"@type": "Person", "name": "Marcin Chruściel", "sameAs": ["https://www.linkedin.com/in/marcin-chrusciel/", "https://www.instagram.com/proxima_marcin/"]}, "mainEntityOfPage": "https://eman-pl.github.io/alpinista/", "image": "https://eman-pl.github.io/alpinista/assets/og/index.jpg", "wordCount": 9586, "timeRequired": "PT50M"}</script>
-  <script>document.documentElement.className = "js";</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Nie każdy, kto był na szczycie, jest alpinistą", "description": "W branży projektowej wszyscy są już na szczycie. Wszyscy wygłaszają wzniosłe inwokacje. Wszyscy mają przepiękne kadry. A coraz mniej osób chce się wspinać.", "inLanguage": "pl", "author": {"@type": "Person", "name": "Marcin Chruściel", "sameAs": ["https://www.linkedin.com/in/marcin-chrusciel/", "https://www.instagram.com/proxima_marcin/"]}, "mainEntityOfPage": "https://eman-pl.github.io/alpinista/", "image": "https://eman-pl.github.io/alpinista/assets/og/index.jpg", "datePublished": "2026-09-16", "dateModified": "2026-09-16", "wordCount": 9586, "timeRequired": "PT50M"}</script>
+  <script>
+    // Motyw przed pierwszym rysowaniem strony — bez mignięcia ciemnym tłem
+    (() => {
+      const el = document.documentElement;
+      el.className = "js";
+      let wybor = null;
+      try { wybor = localStorage.getItem("alpinista:motyw"); } catch {}
+      el.dataset.theme = wybor
+        || (matchMedia("(prefers-color-scheme: light)").matches ? "jasny" : "ciemny");
+      try {
+        const stopien = localStorage.getItem("alpinista:stopien");
+        if (stopien) el.style.setProperty("--fs-scale", [0.92, 1, 1.12][Number(stopien)]);
+      } catch {}
+    })();
+  </script>
   <script src="script.js" defer></script>
   <script src="scenes.js" defer></script>
 </head>
@@ -955,7 +971,9 @@
     <p class="thesis"><strong>Bo szczyt nie jest końcem drogi. Jest tylko miejscem, z którego widać, ile gór jeszcze przed nami.</strong></p>
   </section>
 
-  <footer class="colophon" aria-label="O autorze">
+  <footer class="colophon" aria-label="O tekście i autorze">
+    <p class="colophon-date">opublikowano 16 września 2026</p>
+
     <div class="author">
       <picture>
         <source srcset="assets/web/avatar-96.webp 96w, assets/web/avatar-192.webp 192w"
@@ -974,6 +992,8 @@
     </div>
     <p class="colophon-utils">
       <a href="nie-kazdy-kto-byl-na-szczycie.pdf" download>pobierz PDF</a>
+      <a href="nie-kazdy-kto-byl-na-szczycie.epub" download>EPUB na czytnik</a>
+      <a href="feed.xml">RSS</a>
       <a href="#poczatek">na górę</a>
     </p>
   </footer>

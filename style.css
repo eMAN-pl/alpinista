@@ -46,6 +46,7 @@
                               zaznaczenie, focus, linki w przypisach, siatka gór. */
   --rule: #4d4943;         /* kreski, podkreślenia (dekoracja) */
   --dot: #5e5a53;          /* pasek postępu */
+  --flash: #fff;           /* błysk „cyk”; w jasnym motywie ciemny */
 
   /* Cztery role: nagłówki Antonem, tekst systemowym szeryfem (bez pobierania),
      metadane monospace, a jeden dopisek ręką (Caveat) */
@@ -57,7 +58,8 @@
           Consolas, "Liberation Mono", monospace;
 
   /* Stopień i kolumna */
-  --fs: clamp(1.125rem, 0.95rem + 0.6vw, 1.25rem);   /* 18px mobile → 20px desktop */
+  --fs-scale: 1;                                     /* trzy stopnie pisma (przełącznik przy spisie) */
+  --fs: calc(clamp(1.125rem, 0.95rem + 0.6vw, 1.25rem) * var(--fs-scale));
   --measure: 34em;                                   /* ~62–68 znaków w wierszu */
   --col: calc(var(--fs) * 34);                       /* ta sama miara w pikselach */
   --edge: 28px;                                      /* minimalny margines od krawędzi */
@@ -74,6 +76,99 @@
   --sp-break: calc(var(--line) * 2);       /* separator --- i koniec rozdziału (3×) */
   --sp-chapter: calc(var(--line) * 4);     /* przed nagłówkiem rozdziału (5×) */
   --sp-head: calc(var(--line) * 2);        /* po nagłówku rozdziału   (3×) */
+}
+
+/* ---------- Jasny motyw ----------
+   Ten sam system ról, inne wartości. Motyw ustawia skrypt w nagłówku dokumentu,
+   zanim strona się narysuje, więc nie ma mignięcia. Domyślnie idzie za ustawieniem
+   systemu; wybór z przełącznika przy spisie ma pierwszeństwo i jest zapamiętywany.
+   Kontrasty: treść 12,7:1, metadane 7,7:1, akcent 7,4:1 — ten sam próg co w ciemnym. */
+
+:root[data-theme="jasny"] {
+  --bg: #f2eee5;           /* ciepły papier */
+  --text: #2b2822;
+  --text-strong: #14120e;
+  --text-quiet: #4f4940;
+  --nav-quiet: #b3aa9a;
+  --accent: #634716;
+  --rule: #cfc7b8;
+  --dot: #b3a894;
+  --flash: #14120e;
+  color-scheme: light;
+  scrollbar-color: #cfc7b8 #f2eee5;
+}
+
+/* Ziarno papieru musi być ciemne, inaczej na jasnym tle znika */
+:root[data-theme="jasny"] body::after {
+  filter: invert(1);
+  opacity: 0.04;
+}
+
+/* Szkice węglem zostają sobą — na papierze nie przejmują tonu strony */
+:root[data-theme="jasny"] .sketch img {
+  mix-blend-mode: normal;
+}
+
+@media screen {
+  :root[data-theme="jasny"][data-scene="pilsko"] { --bg: #f7eeda; }
+  :root[data-theme="jasny"][data-scene="dolina-pieciu-stawow"] { --bg: #eaeef4; }
+  :root[data-theme="jasny"][data-scene="kozi-wierch"] { --bg: #f1efe1; }
+  :root[data-theme="jasny"][data-scene="mnich"] { --bg: #eceef1; }
+  :root[data-theme="jasny"][data-scene="marmolada"] { --bg: #e8eef3; }
+  :root[data-theme="jasny"][data-scene="everest"] { --bg: #e7edf5; }
+  :root[data-theme="jasny"][data-scene="babia-gora"] { --bg: #e8eef6; }
+  :root[data-theme="jasny"][data-scene="rysy"] { --bg: #f7ebe4; }
+  :root[data-theme="jasny"][data-scene="gran-paradiso"] { --bg: #e9ecf3; }
+  :root[data-theme="jasny"][data-scene="gran-paradiso"][data-step="swit"] { --bg: #f6ece6; }
+  :root[data-theme="jasny"][data-scene="skalka"] { --bg: #f7edd9; }
+  :root[data-theme="jasny"][data-scene="grossglockner"] { --bg: #eaeff1; }
+  :root[data-theme="jasny"][data-scene="zakonczenie"] { --bg: #f9eed7; }
+}
+
+/* ---------- Czytanie: stopień pisma i motyw (script.js) ----------
+   Mały zestaw przy spisie rozdziałów, a na telefonie w panelu z trasą. */
+
+.reader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 11px/1 var(--mono);
+}
+
+.reader button {
+  min-width: 34px;
+  min-height: 34px;
+  padding: 0 8px;
+  border: 1px solid var(--rule);
+  background: none;
+  font: inherit;
+  letter-spacing: 0.04em;
+  color: var(--text-quiet);
+  cursor: pointer;
+}
+
+.reader button:hover,
+.reader button:focus-visible {
+  border-color: var(--text-quiet);
+  color: var(--text);
+}
+
+.reader button[disabled] {
+  opacity: 0.4;
+  cursor: default;
+}
+
+@media (max-width: 51.25em) {
+  .reader button {
+    min-width: 44px;       /* obszar dotyku ≥ 44 px */
+    min-height: 44px;
+  }
+}
+
+@media print {
+  .reader {
+    display: none;
+  }
 }
 
 html {
@@ -146,55 +241,60 @@ body::after {
     transition: --bg 1.5s ease;
   }
 
-  :root[data-scene="pilsko"] {
+  /* zmiana motywu ma być natychmiastowa, a nie przejechana przez półtorej sekundy */
+  :root.theme-switch {
+    transition: none;
+  }
+
+  :root:not([data-theme="jasny"])[data-scene="pilsko"] {
     --bg: #231a0f;         /* bursztyn: słoneczny dzień dzieciństwa */
   }
 
-  :root[data-scene="dolina-pieciu-stawow"] {
+  :root:not([data-theme="jasny"])[data-scene="dolina-pieciu-stawow"] {
     --bg: #151a21;         /* chłodne srebro: „księżycowe piękno” */
   }
 
-  :root[data-scene="kozi-wierch"] {
+  :root:not([data-theme="jasny"])[data-scene="kozi-wierch"] {
     --bg: #1b1b17;         /* ziemia, mapa */
   }
 
-  :root[data-scene="mnich"] {
+  :root:not([data-theme="jasny"])[data-scene="mnich"] {
     --bg: #1b1b1e;         /* szarość granitu */
   }
 
-  :root[data-scene="marmolada"] {
+  :root:not([data-theme="jasny"])[data-scene="marmolada"] {
     --bg: #121a21;         /* lód */
   }
 
-  :root[data-scene="everest"] {
+  :root:not([data-theme="jasny"])[data-scene="everest"] {
     --bg: #0f1620;         /* najzimniej, rozrzedzone powietrze */
   }
 
-  :root[data-scene="babia-gora"] {
+  :root:not([data-theme="jasny"])[data-scene="babia-gora"] {
     --bg: #101723;         /* zimowa noc */
   }
 
-  :root[data-scene="rysy"] {
+  :root:not([data-theme="jasny"])[data-scene="rysy"] {
     --bg: #241714;         /* czerwień */
   }
 
-  :root[data-scene="gran-paradiso"] {
+  :root:not([data-theme="jasny"])[data-scene="gran-paradiso"] {
     --bg: #0b0d14;         /* noc, pobudka o trzeciej */
   }
 
-  :root[data-scene="gran-paradiso"][data-step="swit"] {
+  :root:not([data-theme="jasny"])[data-scene="gran-paradiso"][data-step="swit"] {
     --bg: #231a1a;         /* „Świt pokazał coś innego” */
   }
 
-  :root[data-scene="skalka"] {
+  :root:not([data-theme="jasny"])[data-scene="skalka"] {
     --bg: #241a11;         /* ciepło */
   }
 
-  :root[data-scene="grossglockner"] {
+  :root:not([data-theme="jasny"])[data-scene="grossglockner"] {
     --bg: #131a1e;         /* chłodny wiatr */
   }
 
-  :root[data-scene="zakonczenie"] {
+  :root:not([data-theme="jasny"])[data-scene="zakonczenie"] {
     --bg: #271b0f;         /* najcieplej: lampa w schronisku */
   }
 }
@@ -703,32 +803,45 @@ a:hover {
   pointer-events: none;
 }
 
-/* Mały przycisk nad zaznaczeniem: „kopiuj z linkiem” */
-.copy-link {
+/* Nad zaznaczeniem: „kopiuj z linkiem” i „obraz” (karta z cytatem) */
+.copy-bar {
   position: absolute;
   z-index: 30;
-  min-height: 36px;
-  padding: 0 14px;
+  display: flex;
   transform: translate(-50%, -100%);
   border: 1px solid var(--rule);
-  border-radius: 18px;
   background: #262422;
   background: color-mix(in srgb, var(--text) 6%, var(--bg));
+}
+
+.copy-bar.is-below {
+  transform: translate(-50%, 0);
+}
+
+.copy-bar[hidden] {
+  display: none;
+}
+
+.copy-bar button {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0;
+  background: none;
   font: 12px/1 var(--mono);
   color: var(--text);
   cursor: pointer;
 }
 
-.copy-link.is-below {
-  transform: translate(-50%, 0);
+.copy-bar button + button {
+  border-left: 1px solid var(--rule);
 }
 
-.copy-link[hidden] {
-  display: none;
+.copy-bar button:hover {
+  color: var(--accent);
 }
 
 @media (pointer: coarse) {
-  .copy-link {
+  .copy-bar button {
     min-height: 44px;      /* obszar dotyku ≥ 44 px */
   }
 }
@@ -759,7 +872,7 @@ a:hover {
   position: fixed;
   inset: 0;
   z-index: 60;
-  background: #fff;
+  background: var(--flash);
   opacity: 0;
   pointer-events: none;
 }
@@ -1075,7 +1188,46 @@ article.is-shaken {
   color: var(--accent);
 }
 
-/* ---------- Stopka: karta autora ---------- */
+/* ---------- Stopka: data, dziennik zmian, karta autora ---------- */
+
+.colophon-date {
+  margin: 0 !important;
+  font: 11px/1.5 var(--mono);
+  letter-spacing: 0.04em;
+  color: var(--text-quiet);
+}
+
+/* „Co się zmieniło w tekście” — zwinięte, rozwija się bez skryptu */
+.changes {
+  margin-top: var(--sp-para);
+  font: 12px/1.6 var(--mono);
+  color: var(--text-quiet);
+}
+
+.changes summary {
+  cursor: pointer;
+  color: var(--text-quiet);
+}
+
+.changes summary:hover {
+  color: var(--text);
+}
+
+.changes ol {
+  margin: var(--sp-para) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.changes li {
+  padding: 6px 0;
+  border-top: 1px solid var(--rule);
+}
+
+.changes li span {
+  color: var(--accent);
+}
+
 
 .author {
   display: flex;
@@ -1258,6 +1410,11 @@ article.is-shaken {
    („Via ferrata na Skalce 1236”, ~190px) + 40px marginesu + pasek przewijania
    mieszczą się od ~1360px. */
 @media (min-width: 85em) {
+  .profile-nav .reader {
+    margin-top: 18px;
+    justify-content: flex-end;
+  }
+
   .profile-nav {
     display: block;
     position: fixed;
@@ -1380,6 +1537,12 @@ article.is-shaken {
   }
 
   /* W panelu: oś po lewej, „● Kozi Wierch ……… 2291” */
+  .js.route-open .profile-nav .reader {
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--rule);
+  }
+
   .js.route-open .profile-nav ol::before {
     left: 3px;
     right: auto;
@@ -1554,7 +1717,7 @@ article.is-shaken {
   .progress,
   .profile-nav,
   .resume,
-  .copy-link,
+  .copy-bar,
   .hero-shot,
   .scene,
   .route-toggle,
