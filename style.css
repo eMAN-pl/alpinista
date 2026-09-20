@@ -68,7 +68,8 @@
   /* Stopień i kolumna */
   --fs: clamp(1.125rem, 0.95rem + 0.6vw, 1.25rem);   /* 18px mobile → 20px desktop */
   --measure: 34em;                                   /* ~62–68 znaków w wierszu */
-  --edge: 24px;                                      /* minimalny margines od krawędzi */
+  --col: calc(var(--fs) * 34);                       /* ta sama miara w pikselach */
+  --edge: 28px;                                      /* minimalny margines od krawędzi */
   --hero-pad: clamp(30px, 4.8vw, 104px);             /* margines wewnątrz płaszczyzny tytułowej */
 
   /* Rytm pionowy — jedna skala, w wielokrotnościach interlinii.
@@ -227,6 +228,7 @@ article {
 
 .hero {
   display: grid;
+  border-bottom: 1px solid var(--rule);
   grid-template-columns: minmax(0, 46fr) minmax(0, 54fr);
   height: 100svh;
   min-height: 520px;
@@ -326,11 +328,12 @@ article {
 
   .hero-type {
     justify-content: flex-start;
-    padding: var(--hero-pad) var(--hero-pad) clamp(24px, 3.4vh, 32px);
+    padding: var(--hero-pad) var(--edge) clamp(24px, 3.4vh, 32px) var(--edge);
   }
 
   .hero-foot {
     position: static;
+    left: auto;
     margin-top: auto;
     padding-top: 24px;
   }
@@ -518,7 +521,7 @@ hr {
 /* ---------- Start (wstęp) ---------- */
 
 .intro {
-  margin-top: var(--sp-group);
+  margin-top: var(--sp-chapter);   /* po pełnoekranowym tytule tekst potrzebuje oddechu */
   scroll-margin-top: 2.5rem;   /* kliknięcie w ekran tytułowy zatrzymuje się tuż nad „Start” */
 }
 
