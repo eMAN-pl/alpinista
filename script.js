@@ -17,6 +17,8 @@
   const links = new Map(
     [...document.querySelectorAll(".profile-nav a")].map((a) => [a.hash.slice(1), a])
   );
+  // pozycja każdego punktu na osi — do wypełniania minionych punktów
+  const order = new Map(sections.map((section, i) => [section.id, i]));
 
   const PLACE_KEY = "alpinista:miejsce";   // localStorage: rozdział + miejsce w nim
   const EFFECTS_KEY = "alpinista:efekty";  // localStorage: wybór z przełącznika w stopce
@@ -38,14 +40,26 @@
     const span = box.height - vh;
     const progress = span > 0 ? Math.min(1, Math.max(0, -box.top / span)) : 1;
     bar.style.transform = `scaleX(${progress})`;
-    document.documentElement.style.setProperty("--read", progress.toFixed(3));   // oś spisu
 
     // Aktywny punkt trasy: ostatnia część, której początek minął górną trzecią ekranu
     let active = null;
-    for (const section of sections) {
+    let index = -1;
+    for (const [i, section] of sections.entries()) {
       if (section.getBoundingClientRect().top > vh / 3) break;
       active = section.id;
+      index = i;
     }
+
+    // Oś spisu liczy w skali punktów, nie znaków: dochodzi do punktu rozdziału, gdy ten się zaczyna,
+    // i przesuwa się do następnego w miarę czytania. Punkty są równo rozstawione, rozdziały nie są.
+    let read = 0;
+    if (index >= 0) {
+      const box = sections[index].getBoundingClientRect();
+      const part = Math.min(1, Math.max(0, (vh / 3 - box.top) / Math.max(1, box.height)));
+      read = Math.min(1, (index + part) / Math.max(1, sections.length - 1));
+    }
+    document.documentElement.style.setProperty("--read", read.toFixed(4));
+    links.forEach((link, id) => link.classList.toggle("is-passed", order.get(id) <= index));
 
     // Spis pojawia się od startu — ekran tytułowy zostaje czysty
     document.documentElement.classList.toggle("nav-on", active !== null);

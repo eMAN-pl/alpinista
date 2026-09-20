@@ -1234,7 +1234,14 @@ article.is-shaken {
   color: var(--accent);
 }
 
+/* Punkt, który minęła złota linia — wypełniony, ale ciszej niż punkt bieżący */
+.profile-nav a.is-passed .pn-dot {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 55%, var(--bg));
+}
+
 .profile-nav a[aria-current] .pn-dot {
+  border-color: var(--accent);
   background: var(--accent);
 }
 
