@@ -901,18 +901,19 @@ article.is-shaken {
 
 /* „klik” — kursor wpisywania: migający prostokąt, nie zajmuje miejsca w wierszu */
 .type-caret {
-  position: relative;
   display: inline-block;
-  width: 0;
+  width: 0;                /* nie zajmuje miejsca — tekst nie drgnie, gdy kursor idzie dalej */
 }
 
+/* Prostokąt rysowany wprost, nie znakiem — znak blokowy w szeryfach siada pod linią pisma */
 .type-caret::after {
-  content: "▍";
-  position: absolute;
-  top: 0;
-  left: 0;
-  color: var(--accent);
-  animation: caret 0.9s steps(1, end) infinite;
+  content: "";
+  display: inline-block;
+  width: 0.45em;
+  height: 0.95em;
+  margin-bottom: -0.12em;  /* stoi na linii pisma, jak kursor w terminalu */
+  background: var(--accent);
+  animation: caret 1.05s steps(1, end) infinite;
 }
 
 @keyframes caret {

@@ -342,7 +342,7 @@
   //   krótki akapit („Klik. Klik. Klik.”) albo zdanie przed słowem („Generujemy ogłoszenie. Klik.”).
   //   Znaki są tylko przezroczyste, więc tekst nie skacze; po wszystkim wraca oryginalny HTML.
   const SHORT = 60;                        // znaków: akapit mieszczący się w jednej linijce
-  const TYPE_MS = 1100;                    // tyle najwyżej trwa wpisywanie
+  const TYPE_MS = 1800;                    // tyle najwyżej trwa wpisywanie
 
   function retype(word) {
     const target = word.closest(".fx-wrap") ?? word.closest(".line") ?? shortParagraph(word) ?? wrapSentence(word);
@@ -366,7 +366,7 @@
       time += 0.6 + Math.random() * 0.8;
       chunks.push({ at, time });
     }
-    const duration = Math.min(TYPE_MS, Math.max(280, chars.length * 22));
+    const duration = Math.min(TYPE_MS, Math.max(420, chars.length * 38));
     for (const chunk of chunks) chunk.time *= duration / time;
 
     let shown = 0;
