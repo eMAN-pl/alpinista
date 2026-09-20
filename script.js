@@ -714,7 +714,7 @@
   // --- Przełącznik efektów (stopka) ---
   // Jedno miejsce dla wszystkiego, co się rusza: scen rozdziałów, paralaksy szkiców
   // i efektów przy słowach. Wybór pamiętany w localStorage; bez wyboru decyduje system.
-  const colophon = document.querySelector(".colophon");
+  const colophon = document.querySelector(".colophon-utils");
   const toggle = document.createElement("button");
   toggle.type = "button";
   toggle.className = "effects-toggle";

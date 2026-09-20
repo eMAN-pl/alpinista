@@ -792,19 +792,13 @@ a:hover {
 .colophon::before {
   content: "";
   display: block;
-  width: 3em;
-  margin-bottom: 1.5em;
-  border-top: 1px solid var(--rule);
+  height: 1px;
+  margin-bottom: var(--sp-chapter);
+  background: var(--rule);
 }
 
 .colophon p {
   margin: 0 0 0.8em;
-}
-
-.colophon-pdf,
-.colophon-mail {
-  font-family: var(--mono);
-  font-size: 0.9em;
 }
 
 .colophon a {
@@ -1208,25 +1202,107 @@ article.is-shaken {
   color: var(--accent);
 }
 
-/* ---------- Stopka: data, dziennik zmian, karta autora ---------- */
+/* ---------- Stopka ----------
+   Zamknięcie eseju: kto to pisał, kiedy, i gdzie zabrać tekst ze sobą.
+   Wszystko w jednej kolumnie, trzy poziomy głośności: autor, metryka, narzędzia. */
+
+.author {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Zdjęcie schodzi do tonacji strony — kolorowa fotografia rozbijałaby monochromatyczny układ */
+.author img {
+  display: block;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.04) sepia(0.22);
+}
+
+.author p {
+  margin: 0 !important;
+}
+
+.author-name {
+  font-family: var(--serif);
+  font-size: 1.45em;
+  line-height: 1.2;
+  color: var(--text-strong);
+}
+
+.author-line {
+  font-size: 1.15em;
+  color: var(--text-quiet);
+}
+
+.author-links {
+  display: flex;
+  gap: 8px;
+  margin-top: 0.5em !important;
+  font: 11px/1 var(--mono);
+  letter-spacing: 0.04em;
+}
+
+.author-links a,
+.colophon-utils a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.author-links a:hover,
+.colophon-utils a:hover {
+  text-decoration: underline;
+}
+
+/* Kropka rozdziela kolejne pozycje — bez ramek i bez przycisków */
+.author-links a + a::before,
+.colophon-utils > *:not(:first-child)::before {
+  content: "·";
+  margin-right: 8px;
+  color: var(--rule);
+}
 
 .colophon-date {
-  margin: 0 !important;
-  font: 11px/1.5 var(--mono);
+  margin: var(--sp-group) 0 0 !important;
+  font: 11px/1.6 var(--mono);
   letter-spacing: 0.04em;
   color: var(--text-quiet);
+}
+
+.colophon-utils {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+  margin: var(--sp-para) 0 0 !important;
+  font: 11px/1.6 var(--mono);
+  letter-spacing: 0.04em;
+}
+
+.colophon-utils .effects-toggle {
+  min-height: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  color: var(--accent);
+}
+
+.colophon-utils .effects-toggle:hover {
+  text-decoration: underline;
 }
 
 /* „Co się zmieniło w tekście” — zwinięte, rozwija się bez skryptu */
 .changes {
   margin-top: var(--sp-para);
-  font: 12px/1.6 var(--mono);
+  font: 11px/1.6 var(--mono);
+  letter-spacing: 0.04em;
   color: var(--text-quiet);
 }
 
 .changes summary {
   cursor: pointer;
-  color: var(--text-quiet);
 }
 
 .changes summary:hover {
@@ -1248,79 +1324,9 @@ article.is-shaken {
   color: var(--accent);
 }
 
-
-.author {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding-top: var(--sp-para);
-}
-
-.author img {
-  display: block;
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;      /* jedyne koło na stronie — twarz, nie kształt */
-  object-fit: cover;
-}
-
-.author p {
-  margin: 0;
-}
-
-.author-name {
-  font-family: var(--display);
-  font-size: 1.15em;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  color: var(--text-strong);
-}
-
-.author-line {
-  color: var(--text-quiet);
-}
-
-.author-links {
-  display: flex;
-  gap: 18px;
-  margin-top: 0.4rem !important;
-  font: 12px/1 var(--mono);
-}
-
-.author-links a {
-  color: var(--accent);
-  text-decoration: none;
-}
-
-.author-links a:hover {
-  text-decoration: underline;
-}
-
-.colophon-utils {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  align-items: center;
-  margin-top: var(--sp-group) !important;
-  padding-top: var(--sp-para);
-  border-top: 1px solid var(--rule);
-  font: 11px/1 var(--mono);
-}
-
-.colophon-utils a {
-  color: var(--text-quiet);
-  text-decoration: none;
-}
-
-.colophon-utils a:hover {
-  color: var(--text);
-}
-
-@media print {
-  .skip,
-  .route,
-  .colophon-utils {
-    display: none;
+@media (max-width: 51.25em) {
+  .colophon-utils .effects-toggle {
+    min-height: 44px;      /* obszar dotyku ≥ 44 px */
   }
 }
 
