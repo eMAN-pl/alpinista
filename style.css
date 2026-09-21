@@ -197,10 +197,18 @@
     transition: opacity 0.15s ease;
   }
 
-  /* Na ekranie tytułowym przycisk stoi u góry, więc podpowiedź spada pod niego */
+  /* Na ekranie tytułowym przycisk stoi u góry, więc podpowiedź spada pod niego,
+     a przy lewej krawędzi rozwija się w prawo, nie poza ekran */
   .hero-by .theme-toggle[data-tip]::after {
     top: calc(100% + 10px);
     bottom: auto;
+  }
+
+  @media (width > 51.25em) {
+    .hero-by .theme-toggle[data-tip]::after {
+      left: 0;
+      right: auto;
+    }
   }
 
   .theme-toggle:hover::after,
@@ -366,6 +374,17 @@ article {
 
 .hero-by .theme-toggle {
   margin-left: auto;
+}
+
+/* Na dwóch płaszczyznach przełącznik idzie w górny lewy róg ekranu — podpis zostaje
+   podpisem, a ikona nie wisi w połowie wysokości przy krawędzi zdjęcia. */
+@media (width > 51.25em) {
+  .hero-by .theme-toggle {
+    position: absolute;
+    top: var(--hero-pad);
+    left: var(--hero-pad);
+    margin-left: 0;
+  }
 }
 
 .hero-foot {
