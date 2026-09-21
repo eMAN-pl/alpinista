@@ -64,10 +64,6 @@
     // Spis pojawia się od startu — ekran tytułowy zostaje czysty
     document.documentElement.classList.toggle("nav-on", active !== null);
 
-    // Scena: rozdział i etap w nim (kolory tła w style.css, ozdobniki w scenes.js)
-    setScene("scene", active);
-    setScene("step", active && lastStep(document.getElementById(active), vh));
-
     if (active !== current) {
       links.get(current)?.removeAttribute("aria-current");
       links.get(active)?.setAttribute("aria-current", "location");
@@ -95,26 +91,6 @@
     if (queued) return;
     queued = true;
     requestAnimationFrame(update);
-  }
-
-  // html[data-scene] / html[data-step] — zmieniane tylko przy zmianie, bo śledzi je scenes.js
-  function setScene(key, value) {
-    const data = document.documentElement.dataset;
-    if (value) {
-      if (data[key] !== value) data[key] = value;
-    } else if (key in data) {
-      delete data[key];
-    }
-  }
-
-  // Etap w rozdziale: ostatni akapit z data-step, który minął środek ekranu
-  function lastStep(section, vh) {
-    let step = null;
-    for (const node of section.querySelectorAll("[data-step]")) {
-      if (node.getBoundingClientRect().top > vh / 2) break;
-      step = node.dataset.step;
-    }
-    return step;
   }
 
   // Pamięć wyboru: w prywatnym oknie po prostu nie zapisujemy
