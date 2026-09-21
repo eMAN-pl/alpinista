@@ -803,7 +803,9 @@ a:hover {
    Po ostatnim zdaniu, cicho: PDF bez bramki, dwa zdania o autorze, adres e-mail. */
 
 .colophon {
-  max-width: var(--measure);
+  /* --col to ta sama miara co --measure, tylko w pikselach: stopka ma mniejsze pismo,
+     więc 34em wyszłoby o 110 px węższe od kolumny tekstu i wpadłoby do środka */
+  max-width: var(--col);
   margin: var(--sp-chapter) auto 0;
   font-size: 0.82em;
   line-height: 1.6;
