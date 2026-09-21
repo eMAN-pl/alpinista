@@ -29,7 +29,6 @@
   let queued = false;
   let lastSave = 0;
   let resume = null;                       // pasek „wróć tam”, jeśli jest pokazany
-  let lastY = window.scrollY;              // kierunek przewijania — dla przycisku trasy
 
   function update() {
     queued = false;
@@ -78,13 +77,6 @@
       lastSave = now;
     }
     if (resume && window.scrollY > 300) hideResume();
-
-    // Przycisk trasy (węższe ekrany): chowa się przy czytaniu w dół, wraca przy przewijaniu w górę
-    const y = window.scrollY;
-    if (Math.abs(y - lastY) > 16) {
-      document.documentElement.classList.toggle("route-away", y > lastY);
-      lastY = y;
-    }
   }
 
   function queueUpdate() {
@@ -581,20 +573,21 @@
   });
 
   // --- Trasa na węższych ekranach ---
-  // Boczny spis mieści się dopiero od 85em. Niżej: cichy przycisk w prawym dolnym rogu
-  // z bieżącym rozdziałem otwiera ten sam spis jako panel od dołu ekranu.
-  // Przy czytaniu (przewijanie w dół) przycisk się chowa, wraca przy przewijaniu w górę.
+  // Boczny spis mieści się dopiero od 85em. Niżej: okrągły przycisk w prawym dolnym rogu
+  // (ikona mapy, Lucide, ISC) otwiera ten sam spis jako panel od dołu ekranu.
+  // Stoi tam przez cały czas czytania, a pierścień wokół niego pokazuje postęp.
   const nav = document.querySelector(".profile-nav");
   const wide = matchMedia("(min-width: 85em)");
   const routeButton = document.createElement("button");
-  const routeLabel = document.createElement("span");
   const backdrop = document.createElement("div");
   routeButton.type = "button";
   routeButton.className = "route-toggle";
   routeButton.setAttribute("aria-controls", "trasa");
   routeButton.setAttribute("aria-expanded", "false");
-  routeLabel.className = "route-label";
-  routeButton.append(routeLabel);
+  routeButton.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+    <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/>
+    <path d="M15 5.764v15"/><path d="M9 3.236v15"/></svg>`;
   backdrop.className = "route-backdrop";
   backdrop.hidden = true;
   nav.id = "trasa";
@@ -607,8 +600,7 @@
     const label = !section || section === intro ? "start"
       : section.classList.contains("coda") ? "koniec"
       : `${number} · ${name}`;
-    routeLabel.textContent = label;
-    routeButton.setAttribute("aria-label", `Spis rozdziałów, teraz: ${label}`);
+    routeButton.setAttribute("aria-label", `Rozdziały i ustawienia, teraz: ${label}`);
   }
 
   const routeOpen = () => routeButton.getAttribute("aria-expanded") === "true";

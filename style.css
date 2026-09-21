@@ -1403,7 +1403,8 @@ article.is-shaken {
    Boczny spis mieści się od 85em. Niżej: cichy przycisk w prawym dolnym rogu
    z bieżącym rozdziałem otwiera ten sam spis jako panel od dołu ekranu —
    pełne nazwy, wysokości, bieżący rozdział w akcencie, wiersze ≥ 44 px.
-   Przy czytaniu w dół przycisk się chowa, wraca przy przewijaniu w górę. */
+   Przycisk stoi w prawym dolnym rogu przez cały czas czytania — znika tylko wtedy,
+   gdy panel jest otwarty, bo zasłaniałby jego dolny wiersz. */
 
 .route-toggle,
 .route-backdrop {
@@ -1421,37 +1422,37 @@ article.is-shaken {
     bottom: calc(16px + env(safe-area-inset-bottom));
     z-index: 25;
     align-items: center;
-    gap: 10px;
-    max-width: calc(100% - 2 * var(--edge));
-    min-height: 44px;        /* obszar dotyku ≥ 44 px */
-    padding: 0 16px;
+    justify-content: center;
+    width: 52px;             /* obszar dotyku ≥ 44 px */
+    height: 52px;
+    padding: 0;
     border: 1px solid var(--rule);
-    border-radius: 22px;
+    border-radius: 50%;
     background: #262422;
     background: color-mix(in srgb, var(--text) 6%, var(--bg));
-    font: 12px/1 var(--mono);
     color: var(--text-quiet);
     cursor: pointer;
     transition: opacity 0.3s ease, transform 0.3s ease;
   }
 
-  /* Punkt trasy — ten sam znak co w spisie */
-  .route-toggle::before {
-    content: "";
-    flex: none;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--accent);
+  .route-toggle svg {
+    width: 22px;
+    height: 22px;
   }
 
-  .route-label {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+  /* Pierścień wokół przycisku to ten sam postęp czytania co oś w spisie —
+     bez niego przycisk nic nie mówi o tym, gdzie się jest. */
+  @supports (mask: radial-gradient(#000, #000)) {
+    .route-toggle::before {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      background: conic-gradient(var(--accent) calc(var(--read, 0) * 360deg), transparent 0);
+      mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+    }
   }
 
-  .js.route-away .route-toggle,
   .js.route-open .route-toggle {
     opacity: 0;
     transform: translateY(12px);
@@ -1603,6 +1604,15 @@ article.is-shaken {
 @keyframes resume-in {
   from {
     opacity: 0;
+  }
+}
+
+/* Na węższych ekranach w prawym dolnym rogu stoi okrągły przycisk trasy,
+   więc pasek powrotu trzyma się lewej i nigdy pod niego nie wchodzi. */
+@media (width < 85em) {
+  .resume {
+    max-width: calc(100% - 2 * var(--edge) - 64px);
+    margin-inline: 0 auto;
   }
 }
 
