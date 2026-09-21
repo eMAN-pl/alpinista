@@ -636,18 +636,50 @@
   const THEME_KEY = "alpinista:motyw";
   const SIZES = [0.92, 1, 1.12];
 
+  // Słońce i księżyc (Lucide, ISC) — wklejone w kod, bez pobierania biblioteki
+  const ICONS = `<svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/>
+      <path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/>
+      <path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+    <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
+
+  const themeButtons = [];
+
+  function themeButton() {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "theme-toggle";
+    button.innerHTML = ICONS;
+    button.addEventListener("click", () =>
+      setTheme(document.documentElement.dataset.theme === "jasny" ? "ciemny" : "jasny"));
+    themeButtons.push(button);
+    return button;
+  }
+
   const reader = document.createElement("div");
   reader.className = "reader";
   const smaller = document.createElement("button");
   const bigger = document.createElement("button");
-  const theme = document.createElement("button");
-  smaller.type = bigger.type = theme.type = "button";
+  smaller.type = bigger.type = "button";
   smaller.textContent = "A−";
   bigger.textContent = "A+";
   smaller.setAttribute("aria-label", "Mniejszy tekst");
   bigger.setAttribute("aria-label", "Większy tekst");
-  reader.append(smaller, bigger, theme);
-  nav.append(reader);
+  reader.append(smaller, bigger, themeButton());
+
+  // Szeroki ekran: zestaw w prawym dolnym rogu. Węższy: w panelu z trasą, bo róg
+  // zajmuje przycisk trasy. Przełącznik motywu stoi dodatkowo przy nazwisku na starcie.
+  function placeReader() {
+    if (wide.matches) document.body.append(reader);
+    else nav.append(reader);
+  }
+
+  placeReader();
+  wide.addEventListener("change", placeReader);
+  document.querySelector(".hero-by")?.append(themeButton());
 
   let size = Number(remember(SIZE_KEY) ?? 1);
 
@@ -664,16 +696,16 @@
     // pasek adresu na telefonie idzie za motywem strony, a nie za ustawieniem systemu
     const bar = document.querySelector('meta[name="theme-color"]');
     if (bar) bar.content = next === "jasny" ? "#f2eee5" : "#1a1917";
-    theme.textContent = next === "jasny" ? "ciemny" : "jasny";
-    theme.setAttribute("aria-label", next === "jasny" ? "Włącz ciemny motyw" : "Włącz jasny motyw");
+    const label = next === "jasny" ? "Tryb ciemny" : "Tryb jasny";
+    for (const button of themeButtons) {
+      button.setAttribute("aria-label", label);
+      button.dataset.tip = label.toLowerCase();
+    }
     remember(THEME_KEY, next);
   }
 
   smaller.addEventListener("click", () => setSize(size - 1));
   bigger.addEventListener("click", () => setSize(size + 1));
-  theme.addEventListener("click", () =>
-    setTheme(document.documentElement.dataset.theme === "jasny" ? "ciemny" : "jasny"));
-
   setSize(size);
   setTheme(document.documentElement.dataset.theme || "ciemny");
 
