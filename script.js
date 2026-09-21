@@ -669,6 +669,9 @@
 
   function setTheme(next) {
     document.documentElement.dataset.theme = next;
+    // pasek adresu na telefonie idzie za motywem strony, a nie za ustawieniem systemu
+    const bar = document.querySelector('meta[name="theme-color"]');
+    if (bar) bar.content = next === "jasny" ? "#f2eee5" : "#1a1917";
     theme.textContent = next === "jasny" ? "ciemny" : "jasny";
     theme.setAttribute("aria-label", next === "jasny" ? "Włącz ciemny motyw" : "Włącz jasny motyw");
     remember(THEME_KEY, next);

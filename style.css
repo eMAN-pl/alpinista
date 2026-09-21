@@ -1266,7 +1266,7 @@ article.is-shaken {
    i przy fokusie — żeby dało się skoczyć do rozdziału. */
 
 .profile-nav {
-  --axis: #2a2a2a;         /* oś: bardzo niski kontrast */
+  --axis: color-mix(in srgb, var(--text) 12%, var(--bg));   /* oś: bardzo niski kontrast, w obu motywach */
   --row: 40px;             /* odstęp między punktami */
   display: none;
 }
@@ -1491,14 +1491,17 @@ article.is-shaken {
     animation: sheet-in 0.25s ease-out;
   }
 
-  /* W panelu: oś po lewej, „● Kozi Wierch ……… 2291” */
+  /* W panelu: oś po lewej, „● Kozi Wierch ……… 2291”.
+     Zestaw do czytania stoi pod listą, więc kreska oddziela go od góry —
+     na dole panelu wyglądałaby jak zgubiona linijka. */
   .js.route-open .profile-nav .reader {
-    margin-bottom: 14px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid var(--rule);
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--rule);
   }
 
-  .js.route-open .profile-nav ol::before {
+  .js.route-open .profile-nav ol::before,
+  .js.route-open .profile-nav ol::after {
     left: 3px;
     right: auto;
   }
