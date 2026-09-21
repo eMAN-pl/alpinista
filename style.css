@@ -252,45 +252,39 @@ article {
   padding: var(--hero-pad) clamp(32px, 3.4vw, 72px) var(--hero-pad) var(--hero-pad);
 }
 
-/* Avatar i nazwisko — pierwsza rzecz nad tytułem, w tej samej cichej tonacji co metryka */
+/* Pod tytułem jedna linijka: kto to pisał i ile to potrwa. Nic więcej. */
 .hero-by {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin: 0 0 clamp(20px, 2.6vh, 32px);
+  gap: 16px;
+  margin: clamp(26px, 3.6vh, 44px) 0 0;
   font: 11px/1 var(--mono);
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--text-quiet);
 }
 
 .hero-by img {
   display: block;
-  width: 44px;
-  height: 44px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   object-fit: cover;
   filter: grayscale(1) contrast(1.04) sepia(0.22);
 }
 
-.hero-meta {
+.hero-who {
   display: flex;
-  align-items: center;
-  gap: 14px;
-  margin: 0 0 clamp(26px, 3.6vh, 44px);
-  font: 11px/1 var(--mono);
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hero-name {
   color: var(--text-quiet);
 }
 
-/* kreska dopowiadająca linię metadanych */
-.hero-meta::after {
-  content: "";
-  flex: 1;
-  max-width: 120px;
-  height: 1px;
-  background: var(--rule);
+/* Czas jest zaproszeniem, nie metryką — stoi o stopień ciszej od nazwiska */
+.hero-time {
+  color: color-mix(in srgb, var(--text-quiet) 72%, var(--bg));
 }
 
 .hero-foot {
@@ -299,7 +293,6 @@ article {
   right: clamp(32px, 3.4vw, 72px);
   bottom: var(--hero-pad);
   display: flex;
-  justify-content: space-between;
   align-items: center;
   margin: 0;
   font: 11px/1 var(--mono);
@@ -307,8 +300,7 @@ article {
   text-transform: uppercase;
 }
 
-.hero-foot a,
-.hero-foot span {
+.hero-foot a {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -316,12 +308,7 @@ article {
   text-decoration: none;
 }
 
-.hero-foot span {
-  color: #6b665f;
-}
-
-.hero-foot a::after,
-.hero-foot span::after {
+.hero-foot a::after {
   content: "";
   width: 40px;
   height: 1px;
@@ -366,10 +353,6 @@ article {
     left: auto;
     margin-top: auto;
     padding-top: 24px;
-  }
-
-  .hero-foot a {
-    display: none;        /* „przewiń” zbędne przy dotyku */
   }
 }
 
@@ -1605,6 +1588,12 @@ article.is-shaken {
   from {
     opacity: 0;
   }
+}
+
+/* Dopóki czytelnik stoi na ekranie tytułowym, pasek powrotu unosi się nad
+   „rozpocznij wędrówkę” — dwa zaproszenia nie mogą leżeć jedno na drugim. */
+.js:not(.nav-on) .resume {
+  bottom: calc(var(--hero-pad) + 64px);
 }
 
 /* Na węższych ekranach w prawym dolnym rogu stoi okrągły przycisk trasy,
