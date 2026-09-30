@@ -1784,6 +1784,7 @@ article.is-shaken {
   .hero-shot,
   .route-toggle,
   .route-backdrop,
+  .skip,                 /* w druku nie ma do czego przeskakiwać, a wchodził w tekst */
   .fn-back {
     display: none !important;
   }

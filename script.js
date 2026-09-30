@@ -142,8 +142,8 @@
     if (!place || place.id === intro?.id || location.hash || window.scrollY > 200) return;
     const section = document.getElementById(place.id);
     if (!section) return;
-    const isCoda = section.classList.contains("coda");
-    if (isCoda && place.fraction > 0.8) return;
+    // kto doczytał ostatni rozdział prawie do końca, nie potrzebuje zaproszenia z powrotem
+    if (section === sections.at(-1) && place.fraction > 0.8) return;
 
     const number = section.querySelector(".chapter-meta span")?.textContent;
     const name = section.querySelector("h2")?.textContent;
@@ -154,7 +154,7 @@
     resume.setAttribute("aria-label", "Powrót do miejsca czytania");
 
     const text = document.createElement("span");
-    text.textContent = isCoda ? "czytałeś do zakończenia" : `czytałeś do rozdziału ${number} · ${name}`;
+    text.textContent = `czytałeś do rozdziału ${number} · ${name}`;
 
     const link = document.createElement("a");
     link.href = `#${place.id}`;
@@ -597,9 +597,7 @@
     const section = id ? document.getElementById(id) : null;
     const name = section?.querySelector("h2")?.textContent ?? "";
     const number = section?.querySelector(".chapter-meta span")?.textContent;
-    const label = !section || section === intro ? "start"
-      : section.classList.contains("coda") ? "koniec"
-      : `${number} · ${name}`;
+    const label = !section || section === intro ? "start" : `${number} · ${name}`;
     routeButton.setAttribute("aria-label", `Rozdziały i ustawienia, teraz: ${label}`);
   }
 
