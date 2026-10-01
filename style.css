@@ -312,6 +312,59 @@ body::after {
   border-radius: 2px;
 }
 
+/* ---------- Zabłądzone adresy (404) ----------
+   Ta sama tonacja co esej: jedna kolumna, nagłówek Antonem, wyjście jednym linkiem. */
+
+.lost {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: var(--measure);
+  min-height: 100svh;
+  margin-inline: auto;
+  padding: 0 var(--edge);
+}
+
+/* reguła ogólna stoi pierwsza, a dwie niżej mają tę samą wagę (klasa + element), więc wygrywają */
+.lost p {
+  margin: 0;
+  color: var(--text);
+}
+
+.lost h1 {
+  margin: 0 0 var(--sp-head);
+  font-size: clamp(2.2rem, 6vw, 3.4rem);
+}
+
+p.lost-code {
+  margin: 0 0 var(--sp-para);
+  font: 11px/1 var(--mono);
+  letter-spacing: 0.2em;
+  color: var(--text-quiet);
+}
+
+p.lost-back {
+  margin-top: var(--sp-group);
+  font: 11px/1 var(--mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.lost-back a {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.lost-back a::after {
+  content: "";
+  width: 40px;
+  height: 1px;
+  background: var(--rule);
+}
+
 /* ---------- Kolumna ---------- */
 
 article {

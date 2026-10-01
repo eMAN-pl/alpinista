@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zeszliśmy ze szlaku — Nie każdy, kto był na szczycie, jest alpinistą</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#1a1917">
+  <link rel="icon" href="https://eman-pl.github.io/alpinista/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://eman-pl.github.io/alpinista/style.css?v=3a15b8a4">
+  <script>
+    (() => {
+      const el = document.documentElement;
+      el.className = "js";
+      let wybor = null;
+      try { wybor = localStorage.getItem("alpinista:motyw"); } catch {}
+      el.dataset.theme = wybor || "ciemny";
+    })();
+  </script>
+</head>
+<body>
+  <main class="lost">
+    <p class="lost-code">404</p>
+    <h1>Zeszliśmy ze szlaku</h1>
+    <p>Tej ścieżki tu nie ma. Bywa — wtedy wraca się do ostatniego kopczyka i szuka drogi od nowa.</p>
+    <p class="lost-back"><a href="https://eman-pl.github.io/alpinista/">wróć na początek</a></p>
+  </main>
+</body>
+</html>
