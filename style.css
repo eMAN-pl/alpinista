@@ -1296,13 +1296,6 @@ article.is-shaken {
   color: var(--text);
 }
 
-.profil figcaption {
-  margin-top: var(--sp-para);
-  font: 11px/1.6 var(--mono);
-  letter-spacing: 0.04em;
-  color: var(--text-quiet);
-}
-
 @media (max-width: 51.25em) {
   .profil-szczyt {
     width: 9px;            /* palec zamiast kursora */
