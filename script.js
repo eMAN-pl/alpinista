@@ -572,6 +572,23 @@
     else restart(word, "is-pressed");
   });
 
+  // --- Profil trasy i spis: jedno zaznaczenie ---
+  // Najechanie na wiersz spisu podświetla szczyt na rysunku i odwrotnie — bez tego
+  // rysunek i lista są dwiema osobnymi rzeczami o tym samym.
+  const profil = document.querySelector(".profil");
+  if (profil) {
+    const szczyty = new Map([...profil.querySelectorAll(".profil-szczyt")].map(a => [a.hash, a]));
+    for (const link of document.querySelectorAll(".route ol a")) {
+      const szczyt = szczyty.get(link.hash);
+      if (!szczyt) continue;
+      const przelacz = (on) => () => szczyt.classList.toggle("is-on", on);
+      link.addEventListener("pointerenter", przelacz(true));
+      link.addEventListener("pointerleave", przelacz(false));
+      link.addEventListener("focus", przelacz(true));
+      link.addEventListener("blur", przelacz(false));
+    }
+  }
+
   // --- Trasa na węższych ekranach ---
   // Boczny spis mieści się dopiero od 85em. Niżej: okrągły przycisk w prawym dolnym rogu
   // (ikona mapy, Lucide, ISC) otwiera ten sam spis jako panel od dołu ekranu.

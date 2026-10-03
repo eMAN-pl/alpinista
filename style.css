@@ -1228,6 +1228,98 @@ article.is-shaken {
 /* ---------- Trasa jako treść ----------
    Plan wyprawy po wstępie: numer, nazwa, wysokość. Twarde linie, bez ozdób. */
 
+/* ---------- Profil trasy (rysunek nad spisem, build.py) ----------
+   Rysunek niesie dwie prawdziwe liczby: szerokość rozdziału to czas czytania,
+   wysokość punktu to wysokość góry. Grań między szczytami jest szkicem — dlatego
+   nie ma poziomic ani osi w metrach, które udawałyby mapę. */
+
+.profil {
+  margin: var(--sp-para) 0 var(--sp-group);
+}
+
+/* Kropki liczą się od dołu rysunku, więc podpis musi zostać poza tym układem */
+.profil-rysunek {
+  position: relative;
+}
+
+.profil svg {
+  display: block;
+  width: 100%;
+  height: clamp(150px, 15vw, 200px);   /* rysunek rozciąga się w pionie; kreska zostaje równa */
+}
+
+.profil-plama {
+  fill: color-mix(in srgb, var(--text) 5%, transparent);
+}
+
+.profil-gran {
+  fill: none;
+  stroke: var(--text-quiet);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;   /* kreska tej samej grubości na każdej szerokości */
+}
+
+/* Szczyt: kropka w punkcie, wysokość nad nią. Ten sam znak co w nawigacji. */
+.profil-szczyt {
+  position: absolute;
+  display: block;
+  left: var(--x);
+  bottom: var(--y);
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--text-quiet);
+  border-radius: 50%;
+  background: var(--bg);
+  transform: translate(-50%, 50%);
+}
+
+.profil-wys {
+  position: absolute;
+  bottom: 13px;
+  left: 50%;
+  transform: translateX(-50%);
+  font: 10px/1 var(--mono);
+  letter-spacing: 0.04em;
+  color: var(--text-quiet);
+  white-space: nowrap;
+}
+
+.profil-szczyt:hover,
+.profil-szczyt.is-on {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.profil-szczyt:hover .profil-wys,
+.profil-szczyt.is-on .profil-wys {
+  color: var(--text);
+}
+
+.profil figcaption {
+  margin-top: var(--sp-para);
+  font: 11px/1.6 var(--mono);
+  letter-spacing: 0.04em;
+  color: var(--text-quiet);
+}
+
+@media (max-width: 51.25em) {
+  .profil-szczyt {
+    width: 9px;            /* palec zamiast kursora */
+    height: 9px;
+  }
+
+  .profil-wys {
+    display: none;         /* przy tej szerokości liczby zlewałyby się ze sobą */
+  }
+
+  /* Na telefonie profil jest rysunkiem, nie nawigacją — kropki stoją zbyt gęsto,
+     żeby trafiać w nie palcem. Do rozdziałów prowadzi lista pod spodem. */
+  .profil-szczyt {
+    pointer-events: none;
+  }
+}
+
 .route {
   max-width: var(--measure);
   margin: var(--sp-chapter) auto 0;
@@ -1244,7 +1336,7 @@ article.is-shaken {
   border-top: 1px solid var(--rule);
 }
 
-.route a {
+.route ol a {
   display: flex;
   align-items: baseline;
   gap: 16px;
@@ -1273,8 +1365,8 @@ article.is-shaken {
   color: var(--text-quiet);
 }
 
-.route a:hover .route-name,
-.route a:focus-visible .route-name {
+.route ol a:hover .route-name,
+.route ol a:focus-visible .route-name {
   color: var(--accent);
 }
 
@@ -1877,6 +1969,10 @@ article.is-shaken {
   p {
     orphans: 3;
     widows: 3;
+  }
+
+  .profil {
+    break-inside: avoid;   /* rysunek nie może się rozpaść na dwie strony */
   }
 
   .sketch {
