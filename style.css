@@ -653,7 +653,10 @@ hr {
   width: 70%;              /* rysunki mają własne tło, więc stoją jak płytka wklejona w kolumnę */
   aspect-ratio: 1 / 0.92;  /* prawie kwadrat: cały rysunek widać, zostaje margines na ruch */
   margin-inline: auto;
-  border-radius: 8px;
+  /* Rysunek zlewa się z tłem strony: na ciemnym „screen” zjada czerń, na papierze
+     „multiply” zjada biel. Dlatego w images.py tło rysunków jest dociągane do czystej
+     czerni / bieli — inaczej zostawałby jaśniejszy prostokąt. */
+  mix-blend-mode: screen;
   background-image: var(--szkic-d);
   background-repeat: no-repeat;
   background-size: 100% auto;
@@ -661,6 +664,7 @@ hr {
 }
 
 :root[data-theme="jasny"] .sketch-plate {
+  mix-blend-mode: multiply;
   background-image: var(--szkic-l);
 }
 
@@ -1971,6 +1975,7 @@ article.is-shaken {
     aspect-ratio: 1 / 1;
     /* zawsze wersja ołówkowa i zwykły JPEG — AVIF w PDF-ie zajmuje kilka razy więcej */
     background-image: var(--szkic-druk) !important;
+    mix-blend-mode: normal;   /* na białym papierze nie ma czego mieszać */
     background-position: 50% 50%;
     animation: none;
   }
