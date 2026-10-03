@@ -113,11 +113,6 @@
   opacity: 0.09;
 }
 
-/* Szkice węglem zostają sobą — na papierze nie przejmują tonu strony */
-:root[data-theme="jasny"] .sketch img {
-  mix-blend-mode: normal;
-}
-
 /* ---------- Czytanie: stopień pisma i motyw (script.js) ----------
    Na szerokim ekranie zestaw stoi w prawym dolnym rogu, osobno od spisu rozdziałów.
    Na telefonie mieszka w panelu z trasą, bo róg zajmuje przycisk trasy. */
@@ -238,6 +233,10 @@ body > .reader {
 }
 
 @media (max-width: 51.25em) {
+  .sketch-plate {
+    width: 100%;           /* przy wąskiej kolumnie 70% robiłoby się znaczkiem */
+  }
+
   .reader button,
   .theme-toggle {
     width: 44px;           /* obszar dotyku ≥ 44 px */
@@ -649,28 +648,28 @@ hr {
 }
 
 /* Okno 4:3 na kwadratowy szkic — obraz jest niższy, a przy przewijaniu powoli jedzie w oknie */
-.sketch picture {
+.sketch-plate {
   display: block;
-  aspect-ratio: 4 / 3;
-  overflow: clip;          /* nie hidden — ten tworzyłby kontener przewijania i paralaksa by stała */
+  width: 70%;              /* rysunki mają własne tło, więc stoją jak płytka wklejona w kolumnę */
+  aspect-ratio: 1 / 0.92;  /* prawie kwadrat: cały rysunek widać, zostaje margines na ruch */
+  margin-inline: auto;
   border-radius: 8px;
+  background-image: var(--szkic-d);
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+  background-position: 50% 50%;    /* bez paralaksy: środek rysunku */
 }
 
-.sketch img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 1 / 1;     /* miejsce zarezerwowane — tekst nie skacze przy doładowaniu */
-  transform: translateY(-12.5%);   /* bez paralaksy: środek szkicu */
+:root[data-theme="jasny"] .sketch-plate {
+  background-image: var(--szkic-l);
 }
 
-/* Paralaksa: szkic przesuwa się w oknie wolniej niż tekst — jakby leżał głębiej pod stroną.
+/* Paralaksa: rysunek przesuwa się w oknie wolniej niż tekst — jakby leżał głębiej pod stroną.
    Sam CSS (oś czasu przewijania), bez biblioteki i bez przejmowania przewijania.
-   Tylko gdy przeglądarka to obsługuje, przy włączonych efektach i bez „ogranicz ruch”;
-   w pozostałych przypadkach stoi środek szkicu. */
+   Tylko gdy przeglądarka to obsługuje, przy włączonych efektach i bez „ogranicz ruch”. */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    :root:not(.effects-off) .sketch img {
+    :root:not(.effects-off) .sketch-plate {
       animation: sketch-depth linear both;
       animation-timeline: view();
     }
@@ -679,20 +678,11 @@ hr {
 
 @keyframes sketch-depth {
   from {
-    transform: translateY(-25%);
+    background-position-y: 0%;
   }
 
   to {
-    transform: translateY(0);
-  }
-}
-
-/* Szkic przejmuje ton sceny: z obrazu zostaje sama jasność (rysunek bez zmian),
-   odcień bierze z tła rozdziału — sepia na Pilsku, chłód na Babiej, noc na Gran Paradiso.
-   Szary kwadrat nie odcina się od kolorowego tła. W druku obraz bez zmian. */
-@media screen {
-  .sketch img {
-    mix-blend-mode: luminosity;
+    background-position-y: 100%;
   }
 }
 
@@ -1974,13 +1964,14 @@ article.is-shaken {
     break-inside: avoid;
   }
 
-  /* Na papierze cały kwadrat, bez okna i ruchu */
-  .sketch picture {
-    aspect-ratio: auto;
-  }
-
-  .sketch img {
-    transform: none;
+  /* Na papierze cały kwadrat, bez okna i ruchu. Wersję rysunku (ołówek na papierze)
+     ustawia tools/pdf.py, który drukuje stronę w jasnym motywie. */
+  .sketch-plate {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    /* zawsze wersja ołówkowa i zwykły JPEG — AVIF w PDF-ie zajmuje kilka razy więcej */
+    background-image: var(--szkic-druk) !important;
+    background-position: 50% 50%;
     animation: none;
   }
 
