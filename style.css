@@ -653,10 +653,11 @@ hr {
   width: 70%;              /* rysunki mają własne tło, więc stoją jak płytka wklejona w kolumnę */
   aspect-ratio: 1 / 0.92;  /* prawie kwadrat: cały rysunek widać, zostaje margines na ruch */
   margin-inline: auto;
-  /* Rysunek zlewa się z tłem strony: na ciemnym „screen” zjada czerń, na papierze
+  /* Rysunek zlewa się z tłem strony: na ciemnym „lighten” zjada czerń, na papierze
      „multiply” zjada biel. Dlatego w images.py tło rysunków jest dociągane do czystej
-     czerni / bieli — inaczej zostawałby jaśniejszy prostokąt. */
-  mix-blend-mode: screen;
+     czerni / bieli — inaczej zostawałby jaśniejszy prostokąt.
+     Na ciemnym celowo nie „screen”: tamten rozjaśniał też sam rysunek i gubił bryłę. */
+  mix-blend-mode: lighten;
   background-image: var(--szkic-d);
   background-repeat: no-repeat;
   background-size: 100% auto;
