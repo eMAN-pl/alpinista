@@ -321,8 +321,13 @@
           return o.x - len < W;
         });
         const g = s.g*e;
-        M.dx += 11*g; M.skew += -3.2*g; M.blur += .5*g;
-        M.shadow.push(`${(-6*g).toFixed(1)}px 0 1px rgba(${v('--fg-rgb')},${(.28*e).toFixed(3)})`, `${(-14*g).toFixed(1)}px 0 3px rgba(${v('--fg-rgb')},${(.13*e).toFixed(3)})`);
+        // Tekst nie jedzie w bok — drga w miejscu, jak kartka trzymana pod wiatr.
+        // Średnia pozycja zostaje ta sama, zmienia się tylko drżenie i smuga za literami.
+        const drganie = Math.sin(t/57) * 1.4 + Math.sin(t/23) * .7 + Math.sin(t/11) * .4;   // do ±2,5 px
+        M.dx += g * drganie;
+        M.skew += g * .8 * Math.sin(t/83);
+        M.blur += .35*g;
+        M.shadow.push(`${(-5*g).toFixed(1)}px 0 1px rgba(${v('--fg-rgb')},${(.24*e).toFixed(3)})`, `${(-11*g).toFixed(1)}px 0 3px rgba(${v('--fg-rgb')},${(.11*e).toFixed(3)})`);
       }},
 
     lawinki: { dur: 6500,
