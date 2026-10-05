@@ -313,8 +313,11 @@
         let n = (1.5 + 7*s.g)*e*k;
         while (n > 0) { if (n >= 1 || R() < n) s.q.push({x:-40, y:R()*H, m:.5+R()*.9, ph:R()*6, r:.6+R()*1.6, fr:R() < .3}); n--; }
         c.lineCap = cb.lineCap = 'round';
-        // Ile wiatru przechodzi właśnie przez kolumnę tekstu — stąd bierze się szarpnięcie
-        const kol = colRect();
+        // Liczy się tylko wiatr, który wchodzi w sam akapit z zapalnikiem — nie ten, który
+        // przelatuje nad nagłówkiem albo pod ostatnim wierszem. Pas jest o 40 px szerszy
+        // od akapitu, żeby smuga tuż nad tekstem też się liczyła.
+        const akapit = (s.target || main).getBoundingClientRect();
+        const gora = akapit.top - 40, dol = akapit.bottom + 40, lewa = akapit.left;
         let uderzenie = 0;
         s.q = s.q.filter(o => {
           const przed = o.x;
@@ -323,7 +326,7 @@
           ctx.strokeStyle = rgba('--snow-rgb', (o.fr ? .5 : .28)*e); ctx.lineWidth = o.fr ? o.r*1.4 : o.r;
           ctx.beginPath(); ctx.moveTo(o.x-len,o.y); ctx.lineTo(o.x,o.y); ctx.stroke();
           // smuga liczy się tylko w chwili, gdy wchodzi na kolumnę, i tym mocniej, im bliżej
-          if (przed < kol.left && o.x >= kol.left) uderzenie += o.m*(o.fr ? 1 : .45);
+          if (przed < lewa && o.x >= lewa && o.y > gora && o.y < dol) uderzenie += o.m*(o.fr ? 1 : .45);
           return o.x - len < W;
         });
         const g = s.g*e;
@@ -333,7 +336,7 @@
         // więc średnie przesunięcie zostaje zerowe i kolumna nie ucieka w bok.
         // Rozmycie i smuga za literami też idą z tej amplitudy, a nie z siły wiatru za ekranem —
         // inaczej tekst reagowałby, zanim cokolwiek do niego doleci.
-        s.v = Math.min(.85, s.v + uderzenie * .45 * e);
+        s.v = Math.min(.85, s.v + uderzenie * 1.6 * e);   // smug w pasie akapitu jest mało, więc każda waży więcej
         s.v *= Math.pow(.93, k);
         const drganie = Math.sin(t/57) + Math.sin(t/23)*.5 + Math.sin(t/11)*.28;   // -1,8…1,8
         const sila = s.v * slabnie;                // szczyt poniżej 2 px: tekst ma drgnąć, nie chodzić
