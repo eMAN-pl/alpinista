@@ -334,12 +334,12 @@
         // Podmuch nie popycha kolumny w jedną stronę — rozkołysuje ją. Wejście smug na
         // kolumnę podbija amplitudę, a ta opada między podmuchami, więc średnie przesunięcie
         // zostaje zerowe i tekst nie ucieka w bok.
-        s.v = Math.min(4.5, s.v + uderzenie * 1.3 * e);
+        s.v = Math.min(.85, s.v + uderzenie * .45 * e);
         s.v *= Math.pow(.93, k);
         const drganie = Math.sin(t/57) + Math.sin(t/23)*.5 + Math.sin(t/11)*.28;   // -1,8…1,8
-        const sila = (.5 + s.v) * slabnie;
+        const sila = (.08 + s.v) * slabnie;        // szczyt poniżej 2 px: tekst ma drgnąć, nie chodzić
         M.dx += sila * drganie;
-        M.skew += sila * .26 * Math.sin(t/83);
+        M.skew += sila * .14 * Math.sin(t/83);
         M.blur += .35*g;
         M.shadow.push(`${(-5*g).toFixed(1)}px 0 1px rgba(${v('--fg-rgb')},${(.24*e).toFixed(3)})`, `${(-11*g).toFixed(1)}px 0 3px rgba(${v('--fg-rgb')},${(.11*e).toFixed(3)})`);
       }},
