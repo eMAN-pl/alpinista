@@ -370,6 +370,7 @@ p.lost-back {
 /* ---------- Kolumna ---------- */
 
 article {
+  position: relative;      /* układ odniesienia dla warstwy szkieletu (efekt „Klik”) */
   padding: 0 var(--edge) 10rem;
   overflow-x: clip;        /* nic szerszego od ekranu nie rozpycha strony na boki */
 }

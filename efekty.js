@@ -643,29 +643,94 @@
     apply(M);
     if (active.size) raf = requestAnimationFrame(loop); else { clearAll(); raf = 0; }
   }
-  /* ---------- Klik: zawsze ta sama odpowiedź ---------- */
-  const KLIK_TEXT = 'Nowoczesny, intuicyjny i przyjazny użytkownikowi interfejs, który zwiększa zaangażowanie i buduje wartość.';
-  let klikCount = 0, klikLast = 0;
-  const klikState = new Map();
-  function klik(btn){
-    const tg = document.getElementById(btn.dataset.target) || btn.closest('p');
-    let st = klikState.get(tg);
-    if (!st) { const box = document.createElement('div'); box.className = 'gen'; tg.after(box); st = {box, timer:0}; klikState.set(tg, st); }
-    const now = performance.now(), fast = now - klikLast < 1400 ? Math.min(4, (st.fast || 1) + 1) : 1; st.fast = fast; klikLast = now;
-    klikCount++; hud(`wygenerowano ${klikCount}`);
-    const lines = [...st.box.children];
-    lines.forEach((l, i) => { const age = lines.length - i; l.classList.add('old'); l.classList.remove('typing');
-      l.textContent = KLIK_TEXT; l.style.opacity = Math.max(.12, .6 - age*.1).toFixed(2); l.style.filter = `blur(${Math.min(2, age*.25).toFixed(2)}px)`;
-      l.style.marginTop = lines.length > 4 ? `-${Math.min(18, (lines.length-4)*3)}px` : ''; });
-    const line = document.createElement('div'); line.className = 'genline typing'; st.box.appendChild(line);
-    let i = 0; const step = Math.max(1, Math.round(fast*1.5)), ms = Math.max(6, 22 - fast*4);
-    const type = () => { if (!line.isConnected) return; i = Math.min(KLIK_TEXT.length, i + step); line.textContent = KLIK_TEXT.slice(0, i);
-      if (i < KLIK_TEXT.length) setTimeout(type, ms); else line.classList.remove('typing'); };
-    type();
-    clearTimeout(st.timer);
-    st.timer = setTimeout(() => { [...st.box.children].forEach(l => { l.style.opacity = '0'; }); setTimeout(() => { st.box.remove(); klikState.delete(tg); }, 700); }, 6000);
+  /* ---------- Klik: szkielet ładowania zamiast treści ----------
+     Kliknięcie zabiera tekst i zostawia migoczące prostokąty w miejscach słów — to, co
+     widać, zanim model skończy „generować”. Nic nie jest dopisywane do treści i nic nie
+     zmienia układu strony: bloki leżą absolutnie nad tekstem, a sam tekst tylko znika. */
+  let klikCount = 0, klikLast = 0, klikLevel = 0;
+  let klikRun = null;        // {warstwa, cele, timer}
+
+  // Prostokąty pojedynczych słów — przez Range, więc łamanie wierszy liczy się samo
+  function wordRects(el, baza){
+    const out = [], spacer = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = spacer.nextNode())) {
+      const txt = node.nodeValue;
+      if (!txt.trim()) continue;
+      for (const m of txt.matchAll(/\S+/g)) {
+        const r = document.createRange();
+        r.setStart(node, m.index);
+        r.setEnd(node, m.index + m[0].length);
+        for (const box of r.getClientRects()) {
+          if (box.width < 1 || box.height < 1) continue;
+          out.push({x: box.left - baza.left, y: box.top - baza.top, w: box.width, h: box.height});
+        }
+      }
+    }
+    return out;
   }
-  function clearKlik(){ klikState.forEach(st => { clearTimeout(st.timer); st.box.remove(); }); klikState.clear(); }
+
+  function clearKlik(){
+    if (!klikRun) return;
+    clearTimeout(klikRun.timer);
+    klikRun.warstwa.remove();
+    klikRun.cele.forEach(el => el.classList.remove('is-loading'));
+    klikRun = null;
+  }
+
+  function klik(btn, ev){
+    const teraz = performance.now();
+    klikLevel = teraz - klikLast < 2200 ? Math.min(5, klikLevel + 1) : 1;
+    klikLast = teraz;
+    clearKlik();                                   // nowe kliknięcie kończy poprzednie
+
+    const akapit = document.getElementById(btn.dataset.target) || btn.closest('p');
+    const sekcja = akapit.closest('section') || akapit.parentElement;
+    // od poziomu 3 szkielet zabiera cały rozdział, bez metryki i odliczania
+    // Od poziomu 3 szkielet zabiera cały rozdział — ale bloki stawiamy tylko dla akapitów,
+    // które widać (plus ekran zapasu). Rozdział potrafi mieć kilkaset słów na ekran i kilka
+    // tysięcy w całości; niewidocznych i tak nikt nie zobaczy, a każdy blok to animacja.
+    const widoczny = el => {
+      const r = el.getBoundingClientRect();
+      return r.bottom > -H * .5 && r.top < H * 1.5;
+    };
+    const cele = klikLevel >= 3
+      ? [...sekcja.querySelectorAll('p')].filter(el => !el.closest('.footnotes')
+          && !el.classList.contains('chapter-meta') && !el.classList.contains('chapter-end')
+          && widoczny(el))
+      : [akapit];
+
+    const baza = main.getBoundingClientRect();
+    const warstwa = document.createElement('div');
+    warstwa.className = 'skel-layer';
+    warstwa.setAttribute('aria-hidden', 'true');
+    main.append(warstwa);
+
+    for (const el of cele) {
+      for (const r of wordRects(el, baza)) {
+        const blok = document.createElement('span');
+        blok.className = 'skel';
+        blok.style.cssText = `left:${r.x.toFixed(1)}px;top:${(r.y + r.h*.28).toFixed(1)}px;`
+          + `width:${r.w.toFixed(1)}px;height:${(r.h*.5).toFixed(1)}px;`
+          + `animation-delay:${(-(r.x + r.y) % 900)}ms`;
+        warstwa.append(blok);
+      }
+      el.classList.add('is-loading');
+    }
+
+    // pierścień w miejscu kliknięcia
+    const pkt = btn.getBoundingClientRect();
+    const krag = document.createElement('span');
+    krag.className = 'ripple';
+    krag.style.left = ((ev && ev.clientX ? ev.clientX : pkt.left + pkt.width/2) - baza.left) + 'px';
+    krag.style.top = ((ev && ev.clientY ? ev.clientY : pkt.top + pkt.height/2) - baza.top) + 'px';
+    warstwa.append(krag);
+
+    klikCount++;
+    hud(`wygenerowano ${klikCount}`);
+    klikRun = {warstwa, cele, timer: 0};
+    klikRun.timer = setTimeout(clearKlik, 450 + 320*klikLevel);
+  }
 
   /* ---------- Enter: model rozmawia z modelem ---------- */
   const CHAT = [
@@ -705,9 +770,9 @@
   }
   // API dla script.js: to strona decyduje, co jest zapalnikiem i kiedy efekty są włączone.
   window.Efekty = {
-    uruchom(btn) {
+    uruchom(btn, ev) {
       const name = btn.dataset.fx;
-      if (name === 'klik') { if (enabled) klik(btn); return; }
+      if (name === 'klik') { if (enabled) klik(btn, ev); return; }
       if (name === 'enter') { if (enabled || enterRun) enter(btn); return; }
       if (active.has(name)) { stop(name); if (!active.size) clearAll(); return; }
       if (!enabled) return;

@@ -444,8 +444,8 @@
     return silnik;
   }
 
-  function uruchomEfekt(button) {
-    wczytajEfekty().then(() => window.Efekty?.uruchom(button)).catch(() => {
+  function uruchomEfekt(button, ev) {
+    wczytajEfekty().then(() => window.Efekty?.uruchom(button, ev)).catch(() => {
       // bez silnika zapalnik zostaje zwykłym tekstem — nic się nie dzieje
     });
   }
@@ -454,7 +454,7 @@
     const button = event.target.closest("[data-fx]");
     if (!button || !effectsEnabled() || !getSelection().isCollapsed) return;
     if (button.dataset.fx === "wtf-stary") glitch(button);
-    else uruchomEfekt(button);
+    else uruchomEfekt(button, event);
   });
 
   // Prawdziwy klawisz Enter uruchamia „Enter.”, gdy fraza jest w środku ekranu i nic nie ma fokusu
