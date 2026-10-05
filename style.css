@@ -42,15 +42,18 @@
   --text-strong: #f7f3ea;  /* tezy: ~15% jaśniejsze od treści, bez koloru */
   --text-quiet: #ada79c;   /* metadane     ~7.3:1  */
   --nav-quiet: #4a4947;    /* nawigacja nieaktywna: ~28% jasności tekstu (ma znikać przy zmrużeniu oczu) */
-  --accent: #8ab4e0;       /* jeden akcent, chłodny błękit (~8,1:1). Tylko: aktywny punkt trasy,
+  --accent: #ff6250;       /* jeden akcent, cynober (5,95:1 — poniżej naszych 7:1, bo nasycona
+                              czerwień na ciemnym tle inaczej się nie da; dla tekstu wymagane
+                              jest 4,5:1, a treść eseju stoi na 11,5:1). Tylko: aktywny punkt trasy,
                               zaznaczenie, focus, linki w przypisach, siatka gór.
                               Jeden kolor nie utrzyma 7:1 na obu tłach (potrzebowałby jasności
                               ≥ 0,086 na ciemnym i ≤ 0,080 na jasnym), więc każdy motyw ma
                               własną wartość tego samego odcienia. Zamienniki — zmiana w dwóch
                               linijkach (tu i w motywie jasnym):
+                              cynober   #ff6250 / #9b1d20   (5,95 / 7,00)
+                              tomato    #ff4d3d / #a4161a   (5,34 / 6,70)
                               błękit    #8ab4e0 / #1f4e86   (8,10 / 7,28)
-                              bursztyn  #c2a57a / #634716   (7,49 / 7,42)
-                              czerwień  #d3907f / #8d3a26   (6,75 / 6,56) */
+                              bursztyn  #c2a57a / #634716   (7,49 / 7,42) */
   --rule: #4d4943;         /* kreski, podkreślenia (dekoracja) */
   --dot: #5e5a53;          /* pasek postępu */
   --flash: #fff;           /* błysk „cyk”; w jasnym motywie ciemny */
@@ -98,7 +101,7 @@
   --text-strong: #14120e;
   --text-quiet: #4f4940;
   --nav-quiet: #b3aa9a;
-  --accent: #1f4e86;
+  --accent: #9b1d20;
   --rule: #cfc7b8;
   --dot: #b3a894;
   --flash: #14120e;
@@ -300,7 +303,7 @@ body::after {
 }
 
 ::selection {
-  background: #3e4b57;
+  background: #633029;
   background: color-mix(in srgb, var(--accent) 32%, var(--bg));  /* akcent, przygaszony */
   color: var(--text-strong);
 }
