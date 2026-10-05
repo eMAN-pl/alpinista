@@ -393,16 +393,14 @@
     selectionTimer = setTimeout(placeCopyButton, 150);
   });
 
-  // --- „cyk”, „klik”, „WTF” i „Enter”: efekty na kliknięcie ---
-  // „cyk”   — podwójny błysk flesza na cały ekran.
-  // „klik”  — linijka albo zdanie ze słowem pisze się od nowa, jak generowane.
-  // „WTF”   — słowo się rozsypuje, a tekst szarpie się i na moment odwraca kolory.
-  // „Enter” — słowo wciska się jak klawisz.
-  // Tylko po kliknięciu, nigdy samo. Nie przy zaznaczaniu tekstu, nie przy wyłączonych efektach.
-  // Błysk albo szarpnięcie najwyżej raz na 1,5 s — poniżej progu trzech błysków na sekundę.
+  // --- Efekty na kliknięcie ---
+  // Zapalniki w tekście (<button data-fx>) uruchamiają efekty z efekty.js: silnik wczytuje
+  // się dopiero przy pierwszym kliknięciu, bo to 40 kB, a większość czytelników go nie użyje.
+  // Wyjątek: „WTF” ze Ściany na Orlej Perci zostaje przy dotychczasowym, prostym efekcie —
+  // to ludzkie zdziwienie, a nie błąd maszyny.
+  // Szarpnięcie i rozsypanie najwyżej raz na 1,5 s — poniżej progu trzech błysków na sekundę.
 
   const FLASH_GAP = 1500;
-  let flash = null;
   let lastFlash = -Infinity;
 
   function flashAllowed() {
@@ -418,17 +416,6 @@
     node.classList.add(className);
   }
 
-  function snap() {
-    if (!flashAllowed()) return;
-    if (!flash) {
-      flash = document.createElement("div");
-      flash.className = "flash";
-      flash.setAttribute("aria-hidden", "true");
-      document.body.append(flash);
-    }
-    restart(flash, "is-on");
-  }
-
   function glitch(word) {
     if (!flashAllowed()) return;
     restart(word, "is-glitching");
@@ -437,139 +424,49 @@
     restart(article, "is-shaken");
   }
 
-  // „klik” — linijka albo zdanie ze słowem pisze się od nowa, jak generowane:
-  //   znika w całości i wraca porcjami po kilka znaków, nierówno, z migającym kursorem na końcu.
-  //   Cel: linijka w bloku z pojedynczymi Enterami („Klik. Kolejna aplikacja.”),
-  //   krótki akapit („Klik. Klik. Klik.”) albo zdanie przed słowem („Generujemy ogłoszenie. Klik.”).
-  //   Znaki są tylko przezroczyste, więc tekst nie skacze; po wszystkim wraca oryginalny HTML.
-  const SHORT = 60;                        // znaków: akapit mieszczący się w jednej linijce
-  const TYPE_MS = 1800;                    // tyle najwyżej trwa wpisywanie
+  // Silnik efektów: wczytywany raz, przy pierwszym użyciu. Zwraca obietnicę gotowości.
+  let silnik = null;
 
-  function retype(word) {
-    const target = word.closest(".fx-wrap") ?? word.closest(".line") ?? shortParagraph(word) ?? wrapSentence(word);
-    if (target.dataset.typing) return;
-    target.dataset.typing = "true";
-    const original = target.innerHTML;
-    const chars = hideChars(target);
-    const caret = document.createElement("span");
-    caret.className = "type-caret";
-    caret.setAttribute("aria-hidden", "true");
-    target.prepend(caret);
-
-    // Rozkład porcji liczymy z góry: kilka znaków naraz, w nierównym rytmie, jak tokeny modelu.
-    // Każda klatka pokazuje to, co powinno być już wpisane — przy słabej płynności porcje są
-    // większe, ale linijka kończy się w tym samym czasie.
-    const chunks = [];
-    let at = 0;
-    let time = 0;
-    while (at < chars.length) {
-      at = Math.min(chars.length, at + 2 + Math.floor(Math.random() * 4));
-      time += 0.6 + Math.random() * 0.8;
-      chunks.push({ at, time });
-    }
-    const duration = Math.min(TYPE_MS, Math.max(420, chars.length * 38));
-    for (const chunk of chunks) chunk.time *= duration / time;
-
-    let shown = 0;
-    let next = 0;
-    let start = 0;
-
-    const step = (now) => {
-      start ||= now;
-      while (next < chunks.length && chunks[next].time <= now - start) {
-        for (const end = chunks[next++].at; shown < end; shown++) chars[shown].style.opacity = "";
-        chars[shown - 1].after(caret);
-      }
-      if (next < chunks.length) {
-        requestAnimationFrame(step);
-        return;
-      }
-      caret.remove();
-      target.innerHTML = original;
-      delete target.dataset.typing;
-      unwrap(target);
-    };
-    requestAnimationFrame(step);
+  function wczytajEfekty() {
+    if (silnik) return silnik;
+    const { efektyJs, efektyCss } = document.body.dataset;
+    silnik = new Promise((gotowe, blad) => {
+      const arkusz = document.createElement("link");
+      arkusz.rel = "stylesheet";
+      arkusz.href = efektyCss;
+      document.head.append(arkusz);
+      const skrypt = document.createElement("script");
+      skrypt.src = efektyJs;
+      skrypt.onload = gotowe;
+      skrypt.onerror = blad;
+      document.head.append(skrypt);
+    });
+    return silnik;
   }
 
-  // Każdy znak w osobnym elemencie, na razie przezroczysty
-  function hideChars(target) {
-    const walker = document.createTreeWalker(target, NodeFilter.SHOW_TEXT);
-    const nodes = [];
-    while (walker.nextNode()) nodes.push(walker.currentNode);
-    const chars = [];
-    for (const node of nodes) {
-      const fragment = document.createDocumentFragment();
-      for (const char of node.nodeValue) {
-        const span = document.createElement("span");
-        span.textContent = char;
-        span.style.opacity = "0";
-        chars.push(span);
-        fragment.append(span);
-      }
-      node.replaceWith(fragment);
-    }
-    return chars;
-  }
-
-  function shortParagraph(word) {
-    const paragraph = word.closest("p");
-    return paragraph.textContent.trim().length < SHORT ? paragraph : null;
-  }
-
-  function unwrap(target) {
-    if (!target.classList.contains("fx-wrap")) return;
-    const parent = target.parentNode;
-    target.replaceWith(...target.childNodes);
-    parent.normalize();
-  }
-
-  // Zdanie przed słowem razem z nim — na czas efektu w pomocniczym elemencie
-  function wrapSentence(word) {
-    const paragraph = word.closest("p");
-    // Tekst akapitu jako jeden ciąg, z zapamiętanym początkiem każdego węzła tekstu
-    const walker = document.createTreeWalker(paragraph, NodeFilter.SHOW_TEXT);
-    const nodes = [];
-    let text = "";
-    while (walker.nextNode()) {
-      nodes.push({ node: walker.currentNode, from: text.length });
-      text += walker.currentNode.nodeValue;
-    }
-    const locate = (index) => {
-      const hit = nodes.findLast((entry) => entry.from <= index);
-      return [hit.node, index - hit.from];
-    };
-
-    const wordStart = nodes.find((entry) => word.contains(entry.node)).from;
-    let end = wordStart + word.textContent.length;
-    if (/[.!?…]/.test(text[end] ?? "")) end++;
-
-    // Początek: koniec zdania, które było przed zdaniem poprzedzającym słowo
-    const before = text.slice(0, wordStart).trimEnd();
-    const marks = [". ", "! ", "? ", "… "].map((mark) => before.lastIndexOf(mark, before.length - 2));
-    const boundary = Math.max(...marks);
-    const start = boundary < 0 ? 0 : boundary + 2;
-
-    const range = document.createRange();
-    range.setStart(...locate(start));
-    range.setEnd(...locate(end));
-    if (word.contains(range.startContainer)) range.setStartBefore(word);
-    if (word.contains(range.endContainer)) range.setEndAfter(word);
-
-    const wrap = document.createElement("span");
-    wrap.className = "fx-wrap";
-    wrap.append(range.extractContents());
-    range.insertNode(wrap);
-    return wrap;
+  function uruchomEfekt(button) {
+    wczytajEfekty().then(() => window.Efekty?.uruchom(button)).catch(() => {
+      // bez silnika zapalnik zostaje zwykłym tekstem — nic się nie dzieje
+    });
   }
 
   article.addEventListener("click", (event) => {
-    const word = event.target.closest(".fx");
-    if (!word || !effectsEnabled() || !getSelection().isCollapsed) return;
-    if (word.classList.contains("fx-cyk")) snap();
-    else if (word.classList.contains("fx-klik")) retype(word);
-    else if (word.classList.contains("fx-wtf")) glitch(word);
-    else restart(word, "is-pressed");
+    const button = event.target.closest("[data-fx]");
+    if (!button || !effectsEnabled() || !getSelection().isCollapsed) return;
+    if (button.dataset.fx === "wtf-stary") glitch(button);
+    else uruchomEfekt(button);
+  });
+
+  // Prawdziwy klawisz Enter uruchamia „Enter.”, gdy fraza jest w środku ekranu i nic nie ma fokusu
+  addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" || !effectsEnabled()) return;
+    if (document.activeElement && document.activeElement !== document.body) return;
+    const button = document.querySelector('[data-fx="enter"]');
+    if (!button) return;
+    const box = button.getBoundingClientRect();
+    if (box.top < innerHeight * 0.15 || box.bottom > innerHeight * 0.85) return;
+    event.preventDefault();
+    uruchomEfekt(button);
   });
 
   // --- Profil trasy i spis: jedno zaznaczenie ---
@@ -734,6 +631,7 @@
   colophon?.append(toggle);
 
   function setEffects(on) {
+    window.Efekty?.wlacz(on);
     try {
       localStorage.setItem(EFFECTS_KEY, on ? "on" : "off");
     } catch {

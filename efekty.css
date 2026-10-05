@@ -1,0 +1,100 @@
+/* ---------- Efekty na żądanie ----------
+   Warstwy i style efektów klikalnych (silnik: efekty.js, opis: assets/efekty-instrukcja.md).
+   Arkusz wchodzi dopiero wtedy, gdy czytelnik pierwszy raz kliknie zapalnik.
+   Kolory idą przez tokeny strony (--text, --accent, --bg); własne są tylko te,
+   których strona nie ma: barwy śniegu, szronu, światła i chłodnego tła. */
+
+:root {
+  --fg-rgb: 214, 209, 198;      /* smugi i duchy liter — ton --text */
+  --glow-rgb: 255, 226, 165;    /* świetliki */
+  --snow-rgb: 240, 244, 250;    /* płatki i smugi wiatru */
+  --fog-rgb: 226, 231, 238;     /* mgła zamieci */
+  --frost-rgb: 205, 228, 248;   /* szron */
+  --powder-rgb: 232, 238, 246;  /* pył lawinki */
+  --pile-rgb: 238, 242, 248;
+  --pileshade-rgb: 120, 140, 175;
+  --crack-rgb: 6, 5, 5;         /* wnętrze szczeliny */
+  --vig-rgb: 6, 6, 9;           /* tunel braku tlenu */
+  --cold: #17202c;              /* tło przy szronie i burzy */
+  --pink: #ff5fa2;              /* bidon — jedyny róż na stronie */
+}
+
+:root[data-theme="jasny"] {
+  --fg-rgb: 43, 40, 34;
+  --glow-rgb: 255, 214, 140;
+  --snow-rgb: 150, 166, 186;
+  --fog-rgb: 236, 240, 245;
+  --frost-rgb: 150, 190, 228;
+  --powder-rgb: 150, 166, 190;
+  --pile-rgb: 253, 254, 255;
+  --pileshade-rgb: 110, 130, 165;
+  --crack-rgb: 20, 17, 15;
+  --cold: #dde8f3;
+  --pink: #e83e8c;
+}
+
+/* Layout: jedna kolumna jak na stronie eseju. Efekty działają na trzech warstwach: płótno za tekstem, sam tekst (rozmycie, przesunięcie, pęknięcie) i płótno nad tekstem. */
+
+canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
+#back{z-index:0} #front{z-index:3}
+.veil{position:fixed;inset:0;pointer-events:none;z-index:2;opacity:0}
+#tunnel{--r1:60%;--r2:100%;--b:0px;--a:0;
+  background:rgba(var(--vig-rgb),var(--a));
+  -webkit-backdrop-filter:blur(var(--b));backdrop-filter:blur(var(--b));
+  -webkit-mask-image:radial-gradient(ellipse 72% 66% at 50% 50%,transparent var(--r1),#000 var(--r2));
+  mask-image:radial-gradient(ellipse 72% 66% at 50% 50%,transparent var(--r1),#000 var(--r2))}
+#frost{--fe:0px;--fr:0px;--fb:0px;--fa:0;
+  background:rgba(var(--frost-rgb),var(--fa));
+  -webkit-backdrop-filter:blur(var(--fb)) saturate(.4);backdrop-filter:blur(var(--fb)) saturate(.4);
+  -webkit-mask-image:linear-gradient(to bottom,#000 calc(var(--fe)*.55),transparent var(--fe)),linear-gradient(to top,#000 calc(var(--fe)*.55),transparent var(--fe)),linear-gradient(to right,#000 calc(var(--fe)*.55),transparent var(--fe)),linear-gradient(to left,#000 calc(var(--fe)*.55),transparent var(--fe)),radial-gradient(circle at 0 0,#000 calc(var(--fr)*.5),transparent var(--fr)),radial-gradient(circle at 100% 0,#000 calc(var(--fr)*.5),transparent var(--fr)),radial-gradient(circle at 0 100%,#000 calc(var(--fr)*.5),transparent var(--fr)),radial-gradient(circle at 100% 100%,#000 calc(var(--fr)*.5),transparent var(--fr));
+  mask-image:linear-gradient(to bottom,#000 calc(var(--fe)*.55),transparent var(--fe)),linear-gradient(to top,#000 calc(var(--fe)*.55),transparent var(--fe)),linear-gradient(to right,#000 calc(var(--fe)*.55),transparent var(--fe)),linear-gradient(to left,#000 calc(var(--fe)*.55),transparent var(--fe)),radial-gradient(circle at 0 0,#000 calc(var(--fr)*.5),transparent var(--fr)),radial-gradient(circle at 100% 0,#000 calc(var(--fr)*.5),transparent var(--fr)),radial-gradient(circle at 0 100%,#000 calc(var(--fr)*.5),transparent var(--fr)),radial-gradient(circle at 100% 100%,#000 calc(var(--fr)*.5),transparent var(--fr))}
+
+.crackwrap{position:absolute;pointer-events:none;z-index:1}
+.crackwrap > p{position:absolute;left:0;top:0;width:100%;margin:0!important;will-change:transform}
+.film {
+  position: fixed;
+  right: 40px;                 /* ta sama krawędź co oś nawigacji i zestaw do czytania */
+  bottom: 84px;                /* nad zestawem A− / A+ / motyw */
+  z-index: 26;
+  font: 11px/1 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-quiet);
+  background: color-mix(in srgb, var(--text) 6%, var(--bg));
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 7px 12px;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+@media (max-width: 51.25em) {
+  .film {
+    right: var(--edge);
+    bottom: calc(84px + env(safe-area-inset-bottom));   /* nad okrągłym przyciskiem trasy */
+  }
+}
+.film.show{opacity:1}
+
+.glitchwrap{position:absolute;pointer-events:none;z-index:1}
+.glitchwrap > p{position:absolute;left:0;top:0;width:100%;margin:0!important}
+.glitchwrap > p.rgb-r{color:rgba(255,70,90,.75);mix-blend-mode:screen}
+.glitchwrap > p.rgb-c{color:rgba(70,220,255,.75);mix-blend-mode:screen}
+:root[data-theme="jasny"] .glitchwrap > p.rgb-r,:root[data-theme="jasny"] .glitchwrap > p.rgb-c{mix-blend-mode:multiply}
+.halluc{font-style:normal}
+.gen{display:grid;gap:2px;margin:-4px 0 16px}
+.genline{font-family:var(--serif);font-size:.95em;line-height:1.6;padding-left:12px;border-left:2px solid var(--accent);transition:opacity .6s,filter .6s}
+.genline.typing::after{content:"▍";color:var(--accent);animation:blink .7s steps(1) infinite}
+.genline.old{border-left-color:var(--rule)}
+@keyframes blink{50%{opacity:0}}
+.chat{border:1px solid var(--rule);border-radius:14px;padding:14px;margin:4px 0 18px;font-family:var(--mono);font-size:13px;line-height:1.5;background:color-mix(in srgb,var(--bg) 88%,var(--text));overflow:hidden;transition:opacity .8s,max-height .8s;max-height:420px}
+.chat .log{height:260px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:6px}
+.chat .msg{max-width:82%;padding:7px 11px;border-radius:12px;animation:pop .18s ease-out}
+.chat .msg b{display:block;font-weight:500;font-size:11px;letter-spacing:.06em;text-transform:uppercase;opacity:.6;margin-bottom:2px}
+.chat .a{align-self:flex-start;background:color-mix(in srgb,var(--accent) 22%,var(--bg))}
+.chat .b{align-self:flex-start;margin-left:28px;background:color-mix(in srgb,var(--text) 12%,var(--bg))}
+.chat .me{align-self:flex-end;border:1px solid var(--text-quiet);background:transparent}
+.chat .me i{display:block;font-style:normal;font-size:11px;opacity:.55;margin-top:3px}
+.chat .input{margin-top:10px;border:1px solid var(--rule);border-radius:999px;padding:8px 14px;color:var(--text-quiet);display:flex;justify-content:space-between;gap:10px}
+.chat .input .cur::after{content:"▍";color:var(--text);animation:blink .9s steps(1) infinite}
+@keyframes pop{from{transform:translateY(6px);opacity:0}to{transform:none;opacity:1}}

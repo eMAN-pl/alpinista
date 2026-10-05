@@ -932,61 +932,57 @@ a:hover {
   }
 }
 
-/* ---------- „cyk”, „klik”, „WTF” i „Enter” (script.js) ----------
-   Efekty tylko po kliknięciu. Słowa w kolorze linków, z kropkowaną linią,
-   żeby było widać, że da się w nie kliknąć. Przy wyłączonych efektach wyglądają jak zwykły tekst. */
+/* ---------- Zapalniki efektów ----------
+   Fraza z tekstu autora, w którą można kliknąć. Dwa rodzaje, bo mają różną rolę:
+   kropkowana linia to efekt atmosferyczny, ciągła i cicha — refren (Cyk, Klik, WTF, Enter).
+   Style muszą być tutaj, a nie w efekty.css, bo ten wczytuje się dopiero przy kliknięciu.
+   Przy wyłączonych efektach zapalniki wyglądają i zachowują się jak zwykły tekst. */
 
-.fx {
-  position: relative;      /* „Enter” wciska się przez przesunięcie; „WTF” nosi nałożone połówki */
-}
-
-.js:not(.effects-off) .fx {
-  color: var(--accent);
+button.fx,
+button.ref {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  text-align: inherit;
   cursor: pointer;
-  text-decoration: underline dotted;
-  text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent);
-  text-decoration-thickness: 1px;
+}
+
+.js:not(.effects-off) button.fx,
+.js:not(.effects-off) button.ref {
+  text-decoration-line: underline;
   text-underline-offset: 0.25em;
+  text-decoration-thickness: 1px;
+  transition: color 0.4s;
 }
 
-.js:not(.effects-off) .fx:hover {
-  text-decoration-color: var(--accent);
+.js:not(.effects-off) button.fx {
+  text-decoration-style: dotted;
+  text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
 }
 
-/* „cyk” — podwójny błysk flesza na cały ekran */
-.flash {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  background: var(--flash);
-  opacity: 0;
-  pointer-events: none;
+.js:not(.effects-off) button.ref {
+  text-decoration-style: solid;
+  text-decoration-color: color-mix(in srgb, var(--text-quiet) 45%, transparent);
 }
 
-.flash.is-on {
-  animation: double-flash 250ms ease-out;
+.js:not(.effects-off) button.fx:hover,
+.js:not(.effects-off) button.ref:hover,
+.js:not(.effects-off) button.fx[aria-pressed="true"] {
+  color: var(--accent);
 }
 
-@keyframes double-flash {
-  15% {
-    opacity: 1;
-  }
-
-  30% {
-    opacity: 0;
-  }
-
-  45% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0;
-  }
+.effects-off button.fx,
+.effects-off button.ref {
+  cursor: text;
 }
 
 /* „WTF” — słowo się rozsypuje: dwie przesunięte połówki z czerwoną i turkusową poświatą */
-.fx-wtf {
+button.fx-wtf {
+  position: relative;      /* nosi nałożone połówki */
   display: inline-block;   /* przesunięcie i skos działają tylko na elemencie blokowym */
 }
 
@@ -1141,48 +1137,8 @@ article.is-shaken {
   }
 }
 
-/* „klik” — kursor wpisywania: migający prostokąt, nie zajmuje miejsca w wierszu */
-.type-caret {
-  display: inline-block;
-  width: 0;                /* nie zajmuje miejsca — tekst nie drgnie, gdy kursor idzie dalej */
-}
-
-/* Prostokąt rysowany wprost, nie znakiem — znak blokowy w szeryfach siada pod linią pisma */
-.type-caret::after {
-  content: "";
-  display: inline-block;
-  width: 0.45em;
-  height: 0.95em;
-  margin-bottom: -0.12em;  /* stoi na linii pisma, jak kursor w terminalu */
-  background: var(--accent);
-  animation: caret 1.05s steps(1, end) infinite;
-}
-
-@keyframes caret {
-  50% {
-    opacity: 0;
-  }
-}
-
-/* „Enter” — słowo wciska się jak klawisz */
-.fx.is-pressed {
-  animation: press 220ms ease-out;
-}
-
-@keyframes press {
-  35% {
-    top: 2px;
-  }
-
-  100% {
-    top: 0;
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
-  .flash.is-on,
-  .type-caret::after,
-  .fx.is-pressed,
   .fx-wtf.is-glitching,
   .fx-wtf.is-glitching::before,
   .fx-wtf.is-glitching::after,
@@ -1192,12 +1148,9 @@ article.is-shaken {
 }
 
 @media print {
-  .fx {
+  button.fx,
+  button.ref {
     text-decoration: none !important;
-  }
-
-  .flash {
-    display: none;
   }
 }
 
