@@ -128,7 +128,8 @@
 }
 
 .reader button,
-.theme-toggle {
+.theme-toggle,
+.music-toggle {
   position: relative;
   display: flex;
   align-items: center;
@@ -148,7 +149,9 @@
 .reader button:hover,
 .reader button:focus-visible,
 .theme-toggle:hover,
-.theme-toggle:focus-visible {
+.theme-toggle:focus-visible,
+.music-toggle:hover,
+.music-toggle:focus-visible {
   border-color: var(--text-quiet);
   color: var(--text);
 }
@@ -176,7 +179,8 @@
 
 /* Podpowiedź przy kursorze — na dotyku i tak się nie pokaże, więc rolę niesie aria-label */
 @media (hover: hover) {
-  .theme-toggle[data-tip]::after {
+  .theme-toggle[data-tip]::after,
+  .music-toggle[data-tip]::after {
     content: attr(data-tip);
     position: absolute;
     right: 0;
@@ -210,8 +214,73 @@
   }
 
   .theme-toggle:hover::after,
-  .theme-toggle:focus-visible::after {
+  .theme-toggle:focus-visible::after,
+  .music-toggle:hover::after,
+  .music-toggle:focus-visible::after {
     opacity: 1;
+  }
+}
+
+/* ---------- Muzyka do czytania (script.js) ----------
+   Nuta stoi w tym samym rzędzie co A−/A+ i motyw i wygląda jak one. Gdy gra, kontur
+   przechodzi w akcent — stan widać bez czytania, a aria-pressed niesie go dalej.
+   Podpis pod spodem jest wymogiem licencji CC BY, nie ozdobą: wchodzi razem z dźwiękiem. */
+
+.music-toggle svg {
+  width: 18px;
+  height: 18px;
+}
+
+.reader .music-toggle.is-on,
+.music-toggle.is-on:hover,
+.music-toggle.is-on:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Podpis siedzi w narożniku razem z zestawem, więc musi się liczyć względem niego */
+.reader {
+  position: relative;
+}
+
+.music-now {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 10px);
+  z-index: 30;
+  width: max-content;
+  max-width: min(72vw, 320px);
+  margin: 0;
+  padding: 6px 9px;
+  border: 1px solid var(--rule);
+  background: var(--bg);
+  font: 10px/1.5 var(--mono);
+  letter-spacing: 0.04em;
+  color: var(--text-quiet);
+}
+
+.music-now a {
+  color: var(--text);
+  text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+/* W panelu trasy rząd przycisków stoi przy dolnej krawędzi ekranu, więc podpis zostaje
+   dymkiem nad nim — w przepływie spadłby pod ekran. Rozciąga się na szerokość panelu,
+   żeby zmieścił się w dwóch wierszach. */
+@media (max-width: 85em) {
+  .profile-nav .music-now {
+    left: 0;
+    right: 0;
+    width: auto;
+    max-width: none;
+  }
+
+  /* .profile-nav a to wiersz szyny: display: flex, stała wysokość, bez zawijania.
+     W podpisie linki muszą być zwykłym tekstem, inaczej każdy łamie wiersz. */
+  .profile-nav .music-now a {
+    display: inline;
+    height: auto;
+    white-space: normal;
   }
 }
 
@@ -584,6 +653,17 @@ h1 .t-line {
 }
 
 .chapter-meta,
+/* Ten sam znak co przy innych liczbach na stronie: krótka kreska, potem telemetria.
+   Kreska stoi w tekście, więc idzie za stopniem pisma i za kolorem metadanych. */
+.chapter-end::before {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  margin-right: 0.6em;
+  border-top: 1px solid currentColor;
+  vertical-align: 0.25em;
+}
+
 .chapter-end {
   margin: 0;
   font-family: var(--mono);
@@ -1315,8 +1395,17 @@ article.is-shaken {
   text-transform: uppercase;
 }
 
+/* Linia prowadząca od nazwy do wysokości — jak w spisie treści książki.
+   Pusty element z align-self: baseline ma linię bazową na swojej dolnej krawędzi,
+   więc kropki siadają dokładnie na linii pisma, a nie w połowie wysokości wiersza. */
+.route-leader {
+  flex: 1 1 auto;
+  align-self: baseline;
+  min-width: 24px;
+  border-bottom: 1px dotted color-mix(in srgb, var(--rule) 70%, transparent);
+}
+
 .route-alt {
-  margin-left: auto;
   font: 12px/1 var(--mono);
   color: var(--text-quiet);
 }
@@ -1448,6 +1537,40 @@ article.is-shaken {
   color: var(--accent);
 }
 
+/* Źródła: ta sama głośność co dziennik zmian. Nazwa pozycji akcentem, jak data w dzienniku,
+   żeby dwie listy metadanych w stopce czytały się jak jedna rodzina. */
+.zrodla {
+  margin-top: var(--sp-para);
+  font: 11px/1.6 var(--mono);
+  letter-spacing: 0.04em;
+  color: var(--text-quiet);
+}
+
+.zrodla h2 {
+  margin: 0 0 6px;
+  font: inherit;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-quiet);
+}
+
+.zrodla p {
+  margin: 0 !important;
+  padding: 6px 0;
+  border-top: 1px solid var(--rule);
+  font: inherit;
+  color: inherit;
+}
+
+.zrodla p span {
+  color: var(--accent);
+}
+
+.zrodla a {
+  color: var(--text);
+  text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
 @media (max-width: 51.25em) {
   .colophon-utils .effects-toggle {
     min-height: 44px;      /* obszar dotyku ≥ 44 px */
@@ -1564,7 +1687,9 @@ article.is-shaken {
     display: block;
     position: fixed;
     top: 50%;
-    right: 40px;
+    /* Nigdy bliżej niż dotychczasowe 40 px (od tyle mieści się najdłuższa nazwa),
+       na szerokich ekranach pasek odchodzi od krawędzi jeszcze dalej. */
+    right: clamp(40px, 3vw, 64px);
     z-index: 5;
     transform: translateY(-50%);
     font: 12px/16px var(--mono);

@@ -621,6 +621,218 @@
   setSize(size);
   setTheme(document.documentElement.dataset.theme || "ciemny");
 
+  // --- Muzyka do czytania (Scott Buckley, CC BY 4.0) ---
+  // Trzy zasady, w tej kolejności: nic nie gra samo, nic się nie pobiera przed kliknięciem,
+  // nic nie przechodzi między wizytami. Dlatego <audio> powstaje dopiero przy pierwszym
+  // kliknięciu, ma preload="none", a wybór nie idzie do localStorage — nowa wizyta to cisza.
+  // Dwa utwory i jedno przejście: wejście w finał zamienia wspinanie na zejście.
+
+  const MUZYKA = {
+    anabasis: { plik: "assets/audio/anabasis-i.mp3", tytul: "Anabasis I", album: "The Weight of Air" },
+    katabasis: { plik: "assets/audio/katabasis-i.mp3", tytul: "Katabasis I", album: "The Weight of Air" },
+  };
+  const MUZYKA_AUTOR = "Scott Buckley";
+  const GLOSNOSC = 0.35;
+  const WEJSCIE = 2500;      // narastanie przy włączeniu
+  const WYJSCIE = 1500;      // wyciszenie przed pauzą
+  const PRZEJSCIE = 4000;    // crossfade między utworami
+  const POWROT = 1200;       // powrót po przełączeniu karty
+
+  const nuta = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+    <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`;
+
+  const musicButton = document.createElement("button");
+  musicButton.type = "button";
+  musicButton.className = "music-toggle";
+  musicButton.innerHTML = nuta;
+  musicButton.setAttribute("aria-pressed", "false");
+  reader.append(musicButton);
+
+  // Podpis wymagany licencją: gdy muzyka gra, widać autora, utwór i licencję.
+  const musicNow = document.createElement("p");
+  musicNow.className = "music-now";
+  musicNow.hidden = true;
+  reader.append(musicNow);
+
+  const odtwarzacze = {};
+  const przejscia = new WeakMap();
+  let muzykaOn = false;        // wybór czytelnika
+  let grany = null;            // nazwa utworu, który jest na wierzchu
+  let wstrzymaneWTle = false;  // pauza z powodu schowanej karty
+  let wFinale = false;         // czy czytelnik jest w rozdziale finałowym
+
+  function sciemniaj(el, docelowa, ms) {
+    cancelAnimationFrame(przejscia.get(el));
+    const od = el.volume;
+    if (ms <= 0 || Math.abs(od - docelowa) < 0.001) {
+      el.volume = docelowa;
+      return Promise.resolve();
+    }
+    const start = performance.now();
+    return new Promise((koniec) => {
+      const krok = (teraz) => {
+        const p = Math.min(1, (teraz - start) / ms);
+        el.volume = Math.max(0, Math.min(1, od + (docelowa - od) * p));
+        if (p < 1) przejscia.set(el, requestAnimationFrame(krok));
+        else koniec();
+      };
+      przejscia.set(el, requestAnimationFrame(krok));
+    });
+  }
+
+  // preload="none" znaczy, że samo podanie src nie wysyła żądania — plik rusza przy play()
+  function odtwarzacz(nazwa) {
+    if (odtwarzacze[nazwa]) return odtwarzacze[nazwa];
+    const el = document.createElement("audio");
+    el.preload = "none";
+    el.loop = true;
+    el.volume = 0;
+    el.src = MUZYKA[nazwa].plik;
+    // element idzie do dokumentu: bez controls jest niewidoczny, a odtwarzanie elementu
+    // poza drzewem nie jest pewne we wszystkich przeglądarkach
+    document.body.append(el);
+    odtwarzacze[nazwa] = el;
+    return el;
+  }
+
+  function podpisUtworu(nazwa) {
+    const u = MUZYKA[nazwa];
+    return `<a href="https://scottbuckley.com.au/" target="_blank" rel="noopener">${MUZYKA_AUTOR}</a>`
+      + ` – „${u.tytul}” (${u.album}) · `
+      + `<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>`;
+  }
+
+  function mediaSession(nazwa) {
+    if (!("mediaSession" in navigator)) return;
+    const u = MUZYKA[nazwa];
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: u.tytul, artist: MUZYKA_AUTOR, album: u.album,
+      });
+      navigator.mediaSession.playbackState = "playing";
+      navigator.mediaSession.setActionHandler("pause", () => setMusic(false));
+      navigator.mediaSession.setActionHandler("play", () => setMusic(true));
+    } catch {
+      // bez Media Session podpis niesie sama strona
+    }
+  }
+
+  async function zagraj(nazwa, ms) {
+    const el = odtwarzacz(nazwa);
+    grany = nazwa;
+    musicNow.innerHTML = podpisUtworu(nazwa);
+    musicNow.hidden = false;
+    mediaSession(nazwa);
+    try {
+      await el.play();
+    } catch {
+      return false;      // przeglądarka odmówiła — zostaje cisza, nie błąd na stronie
+    }
+    sciemniaj(el, GLOSNOSC, ms);
+    return true;
+  }
+
+  async function wycisz(nazwa, ms) {
+    const el = odtwarzacze[nazwa];
+    if (!el) return;
+    await sciemniaj(el, 0, ms);
+    el.pause();
+  }
+
+  // Zamiana utworu w jednym kierunku naraz; histereza jest w obserwatorach niżej
+  function przejdzNa(nazwa) {
+    if (!muzykaOn || grany === nazwa) return;
+    const poprzedni = grany;
+    zagraj(nazwa, PRZEJSCIE);
+    if (poprzedni) wycisz(poprzedni, PRZEJSCIE);
+  }
+
+  function setMusic(on) {
+    muzykaOn = on;
+    musicButton.setAttribute("aria-pressed", String(on));
+    musicButton.classList.toggle("is-on", on);
+    musicButton.setAttribute("aria-label", on ? "Wyłącz muzykę" : "Muzyka do czytania");
+    musicButton.dataset.tip = on ? "wyłącz muzykę" : "muzyka do czytania";
+    if (on) {
+      wstrzymaneWTle = false;
+      zagraj(grany ?? (wFinale ? "katabasis" : "anabasis"), WEJSCIE);
+    } else {
+      for (const nazwa of Object.keys(odtwarzacze)) wycisz(nazwa, WYJSCIE);
+      musicNow.hidden = true;
+      if ("mediaSession" in navigator) navigator.mediaSession.playbackState = "paused";
+    }
+  }
+
+  setMusic(false);
+  musicButton.addEventListener("click", () => setMusic(!muzykaOn));
+
+  // Schowana karta milczy. Powrót wznawia tylko to, czego czytelnik sam nie wyłączył.
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      if (!muzykaOn || !grany) return;
+      wstrzymaneWTle = true;
+      wycisz(grany, 400);
+    } else if (wstrzymaneWTle) {
+      wstrzymaneWTle = false;
+      if (muzykaOn) zagraj(grany, POWROT);
+    }
+  });
+
+  // Nuta sama nie mówi, co robi. Przy pierwszym pokazaniu panelu — na szerokim ekranie
+  // razem ze spisem, na telefonie przy otwarciu panelu trasy — podpis nazywa ją raz i gasnie.
+  let podpowiedzPokazana = false;
+
+  function pokazPodpowiedz() {
+    if (podpowiedzPokazana || muzykaOn) return;
+    podpowiedzPokazana = true;
+    musicNow.textContent = "muzyka do czytania";
+    musicNow.hidden = false;
+    setTimeout(() => {
+      if (!muzykaOn) musicNow.hidden = true;
+    }, 5000);
+  }
+
+  const panelWidoczny = () => document.documentElement.classList.contains("nav-on")
+    || document.documentElement.classList.contains("route-open");
+
+  if (panelWidoczny()) pokazPodpowiedz();
+  else {
+    const czuwa = new MutationObserver(() => {
+      if (!panelWidoczny()) return;
+      czuwa.disconnect();
+      pokazPodpowiedz();
+    });
+    czuwa.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+  }
+
+  // Finał: dwa progi, żeby drobne przewinięcie na granicy nie przełączało utworu.
+  // Wejście, gdy początek finału minie 60% ekranu; powrót, gdy znów jest 160% niżej.
+  const finalSection = document.getElementById("mont-blanc");
+  if (finalSection) {
+    new IntersectionObserver(([wpis]) => {
+      if (!wpis.isIntersecting) return;
+      wFinale = true;
+      przejdzNa("katabasis");
+    }, { rootMargin: "0px 0px -40% 0px" }).observe(finalSection);
+
+    new IntersectionObserver(([wpis]) => {
+      if (wpis.isIntersecting) return;
+      wFinale = false;
+      przejdzNa("anabasis");
+    }, { rootMargin: "0px 0px 60% 0px" }).observe(finalSection);
+
+    // Drugi utwór dociąga się, zanim będzie potrzebny — crossfade nie może czekać na sieć.
+    // Tylko przy włączonej muzyce, więc przed kliknięciem nie ma żadnego żądania do plików.
+    new IntersectionObserver(([wpis], obserwator) => {
+      if (!wpis.isIntersecting || !muzykaOn) return;
+      const el = odtwarzacz("katabasis");
+      el.preload = "auto";
+      el.load();
+      obserwator.disconnect();
+    }, { rootMargin: "0px 0px 150% 0px" }).observe(finalSection);
+  }
+
   // --- Przełącznik efektów (stopka) ---
   // Jedno miejsce dla wszystkiego, co się rusza: scen rozdziałów, paralaksy szkiców
   // i efektów przy słowach. Wybór pamiętany w localStorage; bez wyboru decyduje system.

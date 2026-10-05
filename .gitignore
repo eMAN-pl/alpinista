@@ -25,3 +25,6 @@
 !/fonts/*
 !/assets/web/*
 !/assets/og/*
+
+# Muzyka do czytania — tylko przekonwertowane pliki, nie oryginały z assets/
+!/assets/audio/*
