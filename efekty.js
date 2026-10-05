@@ -327,21 +327,20 @@
           return o.x - len < W;
         });
         const g = s.g*e;
-        // Tekst reaguje na wiatr, który właśnie przez niego przechodzi: każde wejście smugi
-        // na kolumnę popycha go w prawo, a sprężyna ściąga z powrotem na miejsce. Z czasem
-        // reakcja słabnie (czytelnik przywyka tak samo jak idący pod wiatr).
         const slabnie = 1 - .45*clamp(p, 0, 1);
-        // Podmuch nie popycha kolumny w jedną stronę — rozkołysuje ją. Wejście smug na
-        // kolumnę podbija amplitudę, a ta opada między podmuchami, więc średnie przesunięcie
-        // zostaje zerowe i tekst nie ucieka w bok.
+        // Tekst jest nieruchomy, dopóki wiatr do niego nie dojdzie. Dopiero smuga, która
+        // wchodzi na kolumnę, podbija amplitudę kołysania; między podmuchami amplituda opada,
+        // więc średnie przesunięcie zostaje zerowe i kolumna nie ucieka w bok.
+        // Rozmycie i smuga za literami też idą z tej amplitudy, a nie z siły wiatru za ekranem —
+        // inaczej tekst reagowałby, zanim cokolwiek do niego doleci.
         s.v = Math.min(.85, s.v + uderzenie * .45 * e);
         s.v *= Math.pow(.93, k);
         const drganie = Math.sin(t/57) + Math.sin(t/23)*.5 + Math.sin(t/11)*.28;   // -1,8…1,8
-        const sila = (.08 + s.v) * slabnie;        // szczyt poniżej 2 px: tekst ma drgnąć, nie chodzić
+        const sila = s.v * slabnie;                // szczyt poniżej 2 px: tekst ma drgnąć, nie chodzić
         M.dx += sila * drganie;
         M.skew += sila * .14 * Math.sin(t/83);
-        M.blur += .35*g;
-        M.shadow.push(`${(-5*g).toFixed(1)}px 0 1px rgba(${v('--fg-rgb')},${(.24*e).toFixed(3)})`, `${(-11*g).toFixed(1)}px 0 3px rgba(${v('--fg-rgb')},${(.11*e).toFixed(3)})`);
+        M.blur += .4*sila;
+        M.shadow.push(`${(-6*sila).toFixed(1)}px 0 1px rgba(${v('--fg-rgb')},${(.26*sila).toFixed(3)})`, `${(-13*sila).toFixed(1)}px 0 3px rgba(${v('--fg-rgb')},${(.12*sila).toFixed(3)})`);
       }},
 
     lawinki: { dur: 6500,
