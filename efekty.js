@@ -304,7 +304,7 @@
       }},
 
     wiatr: { dur: 5000,
-      init(s){ s.q = []; s.g = 0; },
+      init(s){ s.q = []; s.g = 0; s.v = 0; s.x = 0; },
       draw(c, s, p, t, dt, M, cb){
         const e = env(p,.1,.25), k = dt/16;
         const target = (.35 + .65*clamp(p/.6,0,1))*(.65 + .35*Math.sin(t/380) + .22*Math.sin(t/127));
@@ -313,19 +313,33 @@
         let n = (1.5 + 7*s.g)*e*k;
         while (n > 0) { if (n >= 1 || R() < n) s.q.push({x:-40, y:R()*H, m:.5+R()*.9, ph:R()*6, r:.6+R()*1.6, fr:R() < .3}); n--; }
         c.lineCap = cb.lineCap = 'round';
+        // Ile wiatru przechodzi właśnie przez kolumnę tekstu — stąd bierze się szarpnięcie
+        const kol = colRect();
+        let uderzenie = 0;
         s.q = s.q.filter(o => {
+          const przed = o.x;
           o.x += sp*o.m*k; o.y += Math.sin(o.x/70+o.ph)*.8*k;
           const len = sp*o.m*2.2, ctx = o.fr ? c : cb;
           ctx.strokeStyle = rgba('--snow-rgb', (o.fr ? .5 : .28)*e); ctx.lineWidth = o.fr ? o.r*1.4 : o.r;
           ctx.beginPath(); ctx.moveTo(o.x-len,o.y); ctx.lineTo(o.x,o.y); ctx.stroke();
+          // smuga liczy się tylko w chwili, gdy wchodzi na kolumnę, i tym mocniej, im bliżej
+          if (przed < kol.left && o.x >= kol.left) uderzenie += o.m*(o.fr ? 1 : .45);
           return o.x - len < W;
         });
         const g = s.g*e;
-        // Tekst nie jedzie w bok — drga w miejscu, jak kartka trzymana pod wiatr.
-        // Średnia pozycja zostaje ta sama, zmienia się tylko drżenie i smuga za literami.
-        const drganie = Math.sin(t/57) * 1.4 + Math.sin(t/23) * .7 + Math.sin(t/11) * .4;   // do ±2,5 px
-        M.dx += g * drganie;
-        M.skew += g * .8 * Math.sin(t/83);
+        // Tekst reaguje na wiatr, który właśnie przez niego przechodzi: każde wejście smugi
+        // na kolumnę popycha go w prawo, a sprężyna ściąga z powrotem na miejsce. Z czasem
+        // reakcja słabnie (czytelnik przywyka tak samo jak idący pod wiatr).
+        const slabnie = 1 - .45*clamp(p, 0, 1);
+        // Podmuch nie popycha kolumny w jedną stronę — rozkołysuje ją. Wejście smug na
+        // kolumnę podbija amplitudę, a ta opada między podmuchami, więc średnie przesunięcie
+        // zostaje zerowe i tekst nie ucieka w bok.
+        s.v = Math.min(4.5, s.v + uderzenie * 1.3 * e);
+        s.v *= Math.pow(.93, k);
+        const drganie = Math.sin(t/57) + Math.sin(t/23)*.5 + Math.sin(t/11)*.28;   // -1,8…1,8
+        const sila = (.5 + s.v) * slabnie;
+        M.dx += sila * drganie;
+        M.skew += sila * .26 * Math.sin(t/83);
         M.blur += .35*g;
         M.shadow.push(`${(-5*g).toFixed(1)}px 0 1px rgba(${v('--fg-rgb')},${(.24*e).toFixed(3)})`, `${(-11*g).toFixed(1)}px 0 3px rgba(${v('--fg-rgb')},${(.11*e).toFixed(3)})`);
       }},
