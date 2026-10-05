@@ -949,8 +949,9 @@ article a:hover {
 }
 
 /* ---------- Zapalniki efektów ----------
-   Fraza z tekstu autora, w którą można kliknąć. Dwa rodzaje, bo mają różną rolę:
-   kropkowana linia to efekt atmosferyczny, ciągła i cicha — refren (Cyk, Klik, WTF, Enter).
+   Fraza z tekstu autora, w którą można kliknąć. Jedno oznaczenie dla wszystkich:
+   kropkowana linia w akcencie — bez względu na to, czy to efekt atmosferyczny,
+   czy refren (Cyk, Klik, WTF, Enter). Czytelnik ma widzieć jedną zasadę, a nie dwie.
    Style muszą być tutaj, a nie w efekty.css, bo ten wczytuje się dopiero przy kliknięciu.
    Przy wyłączonych efektach zapalniki wyglądają i zachowują się jak zwykły tekst. */
 
@@ -975,19 +976,16 @@ button.ref {
   transition: color 0.4s;
 }
 
-.js:not(.effects-off) button.fx {
+.js:not(.effects-off) button.fx,
+.js:not(.effects-off) button.ref {
   text-decoration-style: dotted;
   text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
 }
 
-.js:not(.effects-off) button.ref {
-  text-decoration-style: solid;
-  text-decoration-color: color-mix(in srgb, var(--text-quiet) 45%, transparent);
-}
-
 .js:not(.effects-off) button.fx:hover,
 .js:not(.effects-off) button.ref:hover,
-.js:not(.effects-off) button.fx[aria-pressed="true"] {
+.js:not(.effects-off) button.fx[aria-pressed="true"],
+.js:not(.effects-off) button.ref[aria-pressed="true"] {
   color: var(--accent);
 }
 
