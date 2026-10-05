@@ -789,6 +789,18 @@ a:hover {
   text-decoration-color: currentColor;
 }
 
+/* W treści eseju wszystko, co klikalne, jest w akcencie: odnośniki przypisów, adresy
+   w przypisach i zapalniki efektów. Linki mają podkreślenie ciągłe, zapalniki kropkowane,
+   więc da się je od siebie odróżnić. Spis treści zostaje czarno-biały. */
+article a {
+  color: var(--accent);
+  text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+article a:hover {
+  text-decoration-color: var(--accent);
+}
+
 .fn-ref {
   font-family: var(--mono);
   font-size: 0.68em;
