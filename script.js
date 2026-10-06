@@ -625,28 +625,48 @@
   // Trzy zasady, w tej kolejności: nic nie gra samo, nic się nie pobiera przed kliknięciem,
   // nic nie przechodzi między wizytami. Dlatego <audio> powstaje dopiero przy pierwszym
   // kliknięciu, ma preload="none", a wybór nie idzie do localStorage — nowa wizyta to cisza.
-  // Dwa utwory i jedno przejście: wejście w finał zamienia wspinanie na zejście.
+  // Playlista gra po kolei; finał ma własny utwór, bo to zejście, a nie kolejne podejście.
 
   const MUZYKA = {
-    anabasis: { plik: "assets/audio/anabasis-i.mp3", tytul: "Anabasis I", album: "The Weight of Air" },
-    katabasis: { plik: "assets/audio/katabasis-i.mp3", tytul: "Katabasis I", album: "The Weight of Air" },
+    "anabasis-i": { tytul: "Anabasis I", album: "The Weight of Air" },
+    "in-this-moment": { tytul: "In This Moment" },
+    "home-was-you": { tytul: "Home Was You" },
+    "memories-of-stone": { tytul: "Memories Of Stone" },
+    "with-these-hands": { tytul: "With These Hands" },
+    "convergence": { tytul: "Convergence" },
+    "unraveling": { tytul: "Unraveling" },
+    "aphelion": { tytul: "Aphelion" },
+    "phoenix-2026": { tytul: "Phoenix" },
+    "katabasis-i": { tytul: "Katabasis I", album: "The Weight of Air" },
   };
+
+  // Kolejność na czas czytania — od spokojnego fortepianu po orkiestrę, tak jak rosną góry
+  // w tekście. Żeby zrezygnować z utworu, wystarczy wyjąć go z tej listy.
+  const LISTA = ["anabasis-i", "in-this-moment", "home-was-you", "memories-of-stone",
+                 "with-these-hands", "convergence", "unraveling", "aphelion", "phoenix-2026"];
+  const FINAL = "katabasis-i";
+
   const MUZYKA_AUTOR = "Scott Buckley";
+  const MUZYKA_WWW = "https://www.scottbuckley.com.au/";
+  const LICENCJA_WWW = "https://creativecommons.org/licenses/by/4.0/";
   const GLOSNOSC = 0.35;
   const WEJSCIE = 2500;      // narastanie przy włączeniu
   const WYJSCIE = 1500;      // wyciszenie przed pauzą
-  const PRZEJSCIE = 4000;    // crossfade między utworami
+  const PRZEJSCIE = 4000;    // crossfade przy wejściu w finał
+  const SKOK = 1200;         // crossfade przy ręcznej zmianie utworu
   const POWROT = 1200;       // powrót po przełączeniu karty
   const PODPIS = 6000;       // jak długo widać, co gra
 
-  const nuta = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
-    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-    <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`;
+  const ikona = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${d}</svg>`;
 
+  // W rzędzie kontrolek stoi tylko nuta — ona decyduje o ciszy. Przewijanie mieszka
+  // w podpisie, przy nazwie utworu, bo dotyczy tego, co właśnie gra: gołe strzałki,
+  // bez obwódki, żeby nie udawały trzeciego równorzędnego przycisku.
   const musicButton = document.createElement("button");
   musicButton.type = "button";
   musicButton.className = "music-toggle";
-  musicButton.innerHTML = nuta;
+  musicButton.innerHTML = ikona('<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>');
   musicButton.setAttribute("aria-pressed", "false");
   reader.append(musicButton);
 
@@ -654,17 +674,32 @@
   const musicNow = document.createElement("p");
   musicNow.className = "music-now";
   musicNow.hidden = true;
+  const prevButton = document.createElement("button");
+  const nextButton = document.createElement("button");
+  const musicName = document.createElement("span");
+  prevButton.type = nextButton.type = "button";
+  prevButton.className = nextButton.className = "music-skip";
+  musicName.className = "music-name";
+  prevButton.innerHTML = ikona('<polygon points="19 20 9 12 19 4 19 20" fill="currentColor"/><line x1="5" x2="5" y1="19" y2="5"/>');
+  nextButton.innerHTML = ikona('<polygon points="5 4 15 12 5 20 5 4" fill="currentColor"/><line x1="19" x2="19" y1="5" y2="19"/>');
+  prevButton.setAttribute("aria-label", "Poprzedni utwór");
+  nextButton.setAttribute("aria-label", "Następny utwór");
+  musicNow.append(prevButton, musicName, nextButton);
   reader.append(musicNow);
 
   // Podpis nie wisi przez cały esej: pokazuje się przy starcie i przy zmianie utworu,
-  // potem gaśnie, a wraca na najechanie albo fokus nuty. Trwałą atrybucję — tego wymaga
+  // potem gaśnie, a wraca na najechanie albo fokus. Trwałą atrybucję — tego wymaga
   // licencja — niesie sekcja Źródła w stopce i metadane na ekranie blokady telefonu.
+  // Tam, gdzie nie ma kursora, podpis nie ma jak wrócić — a w nim siedzi przewijanie.
+  // Na dotyku zostaje więc widoczny tak długo, jak gra muzyka; panel i tak jest wtedy otwarty.
+  const bezKursora = matchMedia("(hover: none)");
   let podpisTimer = 0;
 
   function pokazPodpis(tresc, ms) {
     clearTimeout(podpisTimer);
     podpisTimer = 0;
-    musicNow.innerHTML = tresc;
+    musicName.innerHTML = tresc;
+    prevButton.hidden = nextButton.hidden = !muzykaOn;
     musicNow.hidden = false;
     if (ms) podpisTimer = setTimeout(() => { podpisTimer = 0; musicNow.hidden = true; }, ms);
   }
@@ -678,7 +713,8 @@
   const odtwarzacze = {};
   const przejscia = new WeakMap();
   let muzykaOn = false;        // wybór czytelnika
-  let grany = null;            // nazwa utworu, który jest na wierzchu
+  let grany = null;            // utwór, który jest na wierzchu
+  let pozycja = 0;             // miejsce w LISTA — finał go nie rusza
   let wstrzymaneWTle = false;  // pauza z powodu schowanej karty
   let wFinale = false;         // czy czytelnik jest w rozdziale finałowym
 
@@ -698,53 +734,74 @@
         else koniec();
       };
       przejscia.set(el, requestAnimationFrame(krok));
+      // Zasłonięte albo zminimalizowane okno wstrzymuje requestAnimationFrame. Bez tego
+      // przejście stanęłoby w pół drogi: nowy utwór zostałby cichy, a stary nigdy nie
+      // doszedłby do pauzy, bo ta czeka na koniec wyciszania.
+      setTimeout(() => {
+        if (Math.abs(el.volume - docelowa) < 0.001) return;
+        cancelAnimationFrame(przejscia.get(el));
+        el.volume = docelowa;
+        koniec();
+      }, ms + 150);
     });
   }
 
   // preload="none" znaczy, że samo podanie src nie wysyła żądania — plik rusza przy play()
-  function odtwarzacz(nazwa) {
-    if (odtwarzacze[nazwa]) return odtwarzacze[nazwa];
+  function odtwarzacz(id) {
+    if (odtwarzacze[id]) return odtwarzacze[id];
     const el = document.createElement("audio");
     el.preload = "none";
-    el.loop = true;
+    el.loop = id === FINAL;          // finał zapętla się, bo po nim nic już nie ma
     el.volume = 0;
-    el.src = MUZYKA[nazwa].plik;
+    el.src = `assets/audio/${id}.mp3`;
+    el.addEventListener("ended", () => {
+      if (!muzykaOn || grany !== id || wFinale) return;
+      el.pause();                    // przeglądarka już go zatrzymała; to tylko pewność
+      pozycja = (pozycja + 1) % LISTA.length;
+      zagraj(LISTA[pozycja], SKOK);
+    });
     // element idzie do dokumentu: bez controls jest niewidoczny, a odtwarzanie elementu
     // poza drzewem nie jest pewne we wszystkich przeglądarkach
     document.body.append(el);
-    odtwarzacze[nazwa] = el;
+    odtwarzacze[id] = el;
     return el;
   }
 
-  function podpisUtworu(nazwa) {
-    const u = MUZYKA[nazwa];
-    return `<a href="https://scottbuckley.com.au/" target="_blank" rel="noopener">${MUZYKA_AUTOR}</a>`
-      + ` – „${u.tytul}” (${u.album}) · `
-      + `<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>`;
+  // Format podpisu wprost ze strony autora: 'Tytuł' by Scott Buckley – released under
+  // CC-BY 4.0. www.scottbuckley.com.au
+  function podpisUtworu(id) {
+    const u = MUZYKA[id];
+    const numer = LISTA.includes(id) ? `${LISTA.indexOf(id) + 1}/${LISTA.length} · ` : "finał · ";
+    return `${numer}„${u.tytul}”`
+      + ` — <a href="${MUZYKA_WWW}" target="_blank" rel="noopener">${MUZYKA_AUTOR}</a>`
+      + ` · <a href="${LICENCJA_WWW}" target="_blank" rel="noopener">CC BY 4.0</a>`;
   }
 
-  function mediaSession(nazwa) {
+  function mediaSession(id) {
     if (!("mediaSession" in navigator)) return;
-    const u = MUZYKA[nazwa];
+    const u = MUZYKA[id];
     try {
       navigator.mediaSession.metadata = new MediaMetadata({
-        title: u.tytul, artist: MUZYKA_AUTOR, album: u.album,
+        title: u.tytul, artist: MUZYKA_AUTOR, album: u.album ?? "scottbuckley.com.au",
       });
       navigator.mediaSession.playbackState = "playing";
       navigator.mediaSession.setActionHandler("pause", () => setMusic(false));
       navigator.mediaSession.setActionHandler("play", () => setMusic(true));
+      navigator.mediaSession.setActionHandler("previoustrack", () => przeskocz(-1));
+      navigator.mediaSession.setActionHandler("nexttrack", () => przeskocz(1));
     } catch {
       // bez Media Session podpis niesie sama strona
     }
   }
 
   // zPodpisem: wznowienie po powrocie do karty nie przypomina, co gra — nic się nie zmieniło
-  async function zagraj(nazwa, ms, zPodpisem = true) {
-    const el = odtwarzacz(nazwa);
-    grany = nazwa;
-    if (zPodpisem) pokazPodpis(podpisUtworu(nazwa), PODPIS);
-    else musicNow.innerHTML = podpisUtworu(nazwa);
-    mediaSession(nazwa);
+  async function zagraj(id, ms, { zPodpisem = true, odNowa = false } = {}) {
+    const el = odtwarzacz(id);
+    grany = id;
+    if (odNowa) { try { el.currentTime = 0; } catch { /* jeszcze nie wczytany */ } }
+    if (zPodpisem) pokazPodpis(podpisUtworu(id), bezKursora.matches ? 0 : PODPIS);
+    else musicName.innerHTML = podpisUtworu(id);
+    mediaSession(id);
     try {
       await el.play();
     } catch {
@@ -754,19 +811,26 @@
     return true;
   }
 
-  async function wycisz(nazwa, ms) {
-    const el = odtwarzacze[nazwa];
+  async function wycisz(id, ms) {
+    const el = odtwarzacze[id];
     if (!el) return;
     await sciemniaj(el, 0, ms);
     el.pause();
   }
 
-  // Zamiana utworu w jednym kierunku naraz; histereza jest w obserwatorach niżej
-  function przejdzNa(nazwa) {
-    if (!muzykaOn || grany === nazwa) return;
+  function zmien(id, ms, odNowa = false) {
+    if (!muzykaOn || grany === id) return;
     const poprzedni = grany;
-    zagraj(nazwa, PRZEJSCIE);
-    if (poprzedni) wycisz(poprzedni, PRZEJSCIE);
+    zagraj(id, ms, { odNowa });
+    if (poprzedni) wycisz(poprzedni, ms);
+  }
+
+  // Ręczna zmiana utworu. W finale przeskok wraca na playlistę — inaczej nie dałoby się
+  // z niego wyjść bez przewijania strony.
+  function przeskocz(krok) {
+    if (!muzykaOn) return;
+    if (!wFinale || grany !== FINAL) pozycja = (pozycja + krok + LISTA.length) % LISTA.length;
+    zmien(LISTA[pozycja], SKOK, true);
   }
 
   function setMusic(on) {
@@ -775,11 +839,12 @@
     musicButton.classList.toggle("is-on", on);
     musicButton.setAttribute("aria-label", on ? "Wyłącz muzykę" : "Muzyka do czytania");
     musicButton.dataset.tip = on ? "wyłącz muzykę" : "muzyka do czytania";
+    prevButton.hidden = nextButton.hidden = !on;
     if (on) {
       wstrzymaneWTle = false;
-      zagraj(grany ?? (wFinale ? "katabasis" : "anabasis"), WEJSCIE);
+      zagraj(grany ?? (wFinale ? FINAL : LISTA[pozycja]), WEJSCIE);
     } else {
-      for (const nazwa of Object.keys(odtwarzacze)) wycisz(nazwa, WYJSCIE);
+      for (const id of Object.keys(odtwarzacze)) wycisz(id, WYJSCIE);
       schowajPodpis();
       if ("mediaSession" in navigator) navigator.mediaSession.playbackState = "paused";
     }
@@ -787,15 +852,33 @@
 
   setMusic(false);
   musicButton.addEventListener("click", () => setMusic(!muzykaOn));
+  prevButton.addEventListener("click", () => przeskocz(-1));
+  nextButton.addEventListener("click", () => przeskocz(1));
 
-  // Gdy podpis już zgasł, najechanie albo fokus przypomina, co gra. W trakcie tych
-  // pierwszych sekund zjechanie kursorem go nie gasi — stąd warunek na zegarze.
-  const przypomnijPodpis = () => { if (muzykaOn && grany) pokazPodpis(podpisUtworu(grany), 0); };
-  const ukryjPodpis = () => { if (!podpisTimer) schowajPodpis(); };
-  musicButton.addEventListener("pointerenter", przypomnijPodpis);
-  musicButton.addEventListener("pointerleave", ukryjPodpis);
-  musicButton.addEventListener("focus", przypomnijPodpis);
-  musicButton.addEventListener("blur", ukryjPodpis);
+  // Gdy podpis już zgasł, najechanie na nutę przywołuje go z powrotem — razem ze strzałkami.
+  // Nuta i podpis są jednym obszarem: zwłoka pozwala przejechać kursorem przez przerwę
+  // między nimi, a w pierwszych sekundach po zmianie utworu zjechanie i tak nic nie gasi.
+  let zwloka = 0;
+
+  function przypomnijPodpis() {
+    clearTimeout(zwloka);
+    if (muzykaOn && grany) pokazPodpis(podpisUtworu(grany), 0);
+  }
+
+  function ukryjPodpis() {
+    clearTimeout(zwloka);
+    if (bezKursora.matches) return;
+    zwloka = setTimeout(() => { if (!podpisTimer) schowajPodpis(); }, 260);
+  }
+
+  for (const el of [musicButton, musicNow]) {
+    el.addEventListener("pointerenter", przypomnijPodpis);
+    el.addEventListener("pointerleave", ukryjPodpis);
+  }
+  for (const el of [musicButton, prevButton, nextButton]) {
+    el.addEventListener("focus", przypomnijPodpis);
+    el.addEventListener("blur", ukryjPodpis);
+  }
 
   // Schowana karta milczy. Powrót wznawia tylko to, czego czytelnik sam nie wyłączył.
   document.addEventListener("visibilitychange", () => {
@@ -805,7 +888,7 @@
       wycisz(grany, 400);
     } else if (wstrzymaneWTle) {
       wstrzymaneWTle = false;
-      if (muzykaOn) zagraj(grany, POWROT, false);
+      if (muzykaOn) zagraj(grany, POWROT, { zPodpisem: false });
     }
   });
 
@@ -839,20 +922,20 @@
     new IntersectionObserver(([wpis]) => {
       if (!wpis.isIntersecting) return;
       wFinale = true;
-      przejdzNa("katabasis");
+      zmien(FINAL, PRZEJSCIE);
     }, { rootMargin: "0px 0px -40% 0px" }).observe(finalSection);
 
     new IntersectionObserver(([wpis]) => {
       if (wpis.isIntersecting) return;
       wFinale = false;
-      przejdzNa("anabasis");
+      if (grany === FINAL) zmien(LISTA[pozycja], PRZEJSCIE);
     }, { rootMargin: "0px 0px 60% 0px" }).observe(finalSection);
 
-    // Drugi utwór dociąga się, zanim będzie potrzebny — crossfade nie może czekać na sieć.
+    // Finał dociąga się, zanim będzie potrzebny — crossfade nie może czekać na sieć.
     // Tylko przy włączonej muzyce, więc przed kliknięciem nie ma żadnego żądania do plików.
     new IntersectionObserver(([wpis], obserwator) => {
       if (!wpis.isIntersecting || !muzykaOn) return;
-      const el = odtwarzacz("katabasis");
+      const el = odtwarzacz(FINAL);
       el.preload = "auto";
       el.load();
       obserwator.disconnect();

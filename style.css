@@ -237,6 +237,16 @@
   height: 18px;
 }
 
+/* Przewijanie utworu stoi po bokach nuty i jest od niej mniejsze — nuta decyduje
+   o ciszy, te dwa tylko wybierają, co gra. Pokazują się dopiero, gdy muzyka gra:
+   `hidden` samo nie wystarczy, bo reguła wyżej daje każdemu przyciskowi display: flex. */
+/* Przewijanie stoi w podpisie, przy nazwie utworu — gołe strzałki bez obwódki,
+   żeby nie udawały trzeciego równorzędnego przycisku obok nuty. */
+.reader button[hidden],
+.music-skip[hidden] {
+  display: none;
+}
+
 .reader .music-toggle.is-on,
 .music-toggle.is-on:hover,
 .music-toggle.is-on:focus-visible {
@@ -254,6 +264,9 @@
   right: 0;
   bottom: calc(100% + 10px);
   z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   width: max-content;
   max-width: min(72vw, 320px);
   margin: 0;
@@ -263,6 +276,31 @@
   font: 10px/1.5 var(--mono);
   letter-spacing: 0.04em;
   color: var(--text-quiet);
+}
+
+.music-now .music-skip {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--text-quiet);
+  cursor: pointer;
+}
+
+.music-now .music-skip svg {
+  width: 12px;
+  height: 12px;
+}
+
+.music-now .music-skip:hover,
+.music-now .music-skip:focus-visible {
+  color: var(--accent);
 }
 
 .music-now a {
@@ -319,6 +357,14 @@ body > .reader {
   .theme-toggle {
     width: 44px;           /* obszar dotyku ≥ 44 px */
     height: 44px;
+  }
+
+  /* Strzałki są małe, ale pole dotyku musi mieć swoje — stąd wyściółka zamiast rozmiaru,
+     żeby sama ikona przy nazwie utworu dalej była drobna. */
+  .music-now .music-skip {
+    width: 34px;
+    height: 34px;
+    margin: -7px 0;
   }
 }
 
