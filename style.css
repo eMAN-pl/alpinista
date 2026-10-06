@@ -219,6 +219,12 @@
   .music-toggle:focus-visible::after {
     opacity: 1;
   }
+
+  /* Gdy muzyka gra, najechanie wywołuje podpis utworu — a ten wychodzi dokładnie tam,
+     gdzie podpowiedź. Dwa dymki naraz w jednym miejscu, więc podpowiedź ustępuje. */
+  .music-toggle.is-on[data-tip]::after {
+    content: none;
+  }
 }
 
 /* ---------- Muzyka do czytania (script.js) ----------
@@ -653,6 +659,15 @@ h1 .t-line {
 }
 
 .chapter-meta,
+.chapter-end {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.72em;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  color: var(--text-quiet);
+}
+
 /* Ten sam znak co przy innych liczbach na stronie: krótka kreska, potem telemetria.
    Kreska stoi w tekście, więc idzie za stopniem pisma i za kolorem metadanych. */
 .chapter-end::before {
@@ -662,15 +677,6 @@ h1 .t-line {
   margin-right: 0.6em;
   border-top: 1px solid currentColor;
   vertical-align: 0.25em;
-}
-
-.chapter-end {
-  margin: 0;
-  font-family: var(--mono);
-  font-size: 0.72em;
-  line-height: 1.5;
-  letter-spacing: 0.02em;
-  color: var(--text-quiet);
 }
 
 /* ---------- Akapity ---------- */

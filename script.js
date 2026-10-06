@@ -637,6 +637,7 @@
   const WYJSCIE = 1500;      // wyciszenie przed pauzą
   const PRZEJSCIE = 4000;    // crossfade między utworami
   const POWROT = 1200;       // powrót po przełączeniu karty
+  const PODPIS = 6000;       // jak długo widać, co gra
 
   const nuta = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
@@ -654,6 +655,25 @@
   musicNow.className = "music-now";
   musicNow.hidden = true;
   reader.append(musicNow);
+
+  // Podpis nie wisi przez cały esej: pokazuje się przy starcie i przy zmianie utworu,
+  // potem gaśnie, a wraca na najechanie albo fokus nuty. Trwałą atrybucję — tego wymaga
+  // licencja — niesie sekcja Źródła w stopce i metadane na ekranie blokady telefonu.
+  let podpisTimer = 0;
+
+  function pokazPodpis(tresc, ms) {
+    clearTimeout(podpisTimer);
+    podpisTimer = 0;
+    musicNow.innerHTML = tresc;
+    musicNow.hidden = false;
+    if (ms) podpisTimer = setTimeout(() => { podpisTimer = 0; musicNow.hidden = true; }, ms);
+  }
+
+  function schowajPodpis() {
+    clearTimeout(podpisTimer);
+    podpisTimer = 0;
+    musicNow.hidden = true;
+  }
 
   const odtwarzacze = {};
   const przejscia = new WeakMap();
@@ -718,11 +738,12 @@
     }
   }
 
-  async function zagraj(nazwa, ms) {
+  // zPodpisem: wznowienie po powrocie do karty nie przypomina, co gra — nic się nie zmieniło
+  async function zagraj(nazwa, ms, zPodpisem = true) {
     const el = odtwarzacz(nazwa);
     grany = nazwa;
-    musicNow.innerHTML = podpisUtworu(nazwa);
-    musicNow.hidden = false;
+    if (zPodpisem) pokazPodpis(podpisUtworu(nazwa), PODPIS);
+    else musicNow.innerHTML = podpisUtworu(nazwa);
     mediaSession(nazwa);
     try {
       await el.play();
@@ -759,13 +780,22 @@
       zagraj(grany ?? (wFinale ? "katabasis" : "anabasis"), WEJSCIE);
     } else {
       for (const nazwa of Object.keys(odtwarzacze)) wycisz(nazwa, WYJSCIE);
-      musicNow.hidden = true;
+      schowajPodpis();
       if ("mediaSession" in navigator) navigator.mediaSession.playbackState = "paused";
     }
   }
 
   setMusic(false);
   musicButton.addEventListener("click", () => setMusic(!muzykaOn));
+
+  // Gdy podpis już zgasł, najechanie albo fokus przypomina, co gra. W trakcie tych
+  // pierwszych sekund zjechanie kursorem go nie gasi — stąd warunek na zegarze.
+  const przypomnijPodpis = () => { if (muzykaOn && grany) pokazPodpis(podpisUtworu(grany), 0); };
+  const ukryjPodpis = () => { if (!podpisTimer) schowajPodpis(); };
+  musicButton.addEventListener("pointerenter", przypomnijPodpis);
+  musicButton.addEventListener("pointerleave", ukryjPodpis);
+  musicButton.addEventListener("focus", przypomnijPodpis);
+  musicButton.addEventListener("blur", ukryjPodpis);
 
   // Schowana karta milczy. Powrót wznawia tylko to, czego czytelnik sam nie wyłączył.
   document.addEventListener("visibilitychange", () => {
@@ -775,7 +805,7 @@
       wycisz(grany, 400);
     } else if (wstrzymaneWTle) {
       wstrzymaneWTle = false;
-      if (muzykaOn) zagraj(grany, POWROT);
+      if (muzykaOn) zagraj(grany, POWROT, false);
     }
   });
 
@@ -786,11 +816,7 @@
   function pokazPodpowiedz() {
     if (podpowiedzPokazana || muzykaOn) return;
     podpowiedzPokazana = true;
-    musicNow.textContent = "muzyka do czytania";
-    musicNow.hidden = false;
-    setTimeout(() => {
-      if (!muzykaOn) musicNow.hidden = true;
-    }, 5000);
+    pokazPodpis("muzyka do czytania", 5000);
   }
 
   const panelWidoczny = () => document.documentElement.classList.contains("nav-on")
