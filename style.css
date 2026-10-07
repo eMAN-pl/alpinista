@@ -243,7 +243,8 @@
 /* Przewijanie stoi w podpisie, przy nazwie utworu — gołe strzałki bez obwódki,
    żeby nie udawały trzeciego równorzędnego przycisku obok nuty. */
 .reader button[hidden],
-.music-skip[hidden] {
+.music-skip[hidden],
+.music-now[hidden] {
   display: none;
 }
 
