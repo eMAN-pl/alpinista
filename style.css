@@ -1105,14 +1105,10 @@ button.ref {
 .js:not(.effects-off) button.ref {
   text-decoration-line: underline;
   text-underline-offset: 0.25em;
-  text-decoration-thickness: 1px;
-  transition: color 0.4s;
-}
-
-.js:not(.effects-off) button.fx,
-.js:not(.effects-off) button.ref {
+  text-decoration-thickness: 1.5px;
   text-decoration-style: dotted;
-  text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  text-decoration-color: color-mix(in srgb, var(--accent) 70%, transparent);
+  transition: color 0.4s;
 }
 
 .js:not(.effects-off) button.fx:hover,
