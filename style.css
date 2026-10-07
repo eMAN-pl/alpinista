@@ -1329,7 +1329,7 @@ article.is-shaken {
    nie ma poziomic ani osi w metrach, które udawałyby mapę. */
 
 .profil {
-  margin: var(--sp-para) 0 var(--sp-group);
+  margin: var(--sp-group) 0 0;
 }
 
 /* Kropki liczą się od dołu rysunku, więc podpis musi zostać poza tym układem */
@@ -1417,11 +1417,13 @@ article.is-shaken {
   margin-bottom: var(--sp-para);
 }
 
+/* Spis treści ma jeden rodzaj linii, nie dwa. Kropkowana linia prowadząca prowadzi oko
+   od nazwy do wysokości i to jej zadanie; kreski pod wierszami robiły to samo drugi raz,
+   a razem układały się w drabinę. */
 .route ol {
   margin: 0;
   padding: 0;
   list-style: none;
-  border-top: 1px solid var(--rule);
 }
 
 .route ol a {
@@ -1430,7 +1432,6 @@ article.is-shaken {
   gap: 16px;
   min-height: 44px;        /* obszar dotyku ≥ 44 px */
   padding: 12px 0;
-  border-bottom: 1px solid var(--rule);
   color: var(--text);
   text-decoration: none;
 }
