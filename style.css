@@ -1010,13 +1010,8 @@ article a:hover {
   color: var(--text-quiet);
 }
 
-.colophon::before {
-  content: "";
-  display: block;
-  height: 1px;
-  margin-bottom: var(--sp-chapter);
-  background: var(--rule);
-}
+/* Podpis autora zamyka tekst, więc nie oddziela go od niego żadna kreska — ta stoi
+   dopiero pod nim, przed metryką, bo tam zaczyna się coś innego niż esej. */
 
 .colophon p {
   margin: 0 0 0.8em;
@@ -1528,13 +1523,6 @@ article.is-shaken {
   color: var(--rule);
 }
 
-.colophon-date {
-  margin: var(--sp-group) 0 0 !important;
-  font: 11px/1.6 var(--mono);
-  letter-spacing: 0.04em;
-  color: var(--text-quiet);
-}
-
 .colophon-utils {
   display: flex;
   flex-wrap: wrap;
@@ -1557,10 +1545,63 @@ article.is-shaken {
 }
 
 /* „Co się zmieniło w tekście” — zwinięte, rozwija się bez skryptu */
-.changes {
-  margin-top: var(--sp-para);
-  font: 11px/1.6 var(--mono);
+/* ---------- Metryka w stopce ----------
+   Dane o tekście jako lista etykieta–wartość: etykiety tworzą kolumnę, po której oko
+   zjeżdża w dół, a wartości drugą. Wcześniej był to stos czterech akapitów o tej samej
+   wadze, w którym nic nie było ważniejsze od reszty. */
+
+.meta {
+  display: grid;
+  grid-template-columns: minmax(8em, auto) 1fr;
+  gap: 0.9em 2em;
+  margin: var(--sp-group) 0 0;
+  padding-top: var(--sp-group);
+  border-top: 1px solid var(--rule);
+  font: 11px/1.7 var(--mono);
   letter-spacing: 0.04em;
+}
+
+.meta dt {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-quiet);
+}
+
+.meta dd {
+  margin: 0;
+  color: var(--text);
+}
+
+.meta a {
+  color: var(--text);
+  text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.meta-pliki a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.meta-pliki a:hover {
+  text-decoration: underline;
+}
+
+.meta-pliki a + a::before {
+  content: "·";
+  margin: 0 8px 0 0;
+  color: var(--rule);
+}
+
+/* Nota o przekodowaniu to przypis do podpisu, nie jego część — osobny wiersz, ciszej */
+.meta-uwaga {
+  display: block;
+  margin-top: 0.4em;
+  color: var(--text-quiet);
+}
+
+.changes {
+  margin-top: 0.5em;
+  font: inherit;
   color: var(--text-quiet);
 }
 
@@ -1573,7 +1614,7 @@ article.is-shaken {
 }
 
 .changes ol {
-  margin: var(--sp-para) 0 0;
+  margin: 0.6em 0 0;
   padding: 0;
   list-style: none;
 }
@@ -1587,43 +1628,19 @@ article.is-shaken {
   color: var(--accent);
 }
 
-/* Źródła: ta sama głośność co dziennik zmian. Nazwa pozycji akcentem, jak data w dzienniku,
-   żeby dwie listy metadanych w stopce czytały się jak jedna rodzina. */
-.zrodla {
-  margin-top: var(--sp-para);
-  font: 11px/1.6 var(--mono);
-  letter-spacing: 0.04em;
-  color: var(--text-quiet);
-}
-
-.zrodla h2 {
-  margin: 0 0 6px;
-  font: inherit;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-quiet);
-}
-
-.zrodla p {
-  margin: 0 !important;
-  padding: 6px 0;
-  border-top: 1px solid var(--rule);
-  font: inherit;
-  color: inherit;
-}
-
-.zrodla p span {
-  color: var(--accent);
-}
-
-.zrodla a {
-  color: var(--text);
-  text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
-}
-
 @media (max-width: 51.25em) {
   .colophon-utils .effects-toggle {
     min-height: 44px;      /* obszar dotyku ≥ 44 px */
+  }
+
+  /* Dwie kolumny nie mieszczą się przy 375 px — etykieta wchodzi nad wartość */
+  .meta {
+    grid-template-columns: 1fr;
+    gap: 0.3em 0;
+  }
+
+  .meta dd:not(:last-child) {
+    margin-bottom: 1.1em;
   }
 }
 
