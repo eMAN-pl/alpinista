@@ -892,29 +892,6 @@
     }
   });
 
-  // Nuta sama nie mówi, co robi. Przy pierwszym pokazaniu panelu — na szerokim ekranie
-  // razem ze spisem, na telefonie przy otwarciu panelu trasy — podpis nazywa ją raz i gasnie.
-  let podpowiedzPokazana = false;
-
-  function pokazPodpowiedz() {
-    if (podpowiedzPokazana || muzykaOn) return;
-    podpowiedzPokazana = true;
-    pokazPodpis("muzyka do czytania", 5000);
-  }
-
-  const panelWidoczny = () => document.documentElement.classList.contains("nav-on")
-    || document.documentElement.classList.contains("route-open");
-
-  if (panelWidoczny()) pokazPodpowiedz();
-  else {
-    const czuwa = new MutationObserver(() => {
-      if (!panelWidoczny()) return;
-      czuwa.disconnect();
-      pokazPodpowiedz();
-    });
-    czuwa.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-  }
-
   // Finał: dwa progi, żeby drobne przewinięcie na granicy nie przełączało utworu.
   // Wejście, gdy początek finału minie 60% ekranu; powrót, gdy znów jest 160% niżej.
   const finalSection = document.getElementById("mont-blanc");
