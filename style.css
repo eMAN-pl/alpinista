@@ -765,6 +765,70 @@ hr {
   background: var(--rule);
 }
 
+/* ---------- Wybór we wstępie ----------
+   Dwa przyciski odsłaniają dalszą część wstępu. Oba zakończenia są w HTML od początku:
+   bez JS czytelnik widzi je razem i sens zostaje — wybrałeś czy zawróciłeś, historię
+   i tak masz. Dopiero JS chowa je i oddaje decyzję czytelnikowi.
+   Chowanie idzie przez klasę .js z nagłówka dokumentu, a nie ze skryptu, żeby tekst
+   nie mignął przed wykonaniem JS. */
+
+.wybor {
+  display: none;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.js .wybor {
+  display: flex;
+}
+
+.js .wybor-odp {
+  display: none;
+}
+
+.js .wybor-odp.jest {
+  display: block;
+}
+
+.wybor-opcja {
+  min-height: 44px;        /* obszar dotyku ≥ 44 px */
+  padding: 0 18px;
+  border: 1px solid var(--rule);
+  background: none;
+  font: 11px/1 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-quiet);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.wybor-opcja:hover,
+.wybor-opcja:focus-visible {
+  border-color: var(--text-quiet);
+  color: var(--text);
+}
+
+/* Po decyzji zostaje widoczne, co się wybrało — druga droga gaśnie, ale nie znika */
+.wybor-opcja[aria-expanded="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.wybor-opcja[disabled] {
+  cursor: default;
+}
+
+.wybor-opcja[disabled]:not([aria-expanded="true"]) {
+  opacity: 0.4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wybor-opcja {
+    transition: none;
+  }
+}
+
 /* ---------- Etykiety podrozdziałów ----------
    W tekście stoją jako „### Nazwa”, zwykle zaraz po separatorze sceny. Mają wyglądać
    jak reszta telemetrii na stronie — monospace, wersaliki, przygaszone — a nie jak
@@ -2176,8 +2240,14 @@ article.is-shaken {
   .route-toggle,
   .route-backdrop,
   .skip,                 /* w druku nie ma do czego przeskakiwać, a wchodził w tekst */
+  .wybor,                /* na papierze nie ma czego kliknąć */
   .fn-back {
     display: none !important;
+  }
+
+  /* Bez przycisków zostają oba zakończenia — tak jak na stronie bez JS */
+  .js .wybor-odp {
+    display: block;
   }
 
   article {

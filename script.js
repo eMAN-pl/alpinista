@@ -621,6 +621,24 @@
   setSize(size);
   setTheme(document.documentElement.dataset.theme || "ciemny");
 
+  // --- Wybór we wstępie ---
+  // „Idziesz dalej?” — dwa przyciski, jedna decyzja. Oba zakończenia są w HTML od
+  // początku (bez JS widać je razem), tutaj tylko odsłaniamy wybrane i zamykamy wybór.
+  // Decyzja nie jest zapamiętywana: nowa wizyta zaczyna się tym samym pytaniem.
+
+  const wybor = document.querySelector(".wybor");
+  if (wybor) {
+    const opcje = [...wybor.querySelectorAll(".wybor-opcja")];
+    wybor.addEventListener("click", (event) => {
+      const przycisk = event.target.closest(".wybor-opcja");
+      if (!przycisk || przycisk.disabled) return;
+      const odp = document.getElementById(przycisk.getAttribute("aria-controls"));
+      odp?.classList.add("jest");
+      przycisk.setAttribute("aria-expanded", "true");
+      for (const o of opcje) o.disabled = true;
+    });
+  }
+
   // --- Muzyka do czytania (Scott Buckley, CC BY 4.0) ---
   // Trzy zasady, w tej kolejności: nic nie gra samo, nic się nie pobiera przed kliknięciem,
   // nic nie przechodzi między wizytami. Dlatego <audio> powstaje dopiero przy pierwszym
