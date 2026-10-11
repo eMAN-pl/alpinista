@@ -963,7 +963,11 @@ hr + h3 {
 }
 
 :root[data-theme="jasny"] .sketch-plate {
-  mix-blend-mode: multiply;
+  /* Kolor papieru jest wypalony w pliku (images.py), tak samo jak w ciemnym motywie.
+     Wcześniej rysunek wchodził w stronę przez multiply — ale dowolny filtr na kolumnie
+     tekstu, a tak działają efekty, izoluje kontekst i wyłącza mieszanie. W trakcie
+     efektu wyłaził wtedy biały prostokąt. */
+  mix-blend-mode: normal;
   background-image: var(--szkic-l);
 }
 
