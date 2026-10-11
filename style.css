@@ -765,6 +765,90 @@ hr {
   background: var(--rule);
 }
 
+/* ---------- Etykiety podrozdziałów ----------
+   W tekście stoją jako „### Nazwa”, zwykle zaraz po separatorze sceny. Mają wyglądać
+   jak reszta telemetrii na stronie — monospace, wersaliki, przygaszone — a nie jak
+   drugi poziom nagłówków. Kreski nie dodają: separator już ją postawił.
+   Semantycznie zostają <h3> z id, żeby czytnik ekranu i linki je widziały. */
+
+.chapter h3 {
+  margin: 0 0 var(--sp-para);
+  font: 11px/1.5 var(--mono);
+  font-weight: normal;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-quiet);
+}
+
+/* Po separatorze etykieta przykleja się do kreski — to jeden znak, nie dwa */
+hr + h3 {
+  margin-top: calc(var(--sp-scene) * -0.55);
+}
+
+/* ---------- Źródła ----------
+   Wykaz zamyka esej: te same sześć pozycji co w przypisach pod rozdziałami, tylko
+   zebrane razem i w kolejności przypisów. Numer pozycji pochodzi z tekstu (value),
+   więc zgadza się z odnośnikiem w rozdziale nawet wtedy, gdy kolejność się zmieni. */
+
+.zrodla {
+  max-width: var(--col);
+  margin: var(--sp-chapter) auto 0;
+  font: 11px/1.7 var(--mono);
+  letter-spacing: 0.04em;
+  color: var(--text-quiet);
+}
+
+.zrodla h2 {
+  margin: 0 0 var(--sp-para);
+  font: inherit;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-quiet);
+}
+
+.zrodla h3 {
+  margin: var(--sp-group) 0 var(--sp-para);
+  font: inherit;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-quiet);
+}
+
+.zrodla ol,
+.zrodla ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.zrodla li {
+  padding: 8px 0;
+  border-top: 1px solid var(--rule);
+  color: var(--text);
+}
+
+.zrodla ol li {
+  display: flex;
+  gap: 1.2em;
+}
+
+/* Numer z tekstu, nie z przeglądarki — ta sama liczba, co przy odnośniku w rozdziale */
+.zrodla ol li::before {
+  content: attr(value);
+  flex: none;
+  color: var(--accent);
+}
+
+.zrodla a {
+  color: var(--text);
+  text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.zrodla-uwaga {
+  margin: var(--sp-para) 0 0 !important;
+  color: var(--text-quiet);
+}
+
 /* ---------- Szkice ----------
    Po jednym na rozdział, pod nagłówkiem — scena otwiera rozdział, potem tekst.
    Wszystkie tej samej szerokości co kolumna tekstu.
@@ -869,6 +953,20 @@ hr {
 
 .chapter-meta .sep {
   margin-inline: 0.2em;
+}
+
+/* Współrzędne prowadzą na mapę, ale w metryce mają wyglądać jak reszta liczb:
+   bez koloru akcentu i bez ikony. Podkreślenie dopiero przy najechaniu albo fokusie. */
+.chapter-meta a.coords {
+  color: inherit;
+  text-decoration: none;
+}
+
+.chapter-meta a.coords:hover,
+.chapter-meta a.coords:focus-visible {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 70%, transparent);
+  text-underline-offset: 0.25em;
 }
 
 /* Adnotacja notatnika: ten sam zapis co reszta metadanych, bez wyróżnień.
