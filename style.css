@@ -782,6 +782,16 @@ hr {
   display: flex;
 }
 
+/* Wstęp kończy się na przyciskach: dalsza część czeka na decyzję. Bez JS całość
+   jest widoczna od razu, więc tekst nigdy nie przepada. */
+.js .wybor-dalej {
+  display: none;
+}
+
+.js .wybor-dalej.jest {
+  display: block;
+}
+
 .js .wybor-odp {
   display: none;
 }
@@ -829,24 +839,26 @@ hr {
   }
 }
 
-/* ---------- Etykiety podrozdziałów ----------
-   W tekście stoją jako „### Nazwa”, zwykle zaraz po separatorze sceny. Mają wyglądać
-   jak reszta telemetrii na stronie — monospace, wersaliki, przygaszone — a nie jak
-   drugi poziom nagłówków. Kreski nie dodają: separator już ją postawił.
-   Semantycznie zostają <h3> z id, żeby czytnik ekranu i linki je widziały. */
+/* ---------- Podrozdziały ----------
+   W tekście stoją jako „### Nazwa”, zwykle zaraz po separatorze sceny. To prawdziwy
+   drugi poziom nagłówków: ten sam krój co tytuł rozdziału, tylko mniejszy — mają być
+   widoczne przy przewijaniu. Kreski nie dodają: separator już ją postawił.
+   Mają id, żeby dało się do nich linkować. */
 
 .chapter h3 {
   margin: 0 0 var(--sp-para);
-  font: 11px/1.5 var(--mono);
-  font-weight: normal;
-  letter-spacing: 0.12em;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 1.25em;
+  line-height: 1.12;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: var(--text-quiet);
+  color: var(--text-strong);
 }
 
-/* Po separatorze etykieta przykleja się do kreski — to jeden znak, nie dwa */
+/* Po separatorze nagłówek przykleja się do kreski — to jeden znak, nie dwa */
 hr + h3 {
-  margin-top: calc(var(--sp-scene) * -0.55);
+  margin-top: calc(var(--sp-scene) * -0.45);
 }
 
 /* ---------- Źródła ----------
@@ -2245,7 +2257,8 @@ article.is-shaken {
     display: none !important;
   }
 
-  /* Bez przycisków zostają oba zakończenia — tak jak na stronie bez JS */
+  /* Bez przycisków zostaje cały wstęp i oba zakończenia — tak jak na stronie bez JS */
+  .js .wybor-dalej,
   .js .wybor-odp {
     display: block;
   }

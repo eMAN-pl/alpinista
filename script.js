@@ -634,6 +634,7 @@
       if (!przycisk || przycisk.disabled) return;
       const odp = document.getElementById(przycisk.getAttribute("aria-controls"));
       odp?.classList.add("jest");
+      document.querySelector(".wybor-dalej")?.classList.add("jest");
       przycisk.setAttribute("aria-expanded", "true");
       for (const o of opcje) o.disabled = true;
     });
