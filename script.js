@@ -628,7 +628,6 @@
   // Playlista gra po kolei; finał ma własny utwór, bo to zejście, a nie kolejne podejście.
 
   const MUZYKA = {
-    "anabasis-i": { tytul: "Anabasis I", album: "The Weight of Air" },
     "in-this-moment": { tytul: "In This Moment" },
     "home-was-you": { tytul: "Home Was You" },
     "memories-of-stone": { tytul: "Memories Of Stone" },
@@ -642,8 +641,8 @@
 
   // Kolejność na czas czytania — od spokojnego fortepianu po orkiestrę, tak jak rosną góry
   // w tekście. Żeby zrezygnować z utworu, wystarczy wyjąć go z tej listy.
-  const LISTA = ["anabasis-i", "in-this-moment", "home-was-you", "memories-of-stone",
-                 "with-these-hands", "convergence", "unraveling", "aphelion", "phoenix-2026"];
+  const LISTA = ["in-this-moment", "home-was-you", "memories-of-stone", "with-these-hands",
+                 "convergence", "unraveling", "aphelion", "phoenix-2026"];
   const FINAL = "katabasis-i";
 
   const MUZYKA_AUTOR = "Scott Buckley";
