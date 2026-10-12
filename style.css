@@ -801,14 +801,14 @@ hr {
 }
 
 .wybor-opcja {
-  min-height: 44px;        /* obszar dotyku ≥ 44 px */
-  padding: 0 20px;
+  min-height: 44px;        /* obszar dotyku ≥ 44 px — próg, nie rozmiar */
+  padding: 0.45em 1.1em;
   border: 1px solid var(--rule);
-  border-radius: 22px;     /* ta sama pigułka co pasek „wróć tam” */
+  border-radius: 999px;    /* ta sama pigułka co pasek „wróć tam”, przy każdej wysokości */
   background: none;
-  font: 11px/1 var(--mono);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-family: inherit;
+  font-size: 1em;
+  line-height: 1.2;
   color: var(--text-quiet);
   cursor: pointer;
   transition: color 0.2s, border-color 0.2s;
