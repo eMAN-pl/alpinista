@@ -586,7 +586,8 @@
   const film = document.getElementById('film'); let filmTimer = 0;
   function hud(text){ film.textContent = text; film.classList.add('show');
     clearTimeout(filmTimer); filmTimer = setTimeout(() => film.classList.remove('show'), 1800); }
-  function tick(){ frames = Math.min(36, frames + 1); hud(`klisza ${frames}/36`); }
+  const KLATEK = document.querySelectorAll('[data-fx="cyk"]').length || 1;
+  function tick(){ frames = Math.min(KLATEK, frames + 1); hud(`klisza ${frames}/${KLATEK}`); }
   const fresh = () => ({cold:0, blur:0, op:1, dx:0, dy:0, skew:0, bright:1, sat:1, shadow:[], tunnel:null, frost:null});
   const hex = h => { h = h.replace('#',''); return [0,2,4].map(i => parseInt(h.slice(i,i+2),16)); };
   function apply(M){
