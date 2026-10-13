@@ -1056,11 +1056,71 @@ hr + h3 {
   margin-inline: 0.2em;
 }
 
-/* Numer rozdziału przy nazwie: ten sam zapis co w spisie treści („01”) i ten sam kolor
-   co nazwa, tylko w połowie krycia — w obu motywach jest cieniem nazwy, a nie osobnym
-   kolorem. Kontrast zmierzony: 4,8:1 w ciemnym, 3,4:1 w jasnym (próg dla dużego pisma 3:1). */
+/* Numer rozdziału jak w książce: duży, przed nazwą i metryką, w kolumnie tekstu.
+   Zapis jak w spisie treści („01”), krój i kolor nazwy, tylko przezroczysty — numer jest
+   tłem nagłówka, nie tekstem do czytania, więc nie trzyma kontrastu tekstu (autor).
+   Wysokość liczona, nie na oko: cyfra sięga od góry wersalików nazwy do linii bazowej
+   metryki. Zmierzone w Antonie: cyfry mają 0,87 stopnia, odcinek nazwa–metryka to
+   ok. 1,84 stopnia nazwy, więc numer ma 2,11 stopnia nazwy. text-box przycina pudełko
+   cyfry do jej wersalików, żeby góra i dół stały na liniach, a nie na interliniach.
+   Powietrze: duży odstęp między numerem a nazwą i więcej miejsca pod nagłówkiem. */
+.chapter-head--num {
+  --h2: clamp(1.5rem, 1.15rem + 1.1vw, 2.1rem);    /* ten sam stopień co h2 */
+  --num: calc(var(--h2) * 2.11);
+  display: grid;
+  grid-template-columns: calc(var(--num) * 1.05) 1fr;   /* stała kolumna: „11” węższe od „02” */
+  column-gap: clamp(1.1rem, 0.6rem + 1.6vw, 1.9rem);
+  align-items: start;
+}
+
 .chapter-num {
-  opacity: 0.5;
+  grid-row: 1 / span 2;
+  align-self: start;
+  margin-top: calc(var(--h2) * 0.095);      /* góra wersalików nazwy pod górą jej linii */
+  font-family: var(--display);
+  font-size: var(--num);
+  line-height: 1;
+  text-box: trim-both cap alphabetic;
+  text-align: left;          /* numer równo z lewą krawędzią tekstu — trzyma siatkę */
+  color: var(--text-strong);
+  opacity: 0.3;
+}
+
+.chapter-head--num h2,
+.chapter-head--num .chapter-meta {
+  grid-column: 2;
+}
+
+/* Telefon: metryka obok numeru nie mieści się w jednym wierszu (zmierzone: brakuje
+   1 px przy 375 px, przy „ok. 4806” 24 px), więc współrzędne idą do własnego wiersza.
+   Numer obejmuje nazwę i wysokość. Metryka jest tu względnie większa od nazwy, stąd
+   inny stopień numeru — też zmierzony, nie zgadnięty. */
+@media (max-width: 40em) {
+  .chapter-head--num {
+    --num: calc(var(--h2) * 2.3);
+  }
+
+  .chapter-head--num .chapter-meta .sep {
+    display: none;
+  }
+
+  .chapter-head--num .chapter-meta .coords {
+    display: table;      /* własny wiersz, ale podkreślenie tylko pod tekstem */
+  }
+}
+
+/* pod numerowanym nagłówkiem więcej oddechu przed obrazem niż jeden wiersz */
+.chapter-head--num:has(+ .sketch) {
+  margin-bottom: calc(var(--line) * 1.75);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 /* Współrzędne prowadzą na mapę. Wcześniej udawały zwykłą liczbę i nikt nie wiedział,
@@ -1545,10 +1605,22 @@ article.is-shaken {
   display: block;
   width: 100%;
   height: clamp(150px, 15vw, 200px);   /* rysunek rozciąga się w pionie; kreska zostaje równa */
+  /* Grań wychodzi z mgły i w niej znika, zamiast uciąć się na krawędzi kolumny.
+     Wygaszenie mieści się w dolinach dodanych w build.py, więc szczyty zostają w pełni. */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
 }
 
-.profil-plama {
-  fill: color-mix(in srgb, var(--text) 5%, transparent);
+/* Pod granią gradient w akcencie: u góry rysunku 22%, na dole zero — bez twardej
+   dolnej krawędzi. Liczony od Everestu, więc niższe góry dostają mniej koloru. */
+.profil-mgla-gora {
+  stop-color: var(--accent);
+  stop-opacity: 0.22;
+}
+
+.profil-mgla-dol {
+  stop-color: var(--accent);
+  stop-opacity: 0;
 }
 
 .profil-gran {
@@ -1582,6 +1654,17 @@ article.is-shaken {
   letter-spacing: 0.04em;
   color: var(--text-quiet);
   white-space: nowrap;
+}
+
+/* Bliscy sąsiedzi (build.py): podpis odsuwa się od kropki na zewnątrz pary */
+.wys-lewo .profil-wys {
+  left: auto;
+  right: 50%;
+  transform: translateX(0.4em);
+}
+
+.wys-prawo .profil-wys {
+  transform: translateX(-0.4em);
 }
 
 .profil-szczyt:hover,
