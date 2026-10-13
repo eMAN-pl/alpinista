@@ -541,13 +541,13 @@ article {
   left: var(--hero-pad);
   right: clamp(32px, 3.4vw, 72px);
   bottom: var(--hero-pad);
-  /* Jeden wiersz z dwoma końcami: zaproszenie po lewej, pliki na prawym końcu tej samej
-     linii bazowej. Dwa wiersze jeden pod drugim czytały się jak dwa równe przyciski,
-     a czerwone podkreślenia konkurowały z „jest alpinistą” (autor). */
+  /* Dwa wiersze: zaproszenie, pod nim pliki. Wersja z jednym wierszem i plikami na
+     prawym końcu była rozważana i odrzucona przez autora — ma zostać stos, tylko
+     z większym oddechem między wierszami (28 px zamiast 16). */
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 24px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 28px;
   margin: 0;
   font: 11px/1 var(--mono);
   letter-spacing: 0.2em;
@@ -570,7 +570,8 @@ article {
 }
 
 /* Pliki dla tych, którzy wolą czytnik albo papier — cicho, bez podkreśleń i bez
-   czerwieni; akcent dopiero po najechaniu. Rozmiar w podpowiedzi (title). */
+   czerwieni (czerwone podkreślenia konkurowały z „jest alpinistą”); akcent dopiero
+   po najechaniu. Etykieta ciszej niż linki, bo to etykieta. */
 .hero-get {
   margin: 0;
   color: var(--nav-quiet);
@@ -629,11 +630,8 @@ article {
     letter-spacing: 0.1em;   /* zaproszenie musi zmieścić się w jednym wierszu */
   }
 
-  /* Na telefonie nie ma miejsca na dwa końce wiersza: pliki schodzą pod zaproszenie */
   .hero-foot {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 14px;
+    gap: 18px;             /* na niskim ekranie telefonu oddech mniejszy niż na komputerze */
   }
 
   .hero-go {
