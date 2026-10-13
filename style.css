@@ -1061,19 +1061,24 @@ hr + h3 {
   color: var(--text-quiet);
 }
 
-/* Współrzędne prowadzą na mapę, więc wyglądają jak każdy inny link w eseju: akcent
-   i ciągłe podkreślenie (autor, 2026-10-13 — wcześniej udawały zwykłą liczbę i nikt
-   nie wiedział, że da się je kliknąć). */
+/* Współrzędne prowadzą na mapę. Wcześniej udawały zwykłą liczbę i nikt nie wiedział,
+   że da się je kliknąć; cały w akcencie link krzyczał za głośno jak na metrykę (autor,
+   2026-10-13). Więc tak jak zapalniki efektów w tekście: tekst w kolorze metryki,
+   pod nim kreska w akcencie, kolor przychodzi dopiero po najechaniu. Różnica, żeby nie
+   pomylić linku z efektem: kreska ciągła, a nie kropkowana. */
 .chapter-meta a.coords {
-  color: var(--accent);
-  text-decoration: underline;
-  text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, var(--accent) 70%, transparent);
   text-underline-offset: 0.25em;
+  transition: color 0.4s;
 }
 
 .chapter-meta a.coords:hover,
 .chapter-meta a.coords:focus-visible {
-  text-decoration-color: var(--accent);
+  color: var(--accent);
 }
 
 /* Adnotacja notatnika: ten sam zapis co reszta metadanych, bez wyróżnień.
