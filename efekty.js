@@ -37,8 +37,10 @@
   const R = Math.random, TAU = Math.PI*2;
   const colRect = () => main.getBoundingClientRect();
 
-  // 4.18 Długooo: HUD „jeszcze daleko?” jest opcją do decyzji autora — na razie wyłączony
-  const DLUGO_HUD = false;
+  // 4.18 Długooo: drugi argument tego samego dziecka, w HUD-zie, a nie w akapicie —
+  // z tekstu („Ból dziecięcych nóg.”), a dopisywanie zdań do akapitu autor odrzucił przy Klik.
+  // Wcześniej rozważane: „jeszcze daleko?”.
+  const DLUGO_HUD = 'Noooogi mnie bolą!';
 
   /* ================= efekty ================= */
   const FX = {
@@ -534,8 +536,8 @@
         }
         s.oExt.style.width = (n * s.oW).toFixed(2) + 'px';
         if (s.qExt) s.qExt.style.width = (q * s.qW).toFixed(2) + 'px';
-        // HUD „jeszcze daleko?” — opcja do decyzji autora (efekty-instrukcja.md, 4.18)
-        if (DLUGO_HUD && !s.hud) { s.hud = true; hud('jeszcze daleko?'); }
+        // HUD w chwili, gdy „długooo???” stoi w pełni — jak odpowiedź, której tata nie daje
+        if (DLUGO_HUD && !s.hud && ms >= 1400) { s.hud = true; hud(DLUGO_HUD); }
       }},
 
     drzenie: { dur: 3600,
