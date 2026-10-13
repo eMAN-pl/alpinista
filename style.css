@@ -541,10 +541,13 @@ article {
   left: var(--hero-pad);
   right: clamp(32px, 3.4vw, 72px);
   bottom: var(--hero-pad);
+  /* Jeden wiersz z dwoma końcami: zaproszenie po lewej, pliki na prawym końcu tej samej
+     linii bazowej. Dwa wiersze jeden pod drugim czytały się jak dwa równe przyciski,
+     a czerwone podkreślenia konkurowały z „jest alpinistą” (autor). */
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 16px;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
   margin: 0;
   font: 11px/1 var(--mono);
   letter-spacing: 0.2em;
@@ -566,18 +569,17 @@ article {
   background: var(--rule);
 }
 
-/* Pod zaproszeniem ciszej: kto woli przeczytać później albo na czytniku, bierze plik
-   od razu, bez szukania w stopce. Ten sam zapis co zaproszenie, o stopień ciszej. */
+/* Pliki dla tych, którzy wolą czytnik albo papier — cicho, bez podkreśleń i bez
+   czerwieni; akcent dopiero po najechaniu. Rozmiar w podpowiedzi (title). */
 .hero-get {
   margin: 0;
   color: var(--nav-quiet);
+  white-space: nowrap;
 }
 
 .hero-get a {
-  color: var(--text-quiet);
-  text-decoration: underline;
-  text-decoration-color: color-mix(in srgb, var(--accent) 70%, transparent);
-  text-underline-offset: 0.3em;
+  color: var(--text-quiet);    /* czytelne (≥7:1); drugorzędność niesie miejsce, nie bladość */
+  text-decoration: none;
   transition: color 0.4s;
 }
 
@@ -625,6 +627,13 @@ article {
     margin-top: auto;
     padding-top: 24px;
     letter-spacing: 0.1em;   /* zaproszenie musi zmieścić się w jednym wierszu */
+  }
+
+  /* Na telefonie nie ma miejsca na dwa końce wiersza: pliki schodzą pod zaproszenie */
+  .hero-foot {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
   }
 
   .hero-go {
