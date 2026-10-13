@@ -972,6 +972,14 @@ hr + h3 {
   background-image: var(--szkic-l);
 }
 
+/* Model zamiast szkicu (images.py: MODELE). Jest szeroki — Pilsko ma ok. 1,7:1 — więc
+   w prawie kwadratowym oknie na 70% kolumny wychodził mały, z pustym niebem nad i pod.
+   Okno 3:2 na całą kolumnę, plik 4:3: ta różnica to zapas na paralaksę. */
+.sketch--model .sketch-plate {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+}
+
 /* Paralaksa: rysunek przesuwa się w oknie wolniej niż tekst — jakby leżał głębiej pod stroną.
    Sam CSS (oś czasu przewijania), bez biblioteki i bez przejmowania przewijania.
    Tylko gdy przeglądarka to obsługuje, przy włączonych efektach i bez „ogranicz ruch”. */
@@ -2325,6 +2333,15 @@ article.is-shaken {
     mix-blend-mode: normal;   /* na białym papierze nie ma czego mieszać */
     background-position: 50% 50%;
     animation: none;
+  }
+
+  /* model: cały plik 4:3, trochę szerzej niż kwadratowe szkice, bo jest niższy */
+  .sketch--model {
+    width: 80%;
+  }
+
+  .sketch--model .sketch-plate {
+    aspect-ratio: 4 / 3;
   }
 
   a {
