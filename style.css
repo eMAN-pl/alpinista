@@ -1056,67 +1056,48 @@ hr + h3 {
   margin-inline: 0.2em;
 }
 
-/* Numer rozdziału jak w książce: duży, przed nazwą i metryką, w kolumnie tekstu.
-   Zapis jak w spisie treści („01”), krój i kolor nazwy, tylko przezroczysty — numer jest
-   tłem nagłówka, nie tekstem do czytania, więc nie trzyma kontrastu tekstu (autor).
-   Wysokość liczona, nie na oko: cyfra sięga od góry wersalików nazwy do linii bazowej
-   metryki. Zmierzone w Antonie: cyfry mają 0,87 stopnia, odcinek nazwa–metryka to
-   ok. 1,84 stopnia nazwy, więc numer ma 2,11 stopnia nazwy. text-box przycina pudełko
-   cyfry do jej wersalików, żeby góra i dół stały na liniach, a nie na interliniach.
-   Powietrze: duży odstęp między numerem a nazwą i więcej miejsca pod nagłówkiem. */
-.chapter-head--num {
-  --h2: clamp(1.5rem, 1.15rem + 1.1vw, 2.1rem);    /* ten sam stopień co h2 */
-  --num: calc(var(--h2) * 2.11);
-  display: grid;
-  /* Kolumna na szerokość samego numeru, odstęp stały: 0,4 stopnia cyfry (ok. 26 px na
-     komputerze). Stała kolumna na najszerszy numer dokładała luz węższym — „01” miało
-     42 px do nazwy, „11” aż 52 px (autor: za daleko). Nazwy w różnych rozdziałach
-     zaczynają się przez to do 21 px dalej lub bliżej, ale rozdziałów nie widać naraz,
-     a odstęp w obrębie nagłówka — zawsze. */
-  grid-template-columns: auto 1fr;
-  column-gap: calc(var(--num) * 0.4);
-  align-items: start;
-}
+/* Numer rozdziału jak w książce — TYLKO W DRUKU i PDF-ie (autor, 2026-10-13).
+   Na stronie pozycję w kolejności niesie nawigacja: boczna trasa, przycisk trasy
+   z „3 z 12” i spis treści, więc numer w nagłówku byłby powtórzeniem. Na papierze
+   nawigacji nie ma i numer jest jedyną wskazówką, który to rozdział.
 
-.chapter-num {
-  grid-row: 1 / span 2;
-  align-self: start;
-  margin-top: calc(var(--h2) * 0.095);      /* góra wersalików nazwy pod górą jej linii */
-  font-family: var(--display);
-  font-size: var(--num);
-  line-height: 1;
-  text-box: trim-both cap alphabetic;
-  text-align: left;          /* numer równo z lewą krawędzią tekstu — trzyma siatkę */
-  color: var(--text-strong);
-  opacity: 0.15;             /* bardzo subtelnie (autor): ślad numeru, nie napis */
-}
-
-.chapter-head--num h2,
-.chapter-head--num .chapter-meta {
-  grid-column: 2;
-}
-
-/* Telefon: metryka obok numeru nie mieści się w jednym wierszu (zmierzone: brakuje
-   1 px przy 375 px, przy „ok. 4806” 24 px), więc współrzędne idą do własnego wiersza.
-   Numer obejmuje nazwę i wysokość. Metryka jest tu względnie większa od nazwy, stąd
-   inny stopień numeru — też zmierzony, nie zgadnięty. */
-@media (max-width: 40em) {
-  .chapter-head--num {
-    --num: calc(var(--h2) * 2.3);
-  }
-
-  .chapter-head--num .chapter-meta .sep {
+   Duży, przed nazwą i metryką, w kolumnie tekstu. Zapis jak w spisie treści („01”),
+   krój i kolor nazwy, krycie 15% — ślad numeru, nie napis. Wysokość liczona: cyfra
+   sięga od góry wersalików nazwy do linii bazowej metryki (cyfry Antona mają
+   0,87 stopnia, odcinek nazwa–metryka ok. 1,84 stopnia nazwy → numer 2,11 stopnia).
+   text-box przycina pudełko cyfry do wersalików. Odstęp stały: 0,4 stopnia cyfry. */
+@media screen {
+  .chapter-num {
     display: none;
   }
-
-  .chapter-head--num .chapter-meta .coords {
-    display: table;      /* własny wiersz, ale podkreślenie tylko pod tekstem */
-  }
 }
 
-/* pod numerowanym nagłówkiem więcej oddechu przed obrazem niż jeden wiersz */
-.chapter-head--num:has(+ .sketch) {
-  margin-bottom: calc(var(--line) * 1.75);
+@media print {
+  .chapter-head--num {
+    --h2: clamp(1.5rem, 1.15rem + 1.1vw, 2.1rem);    /* ten sam stopień co h2 */
+    --num: calc(var(--h2) * 2.11);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: calc(var(--num) * 0.4);
+    align-items: start;
+  }
+
+  .chapter-num {
+    grid-row: 1 / span 2;
+    align-self: start;
+    margin-top: calc(var(--h2) * 0.095);    /* góra wersalików nazwy pod górą jej linii */
+    font-family: var(--display);
+    font-size: var(--num);
+    line-height: 1;
+    text-box: trim-both cap alphabetic;
+    color: var(--text-strong);
+    opacity: 0.15;
+  }
+
+  .chapter-head--num h2,
+  .chapter-head--num .chapter-meta {
+    grid-column: 2;
+  }
 }
 
 .visually-hidden {
