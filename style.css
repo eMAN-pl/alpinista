@@ -1068,8 +1068,13 @@ hr + h3 {
   --h2: clamp(1.5rem, 1.15rem + 1.1vw, 2.1rem);    /* ten sam stopień co h2 */
   --num: calc(var(--h2) * 2.11);
   display: grid;
-  grid-template-columns: calc(var(--num) * 1.05) 1fr;   /* stała kolumna: „11” węższe od „02” */
-  column-gap: clamp(1.1rem, 0.6rem + 1.6vw, 1.9rem);
+  /* Kolumna na szerokość samego numeru, odstęp stały: 0,4 stopnia cyfry (ok. 26 px na
+     komputerze). Stała kolumna na najszerszy numer dokładała luz węższym — „01” miało
+     42 px do nazwy, „11” aż 52 px (autor: za daleko). Nazwy w różnych rozdziałach
+     zaczynają się przez to do 21 px dalej lub bliżej, ale rozdziałów nie widać naraz,
+     a odstęp w obrębie nagłówka — zawsze. */
+  grid-template-columns: auto 1fr;
+  column-gap: calc(var(--num) * 0.4);
   align-items: start;
 }
 
