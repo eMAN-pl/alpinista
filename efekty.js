@@ -37,6 +37,9 @@
   const R = Math.random, TAU = Math.PI*2;
   const colRect = () => main.getBoundingClientRect();
 
+  // 4.18 Długooo: HUD „jeszcze daleko?” jest opcją do decyzji autora — na razie wyłączony
+  const DLUGO_HUD = false;
+
   /* ================= efekty ================= */
   const FX = {
 
@@ -460,6 +463,79 @@
         }
         if (s.lv >= 3 && glitching) { M.dx += (R()-.5)*(s.lv-2)*1.6; }
         if (s.lv >= 5 && glitching && R() < .15) { c.fillStyle = `rgba(${v('--fg-rgb')},.05)`; c.fillRect(0, R()*H, W, 2 + R()*6); }
+      }},
+
+    /* 4.18 Długooo (Pilsko) — marudzące dziecko. „o” w „długo” rozciąga się do 12 liter,
+       pytajnik mnoży się do „???”, napis chwilę trwa, potem zwija się szybciej, niż rósł.
+       Bez skoków układu: dopisane litery siedzą w inline-blocku, którego szerokość rośnie
+       płynnie, a clip-path tnie tylko w poziomie — litera wyłania się, zamiast wskakiwać
+       w całości i przesuwać akapit o swoją szerokość. Bez koloru, drżenia i dźwięku.
+       Dopisane znaki mają aria-hidden; przycisk ma aria-label z oryginałem (build.py). */
+    dlugo: { dur: 2600,
+      init(s){
+        const b = s.btn, txt = b.textContent;
+        const m = txt.match(/^(.*?)dług(o)(.*?)(\?)?$/);
+        s.html = b.innerHTML;
+        if (!m) { s.done = true; return; }
+        // Akapit ma text-wrap: pretty — gdy końcówka rośnie, przeglądarka przełamuje na nowo
+        // wiersze POWYŻEJ frazy (zmierzone: „kadrów.” skakało wiersz wyżej po 220 ms).
+        // Na czas efektu zamrażamy złamania nad frazą: <br> tam, gdzie wiersze łamią się
+        // teraz, i zwykłe łamanie zamiast pretty. Wiersz z frazą może się zawinąć — tyle wolno.
+        s.p = b.closest('p'); s.brs = [];
+        if (s.p) {
+          const starts = [], tw = document.createTreeWalker(s.p, NodeFilter.SHOW_TEXT);
+          let node, top = null;
+          while ((node = tw.nextNode())) {
+            if (b.contains(node) || (node.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_PRECEDING)) break;
+            for (const w of node.nodeValue.matchAll(/\S+/g)) {
+              const r = document.createRange(); r.setStart(node, w.index); r.setEnd(node, w.index + w[0].length);
+              const box = r.getClientRects()[0]; if (!box) continue;
+              if (top !== null && box.top - top > 2) starts.push([node, w.index]);
+              top = box.top;
+            }
+          }
+          for (const [nd, i] of starts.reverse()) {
+            const rest = nd.splitText(i), br = document.createElement('br');
+            rest.before(br); s.brs.push(br);
+          }
+          s.p.style.textWrap = 'wrap';
+        }
+        // Inline-block nie dziedziczy podkreślenia rodzica — przepisujemy je z przycisku,
+        // żeby kreska pod frazą rosła razem z literami.
+        const cs = getComputedStyle(b);
+        const pod = `text-decoration:${cs.textDecorationLine} ${cs.textDecorationStyle} ${cs.textDecorationColor};`
+          + `text-decoration-thickness:${cs.textDecorationThickness};text-underline-offset:${cs.textUnderlineOffset};`;
+        const ext = (n, z) => `<span class="dl-ext" aria-hidden="true" style="display:inline-block;width:0;`
+          + `white-space:nowrap;clip-path:inset(-60% 0 -60% 0);${pod}">${z.repeat(n)}</span>`;
+        // „długo” razem z dopiskiem nie może się złamać w pół słowa
+        b.innerHTML = `${m[1]}<span style="white-space:nowrap">dług${m[2]}${ext(11, 'o')}</span>`
+          + `${m[3]}${m[4] || ''}${m[4] ? ext(2, '?') : ''}`;
+        [s.oExt, s.qExt] = b.querySelectorAll('.dl-ext');
+        // szerokość jednego znaku: pełny dopisek zmierzony raz, zanim cokolwiek widać
+        const zmierz = el => { if (!el) return 0; el.style.width = 'auto'; const w = el.getBoundingClientRect().width; el.style.width = '0px'; return w; };
+        s.oW = zmierz(s.oExt) / 11; s.qW = zmierz(s.qExt) / 2;
+      },
+      stop(s){
+        s.btn.innerHTML = s.html;
+        if (s.p) { s.brs.forEach(br => br.remove()); s.p.normalize(); s.p.style.textWrap = ''; }
+      },
+      draw(c, s, p, t){
+        const ms = Math.max(0, t - s.start);
+        const easeOut = u => 1 - Math.pow(1 - clamp(u,0,1), 2.4);
+        let n, q;
+        if (ms < 1400) {                         // rozwijanie: 1 → 12 liter, zwalnia pod koniec
+          n = 11 * easeOut(ms / 1400);
+          q = smooth((ms - 600) / 120) + smooth((ms - 1000) / 120);
+        } else if (ms < 2000) {                  // pauza: dziecko czeka na odpowiedź
+          n = 11; q = 2;
+        } else {                                 // zwijanie, szybciej niż rozwijanie
+          const u = smooth((ms - 2000) / 600);
+          n = 11 * (1 - u); q = 2 * (1 - u);
+        }
+        s.oExt.style.width = (n * s.oW).toFixed(2) + 'px';
+        if (s.qExt) s.qExt.style.width = (q * s.qW).toFixed(2) + 'px';
+        // HUD „jeszcze daleko?” — opcja do decyzji autora (efekty-instrukcja.md, 4.18)
+        if (DLUGO_HUD && !s.hud) { s.hud = true; hud('jeszcze daleko?'); }
       }},
 
     drzenie: { dur: 3600,
