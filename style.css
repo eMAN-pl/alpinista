@@ -1088,7 +1088,13 @@ hr + h3 {
   text-box: trim-both cap alphabetic;
   text-align: left;          /* numer równo z lewą krawędzią tekstu — trzyma siatkę */
   color: var(--text-strong);
-  opacity: 0.3;
+  opacity: 0.15;             /* bardzo subtelnie (autor): ślad numeru, nie napis */
+}
+
+/* Na jasnym papierze to samo krycie znika prawie całkiem (kontrast 1,3:1 wobec 1,6:1
+   w ciemnym), więc tu odrobinę więcej, żeby oba motywy wyglądały równie cicho. */
+:root[data-theme="jasny"] .chapter-num {
+  opacity: 0.2;
 }
 
 .chapter-head--num h2,
