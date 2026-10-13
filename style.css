@@ -980,6 +980,18 @@ hr + h3 {
   aspect-ratio: 3 / 2;
 }
 
+/* Telefon: ciaśniejszy kadr na środek góry — ścieżkę, figurki, świerki. Obraz 125% szerokości
+   okna, więc krawędzie podstawy wychodzą poza kadr, a figurki rosną o jedną czwartą.
+   Okno wyższe (4:3), żeby cała wysokość góry dalej się mieściła razem z paralaksą.
+   Bez nowych plików: 1600 px obrazu wystarcza na 125% przy trzykrotnej gęstości ekranu. */
+@media (max-width: 51.25em) {
+  .sketch--model .sketch-plate {
+    aspect-ratio: 4 / 3;
+    background-size: 125% auto;
+    background-position-x: 50%;
+  }
+}
+
 /* Paralaksa: rysunek przesuwa się w oknie wolniej niż tekst — jakby leżał głębiej pod stroną.
    Sam CSS (oś czasu przewijania), bez biblioteki i bez przejmowania przewijania.
    Tylko gdy przeglądarka to obsługuje, przy włączonych efektach i bez „ogranicz ruch”. */
