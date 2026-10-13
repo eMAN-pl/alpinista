@@ -145,8 +145,9 @@
     // kto doczytał ostatni rozdział prawie do końca, nie potrzebuje zaproszenia z powrotem
     if (section === sections.at(-1) && place.fraction > 0.8) return;
 
-    const number = section.querySelector(".chapter-meta span")?.textContent;
-    const name = section.querySelector("h2")?.textContent;
+    // z atrybutów, nie z nagłówka: w nagłówku stoi „1. Pilsko”, a licznika „z 12” już tam nie ma
+    const number = section.dataset.numer;
+    const name = section.dataset.nazwa;
 
     resume = document.createElement("div");
     resume.className = "resume";
@@ -509,8 +510,8 @@
 
   function updateRouteLabel(id) {
     const section = id ? document.getElementById(id) : null;
-    const name = section?.querySelector("h2")?.textContent ?? "";
-    const number = section?.querySelector(".chapter-meta span")?.textContent;
+    const name = section?.dataset.nazwa ?? "";
+    const number = section?.dataset.numer;
     const label = !section || section === intro ? "start" : `${number} · ${name}`;
     routeButton.setAttribute("aria-label", `Rozdziały i ustawienia, teraz: ${label}`);
   }

@@ -1056,18 +1056,24 @@ hr + h3 {
   margin-inline: 0.2em;
 }
 
-/* Współrzędne prowadzą na mapę, ale w metryce mają wyglądać jak reszta liczb:
-   bez koloru akcentu i bez ikony. Podkreślenie dopiero przy najechaniu albo fokusie. */
+/* Numer rozdziału przy nazwie, przygaszony: czyta się jak porządek, nie jak część nazwy */
+.chapter-num {
+  color: var(--text-quiet);
+}
+
+/* Współrzędne prowadzą na mapę, więc wyglądają jak każdy inny link w eseju: akcent
+   i ciągłe podkreślenie (autor, 2026-10-13 — wcześniej udawały zwykłą liczbę i nikt
+   nie wiedział, że da się je kliknąć). */
 .chapter-meta a.coords {
-  color: inherit;
-  text-decoration: none;
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  text-underline-offset: 0.25em;
 }
 
 .chapter-meta a.coords:hover,
 .chapter-meta a.coords:focus-visible {
-  text-decoration: underline;
-  text-decoration-color: color-mix(in srgb, var(--accent) 70%, transparent);
-  text-underline-offset: 0.25em;
+  text-decoration-color: var(--accent);
 }
 
 /* Adnotacja notatnika: ten sam zapis co reszta metadanych, bez wyróżnień.
