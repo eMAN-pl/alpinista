@@ -584,7 +584,7 @@
   reader.append(smaller, bigger, themeButton());
 
   // Szeroki ekran: zestaw w prawym dolnym rogu. Węższy: w panelu z trasą, bo róg
-  // zajmuje przycisk trasy. Przełącznik motywu stoi dodatkowo przy nazwisku na starcie.
+  // zajmuje przycisk trasy. Ekran tytułowy zostaje bez przełącznika motywu (autor).
   function placeReader() {
     if (wide.matches) document.body.append(reader);
     else nav.append(reader);
@@ -592,7 +592,6 @@
 
   placeReader();
   wide.addEventListener("change", placeReader);
-  document.querySelector(".hero-by")?.append(themeButton());
 
   let size = Number(remember(SIZE_KEY) ?? 1);
 

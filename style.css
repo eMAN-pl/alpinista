@@ -199,20 +199,6 @@
     transition: opacity 0.15s ease;
   }
 
-  /* Na ekranie tytułowym przycisk stoi u góry, więc podpowiedź spada pod niego,
-     a przy lewej krawędzi rozwija się w prawo, nie poza ekran */
-  .hero-by .theme-toggle[data-tip]::after {
-    top: calc(100% + 10px);
-    bottom: auto;
-  }
-
-  @media (width > 51.25em) {
-    .hero-by .theme-toggle[data-tip]::after {
-      left: 0;
-      right: auto;
-    }
-  }
-
   .theme-toggle:hover::after,
   .theme-toggle:focus-visible::after,
   .music-toggle:hover::after,
@@ -550,35 +536,22 @@ article {
   color: var(--text-quiet);
 }
 
-.hero-by .theme-toggle {
-  margin-left: auto;
-}
-
-/* Na dwóch płaszczyznach przełącznik idzie w górny lewy róg ekranu — podpis zostaje
-   podpisem, a ikona nie wisi w połowie wysokości przy krawędzi zdjęcia. */
-@media (width > 51.25em) {
-  .hero-by .theme-toggle {
-    position: absolute;
-    top: var(--hero-pad);
-    left: var(--hero-pad);
-    margin-left: 0;
-  }
-}
-
 .hero-foot {
   position: absolute;
   left: var(--hero-pad);
   right: clamp(32px, 3.4vw, 72px);
   bottom: var(--hero-pad);
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
   margin: 0;
   font: 11px/1 var(--mono);
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
-.hero-foot a {
+.hero-go {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -586,11 +559,31 @@ article {
   text-decoration: none;
 }
 
-.hero-foot a::after {
+.hero-go::after {
   content: "";
   width: 40px;
   height: 1px;
   background: var(--rule);
+}
+
+/* Pod zaproszeniem ciszej: kto woli przeczytać później albo na czytniku, bierze plik
+   od razu, bez szukania w stopce. Ten sam zapis co zaproszenie, o stopień ciszej. */
+.hero-get {
+  margin: 0;
+  color: var(--nav-quiet);
+}
+
+.hero-get a {
+  color: var(--text-quiet);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 70%, transparent);
+  text-underline-offset: 0.3em;
+  transition: color 0.4s;
+}
+
+.hero-get a:hover,
+.hero-get a:focus-visible {
+  color: var(--accent);
 }
 
 /* Zdjęcie jako warstwa wypełniająca płaszczyznę — nigdy nie wyznacza wysokości ekranu */
@@ -634,11 +627,11 @@ article {
     letter-spacing: 0.1em;   /* zaproszenie musi zmieścić się w jednym wierszu */
   }
 
-  .hero-foot a {
+  .hero-go {
     gap: 8px;
   }
 
-  .hero-foot a::after {
+  .hero-go::after {
     width: 24px;
   }
 }
@@ -1653,6 +1646,35 @@ article.is-shaken {
   transform: translateX(-0.4em);
 }
 
+/* Większe pole najechania niż sama kropka — 7 px to za mało, żeby trafić myszą */
+.profil-szczyt::before {
+  content: "";
+  position: absolute;
+  inset: -12px;
+}
+
+/* Nazwa szczytu tylko przy najechaniu: nad wysokością, na tle strony, ponad
+   podpisami sąsiadów. Same liczby zostają ciche, jak dotąd. */
+.profil-nazwa {
+  display: none;
+}
+
+.profil-szczyt:hover {
+  z-index: 2;
+}
+
+.profil-szczyt:hover .profil-nazwa {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--text-strong);
+}
+
+.profil-szczyt:hover .profil-wys {
+  padding: 3px 6px;
+  background: var(--bg);
+  text-align: center;
+}
+
 .profil-szczyt:hover,
 .profil-szczyt.is-on {
   border-color: var(--accent);
@@ -1687,7 +1709,7 @@ article.is-shaken {
 }
 
 .route h2 {
-  margin-bottom: var(--sp-para);
+  margin-bottom: calc(var(--line) * 1.5);   /* nagłówek oddycha przed listą (autor) */
 }
 
 /* Spis treści ma jeden rodzaj linii, nie dwa. Kropkowana linia prowadząca prowadzi oko
@@ -1933,7 +1955,10 @@ article.is-shaken {
 
 .profile-nav {
   --axis: color-mix(in srgb, var(--text) 12%, var(--bg));   /* oś: bardzo niski kontrast, w obu motywach */
-  --row: 40px;             /* odstęp między punktami */
+  /* Odstęp między punktami rośnie z wysokością ekranu: na niskim laptopie 40 px jak
+     dotąd, na wysokim do 60 px — trasa zajmuje podobną część ekranu, a nie tylko środek.
+     --n (liczba punktów) podaje build.py. */
+  --row: clamp(40px, calc((100svh - 16rem) / var(--n, 13)), 60px);
   display: none;
 }
 
