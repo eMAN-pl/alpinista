@@ -1056,9 +1056,11 @@ hr + h3 {
   margin-inline: 0.2em;
 }
 
-/* Numer rozdziału przy nazwie, przygaszony: czyta się jak porządek, nie jak część nazwy */
+/* Numer rozdziału przy nazwie: ten sam zapis co w spisie treści („01”) i ten sam kolor
+   co nazwa, tylko w połowie krycia — w obu motywach jest cieniem nazwy, a nie osobnym
+   kolorem. Kontrast zmierzony: 4,8:1 w ciemnym, 3,4:1 w jasnym (próg dla dużego pisma 3:1). */
 .chapter-num {
-  color: var(--text-quiet);
+  opacity: 0.5;
 }
 
 /* Współrzędne prowadzą na mapę. Wcześniej udawały zwykłą liczbę i nikt nie wiedział,
