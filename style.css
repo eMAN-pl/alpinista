@@ -977,7 +977,7 @@ hr + h3 {
    Okno 3:2 na całą kolumnę, plik 4:3: ta różnica to zapas na paralaksę. */
 .sketch--model .sketch-plate {
   width: 100%;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: var(--okno, 3 / 2);   /* z proporcji pliku (build.py): szeroka góra 3:2, wysoka do 5:4 */
 }
 
 /* Telefon: ten sam kadr co na komputerze, cała góra w oknie. Ciaśniejszy kadr (obraz 125%
@@ -2316,7 +2316,8 @@ article.is-shaken {
 
 /* ---------- Pasek postępu ---------- */
 
-/* Neutralny i cichy — akcent jest zarezerwowany dla kilku miejsc */
+/* W akcencie, jak oś bocznej nawigacji i pierścień przycisku trasy — trzy wskaźniki postępu,
+   jeden kolor. Neutralny #5e5a53 miał w ciemnym motywie 2,6:1 i przy 2 px znikał (autor). */
 .progress {
   display: none;
 }
@@ -2329,7 +2330,7 @@ article.is-shaken {
   right: 0;
   z-index: 10;
   height: 2px;
-  background: var(--dot);
+  background: var(--accent);
   transform: scaleX(0);
   transform-origin: 0 50%;
   pointer-events: none;
@@ -2458,7 +2459,7 @@ article.is-shaken {
   }
 
   .sketch--model .sketch-plate {
-    aspect-ratio: 4 / 3;
+    aspect-ratio: var(--plik, 4 / 3);
   }
 
   a {
