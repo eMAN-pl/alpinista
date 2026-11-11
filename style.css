@@ -917,6 +917,8 @@ hr + h3 {
 }
 
 .zrodla a {
+  /* długie adresy (np. commit w Źródłach) muszą się łamać — na 375 px wystawały poza ekran */
+  overflow-wrap: anywhere;
   color: var(--text);
   text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
 }
