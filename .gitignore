@@ -40,3 +40,8 @@
 
 # Muzyka do czytania — tylko przekonwertowane pliki, nie oryginały z assets/
 !/assets/audio/*
+
+# Makiety gór: moduł i pliki (assets/makiety-gor/ to materiał roboczy, zostaje lokalnie)
+!/mountain-fx.js
+!/mountain-fx.css
+!/assets/web/makiety/*
