@@ -331,7 +331,13 @@
 
   /* ---------- shader: rośliny, woda, lód, kładka, śnieg — na oryginalnym obrazie ---------- */
   const VS = `attribute vec2 p; varying vec2 uv; void main(){ uv = p*.5+.5; uv.y = 1.-uv.y; gl_Position = vec4(p,0.,1.); }`;
-  const FS = `precision mediump float;
+  // highp, bo iOS liczy mediump naprawdę na 16 bitach: szum h() przekracza zakres (NaN)
+  // i krawędzie makiety robiły się schodkowe. Desktop i tak liczy w pełnej precyzji.
+  const FS = `#ifdef GL_FRAGMENT_PRECISION_HIGH
+  precision highp float;
+  #else
+  precision mediump float;
+  #endif
   varying vec2 uv; uniform sampler2D img, msk; uniform float t, kP, kF, kW, kS, kD, ds, kQ, wd, kR, kI, kB, kG; uniform vec2 pc;
   float h(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }
   float n(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.-2.*f);
