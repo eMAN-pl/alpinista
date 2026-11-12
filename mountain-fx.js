@@ -392,13 +392,16 @@
     float lum = dot(c.rgb, vec3(.333));
     float glr = exp(-pow((sp - fract(t*.05)*1.6 + .3) * 7., 2.)) * (.65 + .35*lt);
     c.rgb += kB * step(.004, m.g) * smoothstep(.42, .78, lum) * glr * .2 * c.a * vec3(1., .97, .9);
-    gl_FragColor = c;
+    gl_FragColor = vec4(c.rgb * c.a, c.a);   // premultiplied: patrz getContext niżej
   }`;
   const load = src => new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = src; });
 
   function shader(M) {
     const cv = M.stage.querySelector('canvas.layer');
-    const gl = cv.getContext('webgl', { alpha: true, premultipliedAlpha: false, antialias: false });
+    // premultipliedAlpha: true + kolor mnożony przez alfę w shaderze. Safari na iOS składało
+    // płótno „non-premultiplied” jak premultiplied i wychodził kolor spod przezroczystości
+    // (WebP trzyma tam bloki 16×16 px) — krawędzie makiet robiły się schodkowe.
+    const gl = cv.getContext('webgl', { alpha: true, premultipliedAlpha: true, antialias: false });
     if (!gl) return;                                       // bez WebGL: sam obrazek z unoszeniem
     const sh = (type, src) => { const o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); return o; };
     const pr = gl.createProgram(); gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(pr);
