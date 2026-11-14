@@ -1,5 +1,5 @@
 # Do repozytorium (GitHub Pages) trafia tylko gotowa strona.
-# Tekst .md, generator (tools/), brief, korekty i oryginały szkiców zostają lokalnie.
+# Tekst .md, generator (tools/), robocze/ i oryginały zdjęć zostają lokalnie.
 *
 !*/
 
@@ -45,3 +45,11 @@
 !/mountain-fx.js
 !/mountain-fx.css
 !/assets/web/makiety/*
+
+# Intro sterowane przewijaniem (2026-11-14): moduł i zdjęcia po obróbce (tools/intro.py).
+# Oryginały assets/alpinista1–3.jpg i robocze/ zostają lokalnie.
+!/intro.js
+!/intro.css
+!/assets/web/intro/*
+# -d.jpg to tylko źródło kart podglądu (tools/og.py) — strona go nie wczytuje
+/assets/web/*-d.jpg

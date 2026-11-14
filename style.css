@@ -36,12 +36,14 @@
 }
 
 :root {
-  /* Kolory: ciemne tło, jasny tekst. Kolory tekstu treści ≥ 7:1 do tła. */
-  --bg: #1a1917;           /* ciepły grafit, w stronę tonu szkiców węglem (ich tło ~#262422) */
-  --text: #d6d1c6;         /* treść        ~11.5:1 */
-  --text-strong: #f7f3ea;  /* tezy: ~15% jaśniejsze od treści, bez koloru */
-  --text-quiet: #ada79c;   /* metadane     ~7.3:1  */
-  --nav-quiet: #4a4947;    /* nawigacja nieaktywna: ~28% jasności tekstu (ma znikać przy zmrużeniu oczu) */
+  /* Kolory: ciemne tło, jasny tekst. Kolory tekstu treści ≥ 7:1 do tła.
+     Paleta chłodna (2026-11-14): wzięta z mgły i skały ze zdjęć intro, żeby intro
+     przechodziło w stronę bez szwu. Wcześniej ciepły grafit #1a1917 pod szkice węglem. */
+  --bg: #16191c;           /* łupek, ciemna skała */
+  --text: #d3d8dc;         /* treść        ~12.3:1 */
+  --text-strong: #f2f5f7;  /* tezy: jaśniejsze od treści, bez koloru */
+  --text-quiet: #a6aeb5;   /* metadane     ~7.9:1  */
+  --nav-quiet: #45494e;    /* nawigacja nieaktywna: ~28% jasności tekstu (ma znikać przy zmrużeniu oczu) */
   --accent: #ff6250;       /* jeden akcent, cynober (5,95:1 — poniżej naszych 7:1, bo nasycona
                               czerwień na ciemnym tle inaczej się nie da; dla tekstu wymagane
                               jest 4,5:1, a treść eseju stoi na 11,5:1). Tylko: aktywny punkt trasy,
@@ -54,8 +56,8 @@
                               tomato    #ff4d3d / #a4161a   (5,34 / 6,70)
                               błękit    #8ab4e0 / #1f4e86   (8,10 / 7,28)
                               bursztyn  #c2a57a / #634716   (7,49 / 7,42) */
-  --rule: #4d4943;         /* kreski, podkreślenia (dekoracja) */
-  --dot: #5e5a53;          /* pasek postępu */
+  --rule: #454b51;         /* kreski, podkreślenia (dekoracja) */
+  --dot: #5a6168;          /* pasek postępu */
   --flash: #fff;           /* błysk „cyk”; w jasnym motywie ciemny */
 
   /* Cztery role: nagłówki Antonem, tekst systemowym szeryfem (bez pobierania),
@@ -73,7 +75,6 @@
   --measure: 34em;                                   /* ~62–68 znaków w wierszu */
   --col: calc(var(--fs) * 34);                       /* ta sama miara w pikselach */
   --edge: 28px;                                      /* minimalny margines od krawędzi */
-  --hero-pad: clamp(30px, 4.8vw, 104px);             /* margines wewnątrz płaszczyzny tytułowej */
 
   /* Rytm pionowy — jedna skala, w wielokrotnościach interlinii.
      Liczby w nawiasach: odległość od wiersza do wiersza (1× = zwykły wiersz),
@@ -93,20 +94,20 @@
    Ten sam system ról, inne wartości. Motyw ustawia skrypt w nagłówku dokumentu,
    zanim strona się narysuje, więc nie ma mignięcia. Domyślnie idzie za ustawieniem
    systemu; wybór z przełącznika przy spisie ma pierwszeństwo i jest zapamiętywany.
-   Kontrasty: treść 12,7:1, metadane 7,7:1, akcent 7,4:1 — ten sam próg co w ciemnym. */
+   Kontrasty: treść 12,4:1, metadane 7,4:1, akcent 7,0:1 — ten sam próg co w ciemnym. */
 
 :root[data-theme="jasny"] {
-  --bg: #f2eee5;           /* ciepły papier */
-  --text: #2b2822;
-  --text-strong: #14120e;
-  --text-quiet: #4f4940;
-  --nav-quiet: #b3aa9a;
+  --bg: #eceeef;           /* jasna mgła (wcześniej ciepły papier #f2eee5) */
+  --text: #252a2f;
+  --text-strong: #11161a;
+  --text-quiet: #454d55;
+  --nav-quiet: #a8afb5;
   --accent: #9b1d20;
-  --rule: #cfc7b8;
-  --dot: #b3a894;
-  --flash: #14120e;
+  --rule: #c3c9ce;
+  --dot: #a2a9af;
+  --flash: #11161a;
   color-scheme: light;
-  scrollbar-color: #cfc7b8 #f2eee5;
+  scrollbar-color: #c3c9ce #eceeef;
 }
 
 /* Ziarno papieru musi być ciemne, inaczej na jasnym tle znika.
@@ -295,50 +296,7 @@
   text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
 }
 
-/* W panelu trasy rząd przycisków stoi przy dolnej krawędzi ekranu, więc podpis zostaje
-   dymkiem nad nim — w przepływie spadłby pod ekran. Rozciąga się na szerokość panelu,
-   żeby zmieścił się w dwóch wierszach. */
-@media (max-width: 85em) {
-  .profile-nav .music-now {
-    left: 0;
-    right: 0;
-    width: auto;
-    max-width: none;
-  }
-
-  /* .profile-nav a to wiersz szyny: display: flex, stała wysokość, bez zawijania.
-     W podpisie linki muszą być zwykłym tekstem, inaczej każdy łamie wiersz. */
-  .profile-nav .music-now a {
-    display: inline;
-    height: auto;
-    white-space: normal;
-  }
-}
-
-/* Zestaw poza spisem = narożnik ekranu. Wchodzi razem z nawigacją, czyli po ekranie
-   tytułowym — tam przełącznik motywu stoi już przy nazwisku. */
-body > .reader {
-  position: fixed;
-  right: 40px;
-  bottom: 28px;
-  z-index: 25;
-  transition: opacity 0.3s, visibility 0.3s;
-}
-
-.js body > .reader {
-  opacity: 0;
-  visibility: hidden;
-}
-
-.js.nav-on body > .reader {
-  opacity: 1;
-  visibility: visible;
-}
-
 @media (max-width: 51.25em) {
-  .sketch-plate {
-    width: 100%;           /* przy wąskiej kolumnie 70% robiłoby się znaczkiem */
-  }
 
   .reader button,
   .theme-toggle {
@@ -355,12 +313,6 @@ body > .reader {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  body > .reader {
-    transition: none;
-  }
-}
-
 @media print {
   .reader,
   .theme-toggle {
@@ -371,14 +323,14 @@ body > .reader {
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  scrollbar-color: #34322e var(--bg);      /* pasek przewijania w tonacji tła */
+  scrollbar-color: #30363b var(--bg);      /* pasek przewijania w tonacji tła */
   scroll-padding-top: 2.5rem;              /* cel skoku nie przykleja się do krawędzi */
 }
 
 /* Skok do rozdziału, przypisu czy na górę jedzie płynnie — widać, w którą stronę
    przesuwa się strona. Przy „ogranicz ruch” i wyłączonych efektach zostaje skok. */
 @media (prefers-reduced-motion: no-preference) {
-  html:not(.effects-off) {
+  html {
     scroll-behavior: smooth;
   }
 }
@@ -411,7 +363,7 @@ body::after {
 }
 
 ::selection {
-  background: #633029;
+  background: #5e2a2a;
   background: color-mix(in srgb, var(--accent) 32%, var(--bg));  /* akcent, przygaszony */
   color: var(--text-strong);
 }
@@ -487,189 +439,6 @@ article {
 .chapter {
   max-width: var(--measure);
   margin-inline: auto;
-}
-
-/* ---------- Ekran tytułowy ----------
-   Dwie płaszczyzny i twarda krawędź: tekst na tle strony, zdjęcie obok.
-   Tytuł nigdy nie leży na zdjęciu, więc kontrast nie zależy od kadru.
-   Szeroki ekran dzieli w pionie, telefon w poziomie (zdjęcie na górze). */
-
-.hero {
-  display: grid;
-  border-bottom: 1px solid var(--rule);
-  grid-template-columns: minmax(0, 46fr) minmax(0, 54fr);
-  height: 100svh;
-  min-height: 520px;
-  margin-inline: calc(-1 * var(--edge));
-}
-
-.hero-type {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  position: relative;
-  padding: var(--hero-pad) clamp(32px, 3.4vw, 72px) var(--hero-pad) var(--hero-pad);
-}
-
-/* Nad tytułem: kto to pisał, a przy prawej krawędzi przełącznik motywu.
-   Avatar jest wysokości wiersza z nazwiskiem — to podpis, nie portret. */
-.hero-by {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 0 0 clamp(26px, 3.6vh, 44px);
-  font: 11px/1 var(--mono);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
-.hero-by img {
-  display: block;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  object-fit: cover;
-  filter: grayscale(1) contrast(1.04) sepia(0.22);
-}
-
-.hero-name {
-  color: var(--text-quiet);
-}
-
-.hero-foot {
-  position: absolute;
-  left: var(--hero-pad);
-  right: clamp(32px, 3.4vw, 72px);
-  bottom: var(--hero-pad);
-  /* Dwa wiersze: zaproszenie, pod nim pliki. Wersja z jednym wierszem i plikami na
-     prawym końcu była rozważana i odrzucona przez autora — ma zostać stos, tylko
-     z większym oddechem między wierszami (28 px zamiast 16). */
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 28px;
-  margin: 0;
-  font: 11px/1 var(--mono);
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-}
-
-.hero-go {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--text-quiet);
-  text-decoration: none;
-}
-
-.hero-go::after {
-  content: "";
-  width: 40px;
-  height: 1px;
-  background: var(--rule);
-}
-
-/* Pliki dla tych, którzy wolą czytnik albo papier — cicho, bez podkreśleń i bez
-   czerwieni (czerwone podkreślenia konkurowały z „jest alpinistą”); akcent dopiero
-   po najechaniu. Etykieta ciszej niż linki, bo to etykieta. */
-.hero-get {
-  margin: 0;
-  color: var(--nav-quiet);
-  white-space: nowrap;
-}
-
-.hero-get a {
-  color: var(--text-quiet);    /* czytelne (≥7:1); drugorzędność niesie miejsce, nie bladość */
-  text-decoration: none;
-  transition: color 0.4s;
-}
-
-.hero-get a:hover,
-.hero-get a:focus-visible {
-  color: var(--accent);
-}
-
-/* Zdjęcie jako warstwa wypełniająca płaszczyznę — nigdy nie wyznacza wysokości ekranu */
-.hero-shot {
-  position: relative;
-  display: block;
-  overflow: hidden;
-}
-
-.hero-shot img {
-  position: absolute;
-  inset: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 58% 46%;
-}
-
-/* Telefon i tablet: te same dwie płaszczyzny, tylko podział poziomy */
-@media (max-width: 51.25em) {
-  .hero {
-    grid-template-columns: 1fr;
-    grid-template-rows: 58svh 1fr;
-  }
-
-  .hero-shot {
-    order: -1;
-  }
-
-  .hero-type {
-    justify-content: flex-start;
-    padding: var(--hero-pad) var(--edge) clamp(24px, 3.4vh, 32px) var(--edge);
-  }
-
-  .hero-foot {
-    position: static;
-    left: auto;
-    margin-top: auto;
-    padding-top: 24px;
-    letter-spacing: 0.1em;   /* zaproszenie musi zmieścić się w jednym wierszu */
-  }
-
-  .hero-foot {
-    gap: 18px;             /* na niskim ekranie telefonu oddech mniejszy niż na komputerze */
-  }
-
-  .hero-go {
-    gap: 8px;
-  }
-
-  .hero-go::after {
-    width: 24px;
-  }
-}
-
-/* Niski i szeroki ekran: kadr wędruje w górę, żeby grań została w polu widzenia */
-@media (max-height: 760px) and (min-width: 900px) {
-  .hero-shot img {
-    object-position: 60% 38%;
-  }
-}
-
-/* Przełącznik „wyłącz efekty” (script.js) — w stopce, przy linku do PDF */
-.effects-toggle {
-  min-height: 44px;        /* obszar dotyku ≥ 44 px */
-  padding: 0;
-  border: 0;
-  background: none;
-  font: 11px/1 var(--mono);
-  letter-spacing: 0.04em;
-  color: var(--text-quiet);
-  cursor: pointer;
-}
-
-.effects-toggle:hover {
-  color: var(--text);
-}
-
-@media print {
-  .effects-toggle {
-    display: none;
-  }
 }
 
 /* Tytuł i nagłówki: Anton, wersaliki. Jeden krój niesie całą hierarchię,
@@ -801,29 +570,29 @@ hr {
 }
 
 .wybor-opcja {
+  /* Pełne wypełnienie (2026-11-14): obrys z przygaszonym tekstem wyglądał jak ozdoba,
+     nie jak coś do kliknięcia. Oba przyciski mają równą wagę — żaden nie podpowiada
+     odpowiedzi. Po wyborze kliknięty zostaje taki sam, drugi przechodzi w stan
+     nieaktywny (bez czerwieni i zmiany stylu — decyzja autora). */
   min-height: 44px;        /* obszar dotyku ≥ 44 px — próg, nie rozmiar */
-  padding: 0.45em 1.1em;
-  border: 1px solid var(--rule);
+  padding: 0.55em 1.5em;
+  border: 1px solid var(--text-strong);
   border-radius: 999px;    /* ta sama pigułka co pasek „wróć tam”, przy każdej wysokości */
-  background: none;
+  background: var(--text-strong);
   font-family: inherit;
   font-size: 1em;
+  font-weight: 600;
   line-height: 1.2;
-  color: var(--text-quiet);
+  color: var(--bg);
   cursor: pointer;
-  transition: color 0.2s, border-color 0.2s;
+  transition: transform 0.15s, background-color 0.2s, border-color 0.2s, color 0.2s;
 }
 
-.wybor-opcja:hover,
-.wybor-opcja:focus-visible {
-  border-color: var(--text-quiet);
-  color: var(--text);
-}
-
-/* Po decyzji zostaje widoczne, co się wybrało — druga droga gaśnie, ale nie znika */
-.wybor-opcja[aria-expanded="true"] {
-  border-color: var(--accent);
-  color: var(--accent);
+.wybor-opcja:not([disabled]):hover,
+.wybor-opcja:not([disabled]):focus-visible {
+  border-color: var(--text);
+  background: var(--text);
+  transform: translateY(-1px);
 }
 
 .wybor-opcja[disabled] {
@@ -831,7 +600,9 @@ hr {
 }
 
 .wybor-opcja[disabled]:not([aria-expanded="true"]) {
-  opacity: 0.4;
+  border-color: transparent;
+  background: color-mix(in srgb, var(--text) 14%, var(--bg));
+  color: color-mix(in srgb, var(--text) 45%, var(--bg));
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -926,85 +697,6 @@ hr + h3 {
 .zrodla-uwaga {
   margin: var(--sp-para) 0 0 !important;
   color: var(--text-quiet);
-}
-
-/* ---------- Szkice ----------
-   Po jednym na rozdział, pod nagłówkiem — scena otwiera rozdział, potem tekst.
-   Wszystkie tej samej szerokości co kolumna tekstu.
-   WebP, a w starszych przeglądarkach JPEG. */
-
-.sketch {
-  margin: var(--sp-break) 0;
-}
-
-/* Pod nagłówkiem: obraz blisko metadanych i tekstu — jeden wiersz nad i pod, jak między akapitami */
-.chapter-head:has(+ .sketch) {
-  margin-bottom: var(--line);
-}
-
-.chapter-head + .sketch {
-  margin-top: 0;
-  margin-bottom: var(--line);
-}
-
-/* Okno 4:3 na kwadratowy szkic — obraz jest niższy, a przy przewijaniu powoli jedzie w oknie */
-.sketch-plate {
-  display: block;
-  width: 70%;              /* rysunki mają własne tło, więc stoją jak płytka wklejona w kolumnę */
-  aspect-ratio: 1 / 0.92;  /* prawie kwadrat: cały rysunek widać, zostaje margines na ruch */
-  margin-inline: auto;
-  /* W ciemnym motywie rysunki mają wprost kolor tła strony wypalony w pliku (images.py),
-     więc leżą bez ramki i bez mieszania trybów — z całą skalą tonów. Mieszanie zjadało
-     wszystko ciemniejsze od tła, czyli ponad połowę każdego rysunku.
-     W jasnym zostaje „multiply”: papier rysunku jest tam czysto biały, więc znika
-     tak samo na ekranie i na wydruku. */
-  mix-blend-mode: normal;
-  background-image: var(--szkic-d);
-  background-repeat: no-repeat;
-  background-size: 100% auto;
-  background-position: 50% 50%;    /* bez paralaksy: środek rysunku */
-}
-
-:root[data-theme="jasny"] .sketch-plate {
-  /* Kolor papieru jest wypalony w pliku (images.py), tak samo jak w ciemnym motywie.
-     Wcześniej rysunek wchodził w stronę przez multiply — ale dowolny filtr na kolumnie
-     tekstu, a tak działają efekty, izoluje kontekst i wyłącza mieszanie. W trakcie
-     efektu wyłaził wtedy biały prostokąt. */
-  mix-blend-mode: normal;
-  background-image: var(--szkic-l);
-}
-
-/* Model zamiast szkicu (images.py: MODELE). Jest szeroki — Pilsko ma ok. 1,7:1 — więc
-   w prawie kwadratowym oknie na 70% kolumny wychodził mały, z pustym niebem nad i pod.
-   Okno 3:2 na całą kolumnę, plik 4:3: ta różnica to zapas na paralaksę. */
-.sketch--model .sketch-plate {
-  width: 100%;
-  aspect-ratio: var(--okno, 3 / 2);   /* z proporcji pliku (build.py): szeroka góra 3:2, wysoka do 5:4 */
-}
-
-/* Telefon: ten sam kadr co na komputerze, cała góra w oknie. Ciaśniejszy kadr (obraz 125%
-   szerokości okna) powiększał figurki, ale obcinał brzegi podstawy — autor odrzucił. */
-
-/* Paralaksa: rysunek przesuwa się w oknie wolniej niż tekst — jakby leżał głębiej pod stroną.
-   Sam CSS (oś czasu przewijania), bez biblioteki i bez przejmowania przewijania.
-   Tylko gdy przeglądarka to obsługuje, przy włączonych efektach i bez „ogranicz ruch”. */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    :root:not(.effects-off) .sketch-plate {
-      animation: sketch-depth linear both;
-      animation-timeline: view();
-    }
-  }
-}
-
-@keyframes sketch-depth {
-  from {
-    background-position-y: 0%;
-  }
-
-  to {
-    background-position-y: 100%;
-  }
 }
 
 /* ---------- Start (wstęp) ---------- */
@@ -1291,7 +983,7 @@ article a:hover {
   display: flex;
   transform: translate(-50%, -100%);
   border: 1px solid var(--rule);
-  background: #262422;
+  background: #20252a;
   background: color-mix(in srgb, var(--text) 6%, var(--bg));
 }
 
@@ -1347,8 +1039,8 @@ button.ref {
   cursor: pointer;
 }
 
-.js:not(.effects-off) button.fx,
-.js:not(.effects-off) button.ref {
+.js button.fx,
+.js button.ref {
   text-decoration-line: underline;
   text-underline-offset: 0.25em;
   text-decoration-thickness: 1.5px;
@@ -1357,16 +1049,11 @@ button.ref {
   transition: color 0.4s;
 }
 
-.js:not(.effects-off) button.fx:hover,
-.js:not(.effects-off) button.ref:hover,
-.js:not(.effects-off) button.fx[aria-pressed="true"],
-.js:not(.effects-off) button.ref[aria-pressed="true"] {
+.js button.fx:hover,
+.js button.ref:hover,
+.js button.fx[aria-pressed="true"],
+.js button.ref[aria-pressed="true"] {
   color: var(--accent);
-}
-
-.effects-off button.fx,
-.effects-off button.ref {
-  cursor: text;
 }
 
 /* „WTF” — słowo się rozsypuje: dwie przesunięte połówki z czerwoną i turkusową poświatą */
@@ -1525,7 +1212,6 @@ article.is-shaken {
     transform: none;
   }
 }
-
 
 @media (prefers-reduced-motion: reduce) {
   .fx-wtf.is-glitching,
@@ -1836,17 +1522,6 @@ article.is-shaken {
   letter-spacing: 0.04em;
 }
 
-.colophon-utils .effects-toggle {
-  min-height: 0;
-  font: inherit;
-  letter-spacing: inherit;
-  color: var(--accent);
-}
-
-.colophon-utils .effects-toggle:hover {
-  text-decoration: underline;
-}
-
 /* „Co się zmieniło w tekście” — zwinięte, rozwija się bez skryptu */
 /* ---------- Metryka w stopce ----------
    Dane o tekście jako lista etykieta–wartość: etykiety tworzą kolumnę, po której oko
@@ -1932,9 +1607,6 @@ article.is-shaken {
 }
 
 @media (max-width: 51.25em) {
-  .colophon-utils .effects-toggle {
-    min-height: 44px;      /* obszar dotyku ≥ 44 px */
-  }
 
   /* Dwie kolumny nie mieszczą się przy 375 px — etykieta wchodzi nad wartość */
   .meta {
@@ -2087,171 +1759,15 @@ article.is-shaken {
   }
 }
 
-/* ---------- Trasa na węższych ekranach (script.js) ----------
-   Boczny spis mieści się od 85em. Niżej: cichy przycisk w prawym dolnym rogu
-   z bieżącym rozdziałem otwiera ten sam spis jako panel od dołu ekranu —
-   pełne nazwy, wysokości, bieżący rozdział w akcencie, wiersze ≥ 44 px.
-   Przycisk stoi w prawym dolnym rogu przez cały czas czytania — znika tylko wtedy,
-   gdy panel jest otwarty, bo zasłaniałby jego dolny wiersz. */
-
-.route-toggle,
-.route-backdrop {
-  display: none;
-}
-
-@media (width < 85em) {
-  .js.nav-on .route-toggle {
-    display: flex;
-  }
-
-  .route-toggle {
-    position: fixed;
-    right: var(--edge);
-    bottom: calc(16px + env(safe-area-inset-bottom));
-    z-index: 25;
-    align-items: center;
-    justify-content: center;
-    width: 52px;             /* obszar dotyku ≥ 44 px */
-    height: 52px;
-    padding: 0;
-    border: 1px solid var(--rule);
-    border-radius: 50%;
-    background: #262422;
-    background: color-mix(in srgb, var(--text) 6%, var(--bg));
-    color: var(--text-quiet);
-    cursor: pointer;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-  }
-
-  .route-toggle svg {
-    width: 22px;
-    height: 22px;
-  }
-
-  /* Pierścień wokół przycisku to ten sam postęp czytania co oś w spisie —
-     bez niego przycisk nic nie mówi o tym, gdzie się jest. */
-  @supports (mask: radial-gradient(#000, #000)) {
-    .route-toggle::before {
-      content: "";
-      position: absolute;
-      inset: -4px;
-      border-radius: 50%;
-      background: conic-gradient(var(--accent) calc(var(--read, 0) * 360deg), transparent 0);
-      mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
-    }
-  }
-
-  .js.route-open .route-toggle {
-    opacity: 0;
-    transform: translateY(12px);
-    pointer-events: none;
-  }
-
-  .route-backdrop {
-    display: block;
-    position: fixed;
-    inset: 0;
-    z-index: 40;
-    background: rgb(0 0 0 / 0.55);
-  }
-
-  .route-backdrop[hidden] {
-    display: none;
-  }
-
-  .js.route-open .profile-nav {
-    --row: 44px;
-    --sheet: color-mix(in srgb, var(--text) 5%, var(--bg));
-    display: block;
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 45;
-    max-height: min(80vh, 640px);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    padding: 20px var(--edge) calc(12px + env(safe-area-inset-bottom));
-    border-top: 1px solid var(--rule);
-    border-radius: 16px 16px 0 0;
-    background: #211f1d;
-    background: var(--sheet);
-    font: 13px/1.3 var(--mono);
-    animation: sheet-in 0.25s ease-out;
-  }
-
-  /* W panelu: oś po lewej, „● Kozi Wierch ……… 2291”.
-     Zestaw do czytania stoi pod listą, więc kreska oddziela go od góry —
-     na dole panelu wyglądałaby jak zgubiona linijka. */
-  .js.route-open .profile-nav .reader {
-    margin-top: 14px;
-    padding-top: 14px;
-    border-top: 1px solid var(--rule);
-  }
-
-  .js.route-open .profile-nav ol::before,
-  .js.route-open .profile-nav ol::after {
-    left: 3px;
-    right: auto;
-  }
-
-  .js.route-open .profile-nav a {
-    flex-direction: row;
-    gap: 14px;
-    color: var(--text-quiet);
-  }
-
-  .js.route-open .profile-nav a[aria-current] {
-    color: var(--accent);
-  }
-
-  .js.route-open .pn-dot {
-    background: var(--sheet);
-  }
-
-  .js.route-open .pn-name {
-    position: static;
-    order: 1;
-    width: auto;
-    height: auto;
-    overflow: visible;
-    clip-path: none;
-  }
-
-  .js.route-open .pn-alt {
-    order: 2;
-    margin-left: auto;
-  }
-
-  .js.route-open .profile-nav a:not(:has(.pn-name)) .pn-alt {
-    margin-left: 0;          /* „start” i „koniec” przy punkcie */
-  }
-}
-
-@keyframes sheet-in {
-  from {
-    transform: translateY(100%);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .route-toggle {
-    transition: none;
-  }
-
-  .js.route-open .profile-nav {
-    animation: none;
-  }
-}
-
 /* ---------- Powrót do miejsca czytania (script.js) ----------
    Dyskretny pasek na dole: bez modala, bez wymuszania, można zignorować. */
 
 .resume {
+  /* Pod górnym paskiem (2026-11-14): na dole wchodził w tytuł intro. */
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 24px;
+  top: 68px;
   z-index: 20;
   display: flex;
   align-items: center;
@@ -2263,7 +1779,7 @@ article.is-shaken {
   padding: 0 4px 0 18px;
   border: 1px solid var(--rule);
   border-radius: 22px;     /* pigułka w jednym wierszu, zaokrąglony prostokąt w dwóch */
-  background: #211f1d;
+  background: #1c2024;
   background: color-mix(in srgb, var(--text) 4%, var(--bg));   /* o włos jaśniejszy od tła */
   font: 12px/1.4 var(--mono);
   color: var(--text-quiet);
@@ -2292,21 +1808,6 @@ article.is-shaken {
 @keyframes resume-in {
   from {
     opacity: 0;
-  }
-}
-
-/* Dopóki czytelnik stoi na ekranie tytułowym, pasek powrotu unosi się nad
-   „rozpocznij wędrówkę” — dwa zaproszenia nie mogą leżeć jedno na drugim. */
-.js:not(.nav-on) .resume {
-  bottom: calc(var(--hero-pad) + 64px);
-}
-
-/* Na węższych ekranach w prawym dolnym rogu stoi okrągły przycisk trasy,
-   więc pasek powrotu trzyma się lewej i nigdy pod niego nie wchodzi. */
-@media (width < 85em) {
-  .resume {
-    max-width: calc(100% - 2 * var(--edge) - 64px);
-    margin-inline: 0 auto;
   }
 }
 
@@ -2381,9 +1882,6 @@ article.is-shaken {
   .profile-nav,
   .resume,
   .copy-bar,
-  .hero-shot,
-  .route-toggle,
-  .route-backdrop,
   .skip,                 /* w druku nie ma do czego przeskakiwać, a wchodził w tekst */
   .wybor,                /* na papierze nie ma czego kliknąć */
   .fn-back {
@@ -2398,18 +1896,6 @@ article.is-shaken {
 
   article {
     padding: 0;
-  }
-
-  .hero {
-    display: block;
-    height: auto;
-    margin: 0 0 2rem;
-    padding: 0;
-    overflow: visible;
-  }
-
-  .hero h1 {
-    text-align: left;
   }
 
   .intro,
@@ -2437,34 +1923,378 @@ article.is-shaken {
     break-inside: avoid;   /* rysunek nie może się rozpaść na dwie strony */
   }
 
-  .sketch {
-    width: 60%;
-    margin: 1.5rem auto;
-    break-inside: avoid;
-  }
-
-  /* Na papierze cały kwadrat, bez okna i ruchu. Wersję rysunku (ołówek na papierze)
-     ustawia tools/pdf.py, który drukuje stronę w jasnym motywie. */
-  .sketch-plate {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    /* zawsze wersja ołówkowa i zwykły JPEG — AVIF w PDF-ie zajmuje kilka razy więcej */
-    background-image: var(--szkic-druk) !important;
-    mix-blend-mode: normal;   /* na białym papierze nie ma czego mieszać */
-    background-position: 50% 50%;
-    animation: none;
-  }
-
-  /* model: cały plik 4:3, trochę szerzej niż kwadratowe szkice, bo jest niższy */
-  .sketch--model {
-    width: 80%;
-  }
-
-  .sketch--model .sketch-plate {
-    aspect-ratio: var(--plik, 4 / 3);
-  }
-
   a {
     text-decoration: none;
   }
+}
+
+/* ---------- Górny pasek, menu i pobieranie (2026-11-14) ----------
+   Autor po lewej, narzędzia po prawej: nuta (muzyka), pobieranie, menu.
+   Bez tła i bez rozmycia — nad animowanym intro backdrop-filter przycinał (spec §9).
+   Nad zdjęciami intro ikony są ciemne (html.nad-zdjeciem, ustawia intro.js),
+   w tekście biorą kolor motywu. W tekście pasek chowa się przy przewijaniu w dół. */
+
+.topbar {
+  --tb-ink: var(--text);
+  --tb-quiet: var(--text-quiet);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 70;              /* nad menu: przycisk menu jest jego [×] */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px max(var(--edge), 3vw) 10px;
+  pointer-events: none;     /* pusty środek paska nie blokuje tekstu pod spodem */
+  transition: transform 0.35s ease, opacity 0.35s ease, background-color 0.3s;
+}
+
+/* Poza zdjęciami pasek ma pełne tło strony (bez rozmycia): w tekście i w menu
+   wiersze przewijały się pod ikonami i nazwiskiem. Nad intro zostaje przezroczysty. */
+html:not(.menu-open):not(.nad-zdjeciem) .topbar {
+  background: var(--bg);
+  pointer-events: auto;
+}
+
+/* W menu bez belki i bez autora: same ikony unoszą się w rogu — treść menu stoi
+   w środkowej kolumnie, więc mają tam bezpieczne pole (autor). */
+.menu-open .topbar { background: none; }
+.menu-open .tb-autor,
+.menu-open .tb-muzyka,
+.menu-open .tb-pobierz { visibility: hidden; }   /* muzyka i pliki są w menu, w „Sprzęcie” */
+
+.topbar > * { pointer-events: auto; }
+
+.nad-zdjeciem .topbar {
+  --tb-ink: #1f262b;
+  --tb-quiet: #4d5961;
+}
+
+.tb-schowany .topbar {
+  transform: translateY(-110%);
+  opacity: 0;
+}
+
+.tb-autor {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font: 11px/1 var(--mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--tb-quiet);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.tb-autor img {
+  display: block;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.04);
+}
+
+.tb-autor:hover,
+.tb-autor:focus-visible { color: var(--tb-ink); }
+
+.tb-akcje {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tb-muzyka,
+.tb-pobierz { position: relative; }
+
+/* Wszystkie trzy ikony jednakowo: bez obwódki, pole dotyku 44 px */
+.tb-btn,
+.topbar .music-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--tb-ink);
+  cursor: pointer;
+  transition: color 0.3s, background-color 0.2s;
+}
+
+.tb-btn svg,
+.topbar .music-toggle svg {
+  width: 22px;
+  height: 22px;
+}
+
+.tb-btn:hover,
+.tb-btn:focus-visible,
+.topbar .music-toggle:hover,
+.topbar .music-toggle:focus-visible {
+  background: color-mix(in srgb, var(--tb-ink) 8%, transparent);
+  color: var(--tb-ink);
+}
+
+.topbar .music-toggle.is-on { color: var(--accent); }
+
+/* Podpowiedź i podpis utworu wychodzą pod ikoną, nie nad nią — pasek stoi przy górnej krawędzi */
+@media (hover: hover) {
+  .topbar .music-toggle[data-tip]::after {
+    top: calc(100% + 8px);
+    bottom: auto;
+  }
+}
+
+.topbar .music-now {
+  top: calc(100% + 8px);
+  bottom: auto;
+}
+
+/* Ikona menu: trzy kreski i krzyżyk to dwie osobne ikony, które się przenikają
+   z lekkim obrotem. Obracanie pojedynczych kresek w SVG rozjeżdżało się (punkt obrotu
+   ścieżek SVG przeglądarki liczą różnie). */
+.tb-menu { position: relative; }
+.tb-menu svg { position: absolute; transition: opacity 0.2s ease, transform 0.3s ease; }
+.tb-menu .i-zamknij { opacity: 0; transform: rotate(-90deg) scale(.8); }
+.tb-menu[aria-expanded="true"] .i-menu { opacity: 0; transform: rotate(90deg) scale(.8); }
+.tb-menu[aria-expanded="true"] .i-zamknij { opacity: 1; transform: none; }
+
+/* Lista pobierania pod ikoną */
+.pobierz {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 2;
+  min-width: 200px;
+  padding: 8px 0;
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  background: var(--bg);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
+  font: 12px/1 var(--mono);
+}
+
+.pobierz[hidden] { display: none; }
+
+.pobierz-tytul {
+  margin: 0;
+  padding: 8px 16px 10px;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-quiet);
+}
+
+.pobierz a {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 44px;
+  align-items: center;
+  padding: 0 16px;
+  letter-spacing: 0.08em;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.pobierz a:hover,
+.pobierz a:focus-visible {
+  background: color-mix(in srgb, var(--text) 6%, var(--bg));
+  color: var(--accent);
+}
+
+.pobierz-rozmiar { color: var(--text-quiet); }
+
+/* Menu na pełny ekran: spis treści z profilem trasy i ustawienia */
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--bg);
+  animation: menu-in 0.25s ease-out;
+}
+
+/* Zamiast belki pod ikonami: treść gaśnie przy górnej krawędzi w kolorze tła, zanim
+   dojdzie do ikon (na telefonie lista sięga prawej krawędzi i wchodziłaby pod nie). */
+.menu::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  height: 84px;
+  background: linear-gradient(var(--bg) 52px, transparent);
+  pointer-events: none;
+}
+
+.menu[hidden] { display: none; }
+
+@keyframes menu-in { from { opacity: 0; } }
+
+.menu-open,
+.menu-open body { overflow: hidden; }
+
+/* Otwarte menu ma tło motywu, więc ikony wracają do jego koloru także nad intro */
+.menu-open .topbar {
+  --tb-ink: var(--text);
+  --tb-quiet: var(--text-quiet);
+}
+
+.menu-in {
+  box-sizing: border-box;
+  max-width: calc(var(--measure) + 2 * var(--edge));
+  margin-inline: auto;
+  padding: 104px var(--edge) calc(var(--line) * 2);
+}
+
+.menu .route { margin: 0; }
+
+.menu .route-name { font-size: 1.25em; }
+
+.menu-ustawienia {
+  margin-top: calc(var(--line) * 2);
+}
+
+/* Profil trasy jako ostatni element menu: prawie pełna szerokość, do 1400 px.
+   Wyższy niż w kolumnie, żeby Everest nie był igłą. */
+.menu-profil {
+  box-sizing: border-box;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 max(var(--edge), 3vw) 80px;
+}
+
+.menu-profil .profil { margin: 0; }
+
+.menu-profil .profil svg { height: clamp(170px, 18vw, 300px); }
+
+/* Przebyta część grani w akcencie — przycina ją prostokąt ustawiany przez script.js */
+.profil-gran--przebyta {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+/* Szczyty w menu są celami: powiększenie po najechaniu, kliknięcie prowadzi do rozdziału */
+.menu-profil .profil-szczyt {
+  transition: transform 0.15s ease, background-color 0.15s, border-color 0.15s;
+}
+
+.menu-profil .profil-szczyt:hover {
+  transform: translate(-50%, 50%) scale(1.45);
+}
+
+.menu-profil .profil-szczyt:hover .profil-wys {
+  transform: translateX(-50%) scale(calc(1 / 1.45));   /* podpis nie rośnie razem z kropką */
+  transform-origin: 50% 100%;
+}
+
+.profil-czas { display: none; }
+
+.profil-szczyt:hover .profil-czas {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-quiet);
+}
+
+/* Rozdział, w którym jesteś: pełna kropka w akcencie z poświatą */
+.profil-szczyt.is-tu {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.profil-szczyt.is-tu .profil-wys { color: var(--text); }
+
+/* Ile zostało — wyśrodkowane pod rysunkiem, tym samym pismem co etykiety w „Sprzęcie”
+   (autor). Gdzie jesteś, mówi sama grań; podpis nie potrzebuje strzałki ani „jesteś tutaj”. */
+.profil-tu {
+  margin: 28px 0 0;
+  font: 12px/1 var(--mono);
+  letter-spacing: 0.08em;
+  text-align: center;
+  color: var(--text-quiet);
+}
+
+.profil-tu[hidden] { display: none; }
+
+.menu-ustawienia h2 {
+  margin-bottom: var(--line);
+}
+
+.opcja {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 56px;
+  border-top: 1px solid color-mix(in srgb, var(--rule) 60%, transparent);
+}
+
+.opcja-nazwa {
+  font: 12px/1 var(--mono);
+  letter-spacing: 0.08em;
+  color: var(--text-quiet);
+}
+
+.menu .reader button {
+  width: 44px;
+  height: 44px;
+}
+
+.menu .music-toggle.is-on { border-color: var(--accent); color: var(--accent); }
+
+/* Pliki w „Sprzęcie”: dwie pigułki, nazwa i rozmiar */
+.opcja-pliki {
+  display: flex;
+  gap: 8px;
+}
+
+.opcja-pliki a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  font: 11px/1 var(--mono);
+  letter-spacing: 0.08em;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.opcja-pliki a span { color: var(--text-quiet); }
+
+.opcja-pliki a:hover,
+.opcja-pliki a:focus-visible {
+  border-color: var(--text-quiet);
+  color: var(--accent);
+}
+
+/* Pasek postępu czytania nad intro nic nie mówi — postęp niesie sama sekwencja */
+.nad-zdjeciem .progress { opacity: 0; }
+
+@media (max-width: 40em) {
+  .tb-autor { letter-spacing: 0.1em; font-size: 10px; }
+  .menu-in { padding-top: 88px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .topbar, .tb-menu svg { transition: none; }
+  .menu { animation: none; }
+}
+
+@media print {
+  .topbar, .menu { display: none !important; }
 }

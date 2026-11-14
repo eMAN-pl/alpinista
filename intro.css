@@ -1,0 +1,155 @@
+/* ---------- Wejście: intro sterowane przewijaniem ----------
+   Spec: assets/alpinista-intro-spec.md. Odstępstwa (decyzje autora):
+   - kroje i style strony (Anton + Caveat w tytule, szeryf w cytatach, mono w etykietach),
+     a nie Instrument Serif / Newsreader / Plex z Google Fonts;
+   - sam tytuł, bez kickera i podtytułu;
+   - przedrostek we- w klasach i id, bo .intro, .layer, .title, .beat już na stronie są;
+   - korekty kolorów zdjęć wypalone w pliki (tools/intro.py), bez filter: na scenie;
+   - mgła kończy się w kolorze tła bieżącego motywu (--bg), nie w stałym --page-bg. */
+
+.wejscie {
+  --stage-ink: #1f262b;    /* tekst na zdjęciach — zawsze ciemny, niezależnie od motywu */
+  --stage-soft: #4d5961;
+  --stage-accent: #9b1d20; /* czerwień z jasnego motywu: na jasnej mgle ma 7:1 */
+  position: relative;
+  height: 1000vh;
+  margin-inline: calc(-1 * var(--edge));   /* article ma boczne marginesy; intro idzie od krawędzi */
+}
+
+.we-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: #cdd2d7;
+}
+
+.we-scene { position: absolute; inset: 0; will-change: opacity; }
+#we-sK, #we-sL { opacity: 0; }
+.we-plate { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
+.we-plate img {
+  position: absolute; inset: 0; display: block; width: 100%; height: 100%;
+  user-select: none; -webkit-user-drag: none;
+}
+.we-layer { position: absolute; inset: 0; will-change: transform; }
+
+#we-fog { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.we-fog-fallback { position: absolute; inset: 0; pointer-events: none; opacity: 0; background: var(--bg); }
+
+/* Tytuł: ten sam układ co dotąd — trzy wiersze Antonem i dopisek ręką — tylko na zdjęciu */
+.we-title {
+  position: absolute;
+  left: 0;
+  bottom: 10vh;
+  width: min(820px, 100%);
+  padding: 0 24px 0 max(24px, 6vw);
+  will-change: transform, opacity;
+}
+
+.we-title h1 {
+  font-size: clamp(2.6rem, 1.3rem + 3.4vw, 5.8rem);
+  color: var(--stage-ink);
+}
+
+.we-title .hand {
+  font-size: clamp(2.4rem, 1.2rem + 3.2vw, 5.4rem);
+  color: var(--stage-accent);
+}
+
+/* smugi chmur nad tytułem: stała szerokość kafla, żeby na szerokich ekranach nie robiły się długie pasy */
+.we-wisps {
+  --tile: 1300px;
+  position: absolute; left: 0; right: 0; bottom: -14vh; height: 56vh;
+  pointer-events: none; overflow: hidden; will-change: opacity, transform;
+}
+.we-wisps i {
+  position: absolute; left: 0; top: 0; width: calc(100% + var(--tile)); height: 100%;
+  background-repeat: repeat-x; background-size: var(--tile) 100%;
+  animation: we-drift 80s linear infinite; will-change: transform;
+}
+.we-wisps .w1 { background-image: url(assets/web/intro/wisp1.webp); }
+.we-wisps .w2 { background-image: url(assets/web/intro/wisp2.webp); top: 18%; height: 76%; animation-duration: 52s; opacity: .85; }
+@keyframes we-drift { to { transform: translate3d(calc(-1 * var(--tile)), 0, 0); } }
+
+/* Cytaty: szeryf tekstu, bez kursywy, wszystkie jednego stopnia; etykieta monospace jak metryczka */
+.we-beat {
+  position: absolute;
+  max-width: 30ch;
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(19px, 1.8vw, 26px);
+  line-height: 1.35;
+  color: var(--stage-ink);
+  opacity: 0;
+  will-change: opacity, transform;
+}
+.we-beat small {
+  display: block;
+  margin-bottom: 12px;
+  font: 11px/1 var(--mono);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--stage-soft);
+}
+#we-bZ { left: max(24px, 6vw); top: 16vh; }
+#we-bH { inset: 0; margin: auto; height: fit-content; max-width: 30ch; padding: 0 24px; text-align: center; text-wrap: balance; }
+#we-bV { right: max(24px, 6vw); top: 26vh; max-width: 28ch; }
+
+.we-flash {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  background: radial-gradient(120% 85% at 68% 6%, rgba(255, 255, 255, .97), rgba(226, 233, 246, .6) 42%, rgba(210, 220, 238, .15) 72%, transparent 90%);
+}
+
+/* Wskazówka na środku dołu (decyzja autora): w prawym rogu na telefonie wchodziła w tytuł,
+   a na szerokim ekranie ginęła daleko od niego. */
+.we-hint {
+  position: absolute; left: 0; right: 0; bottom: 26px; width: max-content; margin-inline: auto;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  font: 11px/1 var(--mono); letter-spacing: .2em; text-transform: uppercase; text-align: center;
+  color: var(--stage-soft);
+}
+.we-hint b { font-weight: 400; letter-spacing: .14em; opacity: .8; }
+.we-hint i {
+  display: block; width: 1px; height: 38px;
+  background: linear-gradient(var(--stage-soft), transparent);
+  animation: we-drip 2.2s ease-in-out infinite;
+}
+@keyframes we-drip {
+  0% { transform: scaleY(0); transform-origin: top; }
+  45% { transform: scaleY(1); transform-origin: top; }
+  55% { transform: scaleY(1); transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+
+/* Tekst po intro wchodzi na ostatnie ekrany sceny (już w kolorze tła), żeby po zejściu
+   mgły nie zostawał pusty ekran samego tła (spec §9). */
+/* −25vh: tekst wchodzi dopiero, gdy mgła ma już kolor strony (p ≈ .972 > .97) */
+.wejscie + * { position: relative; z-index: 2; margin-top: -25vh; }
+
+@media (min-width: 1800px) {
+  .we-hint { font-size: 12px; bottom: 34px; }
+  .we-hint i { height: 48px; }
+}
+
+@media (max-width: 760px) {
+  .we-wisps { --tile: 760px; }
+  .we-title { bottom: 17vh; width: 100%; padding: 0 24px; }
+  #we-bZ { left: 24px; right: 24px; top: 12vh; }
+  #we-bH { max-width: none; }
+  #we-bV { left: 24px; right: 24px; top: 15vh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .we-wisps i, .we-hint i { animation: none; }
+}
+
+/* Druk: z intro zostaje sam tytuł jako strona tytułowa */
+@media print {
+  .wejscie { height: auto; margin: 0 0 2rem; }
+  .we-stage { position: static; height: auto; overflow: visible; background: none; }
+  .we-scene, #we-fog, .we-fog-fallback, .we-wisps, .we-flash, .we-beat, .we-hint { display: none !important; }
+  .we-title { position: static; width: auto; padding: 0; opacity: 1 !important; transform: none !important; }
+  .we-title h1 { color: #000; }
+  .wejscie + * { margin-top: 0; }
+}

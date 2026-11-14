@@ -21,7 +21,6 @@
   const order = new Map(sections.map((section, i) => [section.id, i]));
 
   const PLACE_KEY = "alpinista:miejsce";   // localStorage: rozdział + miejsce w nim
-  const EFFECTS_KEY = "alpinista:efekty";  // localStorage: wybór z przełącznika w stopce
   const SAVE_EVERY = 1000;                 // zapis najwyżej raz na sekundę
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
@@ -29,6 +28,7 @@
   let queued = false;
   let lastSave = 0;
   let resume = null;                       // pasek „wróć tam”, jeśli jest pokazany
+  let lastY = window.scrollY;              // kierunek przewijania (górny pasek)
 
   function update() {
     queued = false;
@@ -67,8 +67,16 @@
       links.get(current)?.removeAttribute("aria-current");
       links.get(active)?.setAttribute("aria-current", "location");
       current = active;
-      updateRouteLabel(active);
     }
+
+    // Górny pasek: nad intro zawsze widoczny; w tekście chowa się przy przewijaniu w dół
+    // i wraca przy przewijaniu w górę — nie zasłania czytanego wiersza.
+    const y = window.scrollY;
+    const wTekscie = active !== null;
+    const wDol = y > lastY + 4, wGore = y < lastY - 4;
+    if (!wTekscie || wGore) document.documentElement.classList.remove("tb-schowany");
+    else if (wDol && !menuOpen()) document.documentElement.classList.add("tb-schowany");
+    if (wDol || wGore) lastY = y;
 
     // Miejsce czytania: zapisujemy tylko rozdziały (powrót do wstępu nie kasuje miejsca)
     const now = performance.now();
@@ -96,14 +104,9 @@
     return value;
   }
 
-  // Efekty: wybór czytelnika z przełącznika, a bez wyboru — ustawienie systemowe „ogranicz ruch”
+  // Efekty: przełącznik „wyłącz efekty” usunięty (autor, 2026-11-14) — efekty uruchamia
+  // sam czytelnik kliknięciem. Zostaje tylko systemowe „ogranicz ruch”.
   function effectsEnabled() {
-    try {
-      const stored = localStorage.getItem(EFFECTS_KEY);
-      if (stored) return stored === "on";
-    } catch {
-      // bez pamięci — decyduje ustawienie systemowe
-    }
     return !reduceMotion.matches;
   }
 
@@ -296,7 +299,7 @@
   function cardColors() {
     const style = getComputedStyle(document.documentElement);
     return {
-      bg: style.getPropertyValue("--bg").trim() || "#1a1917",
+      bg: style.getPropertyValue("--bg").trim() || "#16191c",
       text: style.getPropertyValue("--text-strong").trim() || "#f7f3ea",
       quiet: style.getPropertyValue("--text-quiet").trim() || "#ada79c",
       accent: style.getPropertyValue("--accent").trim() || "#ff6250",
@@ -487,60 +490,107 @@
     }
   }
 
-  // --- Trasa na węższych ekranach ---
-  // Boczny spis mieści się dopiero od 85em. Niżej: okrągły przycisk w prawym dolnym rogu
-  // (ikona mapy, Lucide, ISC) otwiera ten sam spis jako panel od dołu ekranu.
-  // Stoi tam przez cały czas czytania, a pierścień wokół niego pokazuje postęp.
-  const nav = document.querySelector(".profile-nav");
-  const wide = matchMedia("(min-width: 85em)");
-  const routeButton = document.createElement("button");
-  const backdrop = document.createElement("div");
-  routeButton.type = "button";
-  routeButton.className = "route-toggle";
-  routeButton.setAttribute("aria-controls", "trasa");
-  routeButton.setAttribute("aria-expanded", "false");
-  routeButton.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
-    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-    <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/>
-    <path d="M15 5.764v15"/><path d="M9 3.236v15"/></svg>`;
-  backdrop.className = "route-backdrop";
-  backdrop.hidden = true;
-  nav.id = "trasa";
-  document.body.append(backdrop, routeButton);
+  // --- Menu: spis treści i ustawienia na pełnym ekranie ---
+  // Zastępuje okrągły przycisk trasy w rogu i panel od dołu (autor, 2026-11-14).
+  // Ikona menu zamienia się w ×; Esc i kliknięcie w rozdział zamykają; fokus nie ucieka.
+  const menu = document.getElementById("menu");
+  const menuButton = document.querySelector(".tb-menu");
+  const menuOpen = () => menuButton?.getAttribute("aria-expanded") === "true";
 
-  function updateRouteLabel(id) {
-    const section = id ? document.getElementById(id) : null;
-    const name = section?.dataset.nazwa ?? "";
-    const number = section?.dataset.numer;
-    const label = !section || section === intro ? "start" : `${number} · ${name}`;
-    routeButton.setAttribute("aria-label", `Rozdziały i ustawienia, teraz: ${label}`);
-  }
-
-  const routeOpen = () => routeButton.getAttribute("aria-expanded") === "true";
-
-  function setRoute(open) {
-    if (open === routeOpen()) return;
-    routeButton.setAttribute("aria-expanded", String(open));
-    document.documentElement.classList.toggle("route-open", open);
-    backdrop.hidden = !open;
+  function setMenu(open) {
+    if (!menu || open === menuOpen()) return;
+    setDownloads(false);
+    menuButton.setAttribute("aria-expanded", String(open));
+    menuButton.setAttribute("aria-label", open ? "Zamknij menu" : "Spis treści i ustawienia");
+    document.documentElement.classList.toggle("menu-open", open);
+    menu.hidden = !open;
     if (open) {
-      const link = nav.querySelector("[aria-current]") ?? nav.querySelector("a");
-      nav.scrollTop = link.closest("li").offsetTop - nav.clientHeight / 2;   // bieżący rozdział na środku panelu
-      link.focus({ preventScroll: true });
-    } else if (nav.contains(document.activeElement)) {
-      routeButton.focus({ preventScroll: true });
+      updateProfil();
+      document.documentElement.classList.remove("tb-schowany");
+      const link = menu.querySelector(`.route a[href="#${current}"]`) ?? menu.querySelector(".route a");
+      link?.focus({ preventScroll: true });
+    } else {
+      menuButton.focus({ preventScroll: true });
     }
   }
 
-  routeButton.addEventListener("click", () => setRoute(!routeOpen()));
-  backdrop.addEventListener("click", () => setRoute(false));
-  nav.addEventListener("click", (event) => {
-    if (event.target.closest("a")) setRoute(false);
+  // --- Profil trasy w menu: „jesteś tutaj”, przebyta grań, ile zostało ---
+  // Oś pozioma rysunku to czas czytania (build.py), więc położenie w rozdziale przekłada
+  // się wprost na miejsce na grani. Bez czytania: ostatnio zapamiętane miejsce.
+  const profilMenu = menu?.querySelector(".profil");
+  function updateProfil() {
+    if (!profilMenu) return;
+    const odcinki = JSON.parse(profilMenu.dataset.odcinki);
+    const razem = Number(profilMenu.dataset.razem);
+    const tu = profilMenu.querySelector(".profil-tu");
+    const rect = profilMenu.querySelector(".profil-przebyte");
+    let id = current, frakcja = 0;
+    if (id) {
+      const box = document.getElementById(id).getBoundingClientRect();
+      frakcja = Math.min(1, Math.max(0, (innerHeight / 3 - box.top) / Math.max(1, box.height)));
+    } else {
+      const miejsce = readPlace();
+      if (miejsce && odcinki[miejsce.id]) {
+        id = miejsce.id;
+        frakcja = miejsce.fraction;
+      }
+    }
+    profilMenu.querySelectorAll(".profil-szczyt.is-tu").forEach((a) => a.classList.remove("is-tu"));
+    if (!id || !odcinki[id]) {
+      tu.hidden = true;
+      rect.setAttribute("width", 0);
+      return;
+    }
+    const [od, doX] = odcinki[id];
+    const x = od + (doX - od) * frakcja;
+    let przed = 0;
+    for (const [klucz, [, , min]] of Object.entries(odcinki)) {
+      if (klucz === id) { przed += min * frakcja; break; }
+      przed += min;
+    }
+    const zostalo = Math.round(razem - przed);
+    rect.setAttribute("width", x.toFixed(1));
+    profilMenu.querySelector(`.profil-szczyt[href="#${id}"]`)?.classList.add("is-tu");
+    // Miejsce widać na grani (czerwień i kropka) — podpis mówi tylko, ile zostało (autor)
+    tu.textContent = `do końca drogi ok. ${zostalo} min`;
+    tu.hidden = zostalo <= 0;
+  }
+
+  menuButton?.addEventListener("click", () => setMenu(!menuOpen()));
+  menu?.addEventListener("click", (event) => {
+    if (event.target.closest("a[href^='#']")) setMenu(false);
   });
+  // Tab krąży między menu a przyciskiem zamknięcia — nie wpada w tekst pod spodem
   addEventListener("keydown", (event) => {
-    if (event.key === "Escape") setRoute(false);
+    if (event.key !== "Tab" || !menuOpen()) return;
+    const items = [menuButton, ...menu.querySelectorAll("a[href], button:not([disabled])")];
+    const at = items.indexOf(document.activeElement);
+    const next = event.shiftKey ? (at <= 0 ? items.length - 1 : at - 1) : (at + 1) % items.length;
+    event.preventDefault();
+    items[next].focus();
   });
-  wide.addEventListener("change", () => setRoute(false));
+
+  // --- Pobieranie: mała lista pod ikoną ---
+  const dlButton = document.getElementById("tb-pobierz");
+  const dlList = document.getElementById("pobierz");
+  function setDownloads(open) {
+    if (!dlButton) return;
+    dlButton.setAttribute("aria-expanded", String(open));
+    dlList.hidden = !open;
+  }
+  dlButton?.addEventListener("click", (event) => {
+    event.stopPropagation();
+    setDownloads(dlList.hidden);
+  });
+  document.addEventListener("click", (event) => {
+    if (dlList && !dlList.hidden && !event.target.closest(".tb-pobierz")) setDownloads(false);
+  });
+
+  addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    if (dlList && !dlList.hidden) { setDownloads(false); dlButton.focus(); }
+    else setMenu(false);
+  });
 
   // --- Czytanie: stopień pisma i motyw ---
   // Trzy stopnie pisma i jasny/ciemny. Wybór pamiętany; bez wyboru decyduje system.
@@ -581,17 +631,23 @@
   bigger.textContent = "A+";
   smaller.setAttribute("aria-label", "Mniejszy tekst");
   bigger.setAttribute("aria-label", "Większy tekst");
-  reader.append(smaller, bigger, themeButton());
 
-  // Szeroki ekran: zestaw w prawym dolnym rogu. Węższy: w panelu z trasą, bo róg
-  // zajmuje przycisk trasy. Ekran tytułowy zostaje bez przełącznika motywu (autor).
-  function placeReader() {
-    if (wide.matches) document.body.append(reader);
-    else nav.append(reader);
+  // Ustawienia mieszkają w menu: dwa wiersze, nazwa i przyciski (autor, 2026-11-14)
+  const opcje = document.querySelector(".menu-opcje");
+  function opcja(nazwa, ...przyciski) {
+    const wiersz = document.createElement("div");
+    wiersz.className = "opcja";
+    const etykieta = document.createElement("span");
+    etykieta.className = "opcja-nazwa";
+    etykieta.textContent = nazwa;
+    const grupa = document.createElement("div");
+    grupa.className = "reader";
+    grupa.append(...przyciski);
+    wiersz.append(etykieta, grupa);
+    return wiersz;
   }
-
-  placeReader();
-  wide.addEventListener("change", placeReader);
+  reader.replaceChildren();
+  opcje?.append(opcja("Rozmiar tekstu", smaller, bigger), opcja("Motyw", themeButton()));
 
   let size = Number(remember(SIZE_KEY) ?? 1);
 
@@ -607,7 +663,9 @@
     document.documentElement.dataset.theme = next;
     // pasek adresu na telefonie idzie za motywem strony, a nie za ustawieniem systemu
     const bar = document.querySelector('meta[name="theme-color"]');
-    if (bar) bar.content = next === "jasny" ? "#f2eee5" : "#1a1917";
+    if (bar) bar.content = next === "jasny" ? "#eceeef" : "#16191c";
+    // intro kończy się mgłą w kolorze tła — po zmianie motywu musi wziąć nowe --bg
+    dispatchEvent(new Event("theme-change"));
     const label = next === "jasny" ? "Tryb ciemny" : "Tryb jasny";
     for (const button of themeButtons) {
       button.setAttribute("aria-label", label);
@@ -686,7 +744,8 @@
   musicButton.className = "music-toggle";
   musicButton.innerHTML = ikona('<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>');
   musicButton.setAttribute("aria-pressed", "false");
-  reader.append(musicButton);
+  const tbMuzyka = document.querySelector(".tb-muzyka") ?? reader;   // nuta w górnym pasku (bez zmian działania)
+  tbMuzyka.append(musicButton);
 
   // Podpis wymagany licencją: gdy muzyka gra, widać autora, utwór i licencję.
   const musicNow = document.createElement("p");
@@ -703,7 +762,7 @@
   prevButton.setAttribute("aria-label", "Poprzedni utwór");
   nextButton.setAttribute("aria-label", "Następny utwór");
   musicNow.append(prevButton, musicName, nextButton);
-  reader.append(musicNow);
+  tbMuzyka.append(musicNow);
 
   // Podpis nie wisi przez cały esej: pokazuje się przy starcie i przy zmianie utworu,
   // potem gaśnie, a wraca na najechanie albo fokus. Trwałą atrybucję — tego wymaga
@@ -870,6 +929,24 @@
 
   setMusic(false);
   musicButton.addEventListener("click", () => setMusic(!muzykaOn));
+
+  // Ten sam przełącznik muzyki w menu („Sprzęt”) — w otwartym menu ikony z rogu znikają.
+  // To tylko drugi uchwyt do setMusic: stan czyta z nuty w pasku, więc nic się nie rozjedzie.
+  if (opcje) {
+    const menuMusic = document.createElement("button");
+    menuMusic.type = "button";
+    menuMusic.className = "music-toggle";
+    menuMusic.innerHTML = musicButton.innerHTML;
+    const sync = () => {
+      menuMusic.setAttribute("aria-pressed", musicButton.getAttribute("aria-pressed"));
+      menuMusic.setAttribute("aria-label", musicButton.getAttribute("aria-label"));
+      menuMusic.classList.toggle("is-on", musicButton.classList.contains("is-on"));
+    };
+    menuMusic.addEventListener("click", () => { setMusic(!muzykaOn); sync(); });
+    musicButton.addEventListener("click", sync);
+    sync();
+    opcje.append(opcja("Muzyka do czytania", menuMusic));
+  }
   prevButton.addEventListener("click", () => przeskocz(-1));
   nextButton.addEventListener("click", () => przeskocz(1));
 
@@ -936,40 +1013,6 @@
       obserwator.disconnect();
     }, { rootMargin: "0px 0px 150% 0px" }).observe(finalSection);
   }
-
-  // --- Przełącznik efektów (stopka) ---
-  // Jedno miejsce dla wszystkiego, co się rusza: scen rozdziałów, paralaksy szkiców
-  // i efektów przy słowach. Wybór pamiętany w localStorage; bez wyboru decyduje system.
-  const colophon = document.querySelector(".colophon-utils");
-  const toggle = document.createElement("button");
-  toggle.type = "button";
-  toggle.className = "effects-toggle";
-  colophon?.append(toggle);
-
-  function setEffects(on) {
-    window.Efekty?.wlacz(on);
-    try {
-      localStorage.setItem(EFFECTS_KEY, on ? "on" : "off");
-    } catch {
-      // bez pamięci wybór działa do końca wizyty
-    }
-    document.documentElement.classList.toggle("effects-off", !on);
-    toggle.textContent = on ? "wyłącz efekty" : "włącz efekty";
-  }
-
-  toggle.addEventListener("click", () => setEffects(document.documentElement.classList.contains("effects-off")));
-  setEffects(effectsEnabled());
-
-  // Zmiana ustawienia „ogranicz ruch” działa tylko wtedy, gdy czytelnik sam nic nie wybrał
-  reduceMotion.addEventListener("change", (event) => {
-    let stored = null;
-    try {
-      stored = localStorage.getItem(EFFECTS_KEY);
-    } catch {
-      // bez pamięci idziemy za ustawieniem systemu
-    }
-    if (!stored) setEffects(!event.matches);
-  });
 
   // --- Druk i PDF: szkice ładują się dopiero przy przewijaniu — przed drukiem wszystkie ---
   addEventListener("beforeprint", () => {

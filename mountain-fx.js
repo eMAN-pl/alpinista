@@ -70,7 +70,7 @@
 
   const root = document.documentElement;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
-  const enabled = () => !reduce.matches && !root.classList.contains('effects-off');
+  const enabled = () => !reduce.matches;   // przełącznik „wyłącz efekty” usunięty 2026-11-14
   const pct = v => (v / 10) + '%';
   const rnd = (a, b) => a + Math.random() * (b - a);
   const sm = (a, b, x) => { const u = Math.min(1, Math.max(0, (x - a) / (b - a))); return u * u * (3 - 2 * u); };
