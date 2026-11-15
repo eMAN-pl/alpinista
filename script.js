@@ -454,11 +454,49 @@
     });
   }
 
+  // Podpowiedź przy pierwszym zapalniku eseju: kropkowana kreska wygląda jak odnośnik do
+  // słowniczka i nikt nie wie, że to się klika. Dopisek „kliknij” pojawia się raz, gdy
+  // fraza wjedzie na ekran, i znika na dobre po pierwszym uruchomieniu dowolnego efektu.
+  const PODPOWIEDZ = "alpinista:zapalnik";
+  let podpowiedz = null;
+  const zapalnikUzyty = () => {
+    podpowiedz?.classList.remove("fx-podpowiedz");
+    podpowiedz = null;
+    try { localStorage.setItem(PODPOWIEDZ, "1"); } catch { /* bez pamięci dopisek wróci przy następnej wizycie */ }
+  };
+  (() => {
+    let widziana = false;
+    try { widziana = localStorage.getItem(PODPOWIEDZ) === "1"; } catch { /* jw. */ }
+    const pierwszy = article.querySelector('[data-fx][role="button"]');
+    if (widziana || !pierwszy || !effectsEnabled()) return;
+    new IntersectionObserver(([wpis], obserwator) => {
+      if (!wpis.isIntersecting) return;
+      obserwator.disconnect();
+      podpowiedz = pierwszy;
+      pierwszy.classList.add("fx-podpowiedz");
+    }, { rootMargin: "-25% 0px -25% 0px" }).observe(pierwszy);
+  })();
+
   article.addEventListener("click", (event) => {
     const button = event.target.closest("[data-fx]");
     if (!button || !effectsEnabled() || !getSelection().isCollapsed) return;
+    zapalnikUzyty();
     if (button.dataset.fx === "wtf-stary") glitch(button);
     else uruchomEfekt(button, event);
+  });
+
+  // Zapalnik jest tekstem z rolą przycisku (build.py), więc klawiaturę obsługujemy sami:
+  // Enter i spacja na zapalniku z fokusem działają jak kliknięcie.
+  article.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    const button = event.target.closest?.('[data-fx][role="button"]');
+    if (!button || button !== event.target) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (!effectsEnabled()) return;
+    zapalnikUzyty();
+    if (button.dataset.fx === "wtf-stary") glitch(button);
+    else uruchomEfekt(button);
   });
 
   // Prawdziwy klawisz Enter uruchamia „Enter.”, gdy fraza jest w środku ekranu i nic nie ma fokusu
@@ -536,6 +574,17 @@
       }
     }
     profilMenu.querySelectorAll(".profil-szczyt.is-tu").forEach((a) => a.classList.remove("is-tu"));
+    // To samo na liście „Trasa”: przeczytane rozdziały przygasają, bieżący dostaje kropkę.
+    // Stan musi być widać także przy myszy i dotyku — sam fokus widać tylko z klawiatury.
+    const klucze = Object.keys(odcinki);
+    const gdzie = id ? klucze.indexOf(id) : -1;
+    for (const link of menu.querySelectorAll(".route ol a")) {
+      const nr = klucze.indexOf(link.hash.slice(1));
+      link.classList.toggle("is-za", gdzie > -1 && nr > -1 && nr < gdzie);
+      link.classList.toggle("is-tu", gdzie > -1 && nr === gdzie);
+      if (gdzie > -1 && nr === gdzie) link.setAttribute("aria-current", "location");
+      else link.removeAttribute("aria-current");
+    }
     if (!id || !odcinki[id]) {
       tu.hidden = true;
       rect.setAttribute("width", 0);

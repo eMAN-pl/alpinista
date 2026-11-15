@@ -5,7 +5,7 @@
    których strona nie ma: barwy śniegu, szronu, światła i chłodnego tła. */
 
 :root {
-  --fg-rgb: 214, 209, 198;      /* smugi i duchy liter — ton --text */
+  --fg-rgb: 211, 216, 220;      /* smugi i duchy liter — ton --text (chłodna paleta) */
   --glow-rgb: 255, 226, 165;    /* świetliki */
   --snow-rgb: 240, 244, 250;    /* płatki i smugi wiatru */
   --fog-rgb: 226, 231, 238;     /* mgła zamieci */
@@ -17,20 +17,25 @@
   --vig-rgb: 6, 6, 9;           /* tunel braku tlenu */
   --cold: #17202c;              /* tło przy szronie i burzy */
   --pink: #ff5fa2;              /* bidon — jedyny róż na stronie */
+  --wind-rgb: 240, 244, 250;    /* smugi wiatru */
+  --frosttext-rgb: 205, 228, 248;   /* tekst pod szronem */
+  --frostbg: #0c1c33;           /* tło strony pod szronem: zimny granat */
 }
 
 :root[data-theme="jasny"] {
-  --fg-rgb: 43, 40, 34;
+  --fg-rgb: 37, 42, 47;
   --glow-rgb: 255, 214, 140;
   --snow-rgb: 150, 166, 186;
   --fog-rgb: 236, 240, 245;
-  --frost-rgb: 150, 190, 228;
+  --frost-rgb: 205, 228, 248;    /* jak w ciemnym: szron pożycza noc (efekty.js, paleta nocna) */
   --powder-rgb: 150, 166, 190;
   --pile-rgb: 253, 254, 255;
   --pileshade-rgb: 110, 130, 165;
   --crack-rgb: 20, 17, 15;
-  --cold: #dde8f3;
+  --cold: #17202c;
   --pink: #e83e8c;
+  --wind-rgb: 84, 98, 118;
+  --frosttext-rgb: 205, 228, 248;
 }
 
 /* Layout: jedna kolumna jak na stronie eseju. Efekty działają na trzech warstwach: płótno za tekstem, sam tekst (rozmycie, przesunięcie, pęknięcie) i płótno nad tekstem. */
@@ -53,8 +58,8 @@ canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
 .crackwrap > p{position:absolute;left:0;top:0;width:100%;margin:0!important;will-change:transform}
 .film {
   position: fixed;
-  right: 40px;                 /* ta sama krawędź co oś nawigacji i zestaw do czytania */
-  bottom: 84px;                /* nad zestawem A− / A+ / motyw */
+  right: 40px;                 /* ta sama krawędź co oś nawigacji */
+  bottom: 28px;                /* w rogu — zestaw A− / A+ / motyw przeszedł do menu */
   z-index: 26;
   font: 11px/1 var(--mono);
   letter-spacing: 0.1em;
@@ -71,7 +76,7 @@ canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
 @media (max-width: 51.25em) {
   .film {
     right: var(--edge);
-    bottom: calc(84px + env(safe-area-inset-bottom));   /* nad okrągłym przyciskiem trasy */
+    bottom: calc(20px + env(safe-area-inset-bottom));
   }
 }
 .film.show{opacity:1}
@@ -92,7 +97,7 @@ canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
   color-mix(in srgb, var(--text) 12%, var(--bg)) 100%);
   background-size:260% 100%;animation:shimmer 1.15s linear infinite}
 .is-loading{color:transparent !important}
-.is-loading button{color:transparent !important;text-decoration-color:transparent !important}
+.is-loading [data-fx]{color:transparent !important;text-decoration-color:transparent !important}
 .ripple{position:absolute;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;
   border:1.5px solid var(--accent);animation:rip .5s ease-out forwards}
 @keyframes shimmer{from{background-position:120% 0}to{background-position:-120% 0}}
@@ -109,3 +114,22 @@ canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
 .chat .input{margin-top:10px;border:1px solid var(--rule);border-radius:999px;padding:8px 14px;color:var(--text-quiet);display:flex;justify-content:space-between;gap:10px}
 .chat .input .cur::after{content:"▍";color:var(--text);animation:blink .9s steps(1) infinite}
 @keyframes pop{from{transform:translateY(6px);opacity:0}to{transform:none;opacity:1}}
+
+/* Długo: rozmowa z dzieckiem — dymki bez ramki, pismem tekstu (Enter ma ramkę i pismo maszynowe) */
+.czat-dziecka{display:flex;flex-direction:column;gap:6px;max-width:27rem;margin:2px 0 22px;font-size:.9em;line-height:1.45;overflow:hidden;transition:opacity .6s,max-height .8s ease,margin .8s ease}
+.dymek{display:flex;align-items:flex-end;gap:8px;max-width:88%;animation:pop .22s ease-out}
+.dymek span{padding:8px 13px;border-radius:15px}
+.dymek.dziecko{align-self:flex-start}
+.dymek.dziecko span{background:color-mix(in srgb,var(--text) 11%,var(--bg));border-bottom-left-radius:4px}
+.dymek.dziecko img{flex:none;width:36px;height:36px;border-radius:50%;object-fit:cover}
+.dymek.dziecko.ciag img{visibility:hidden}
+.dymek.tata{align-self:flex-end}
+.dymek.tata span{border:1px solid var(--text-quiet);border-bottom-right-radius:4px}
+.dymek .pisze{display:inline-flex;align-items:center;gap:4px;min-height:1.45em}
+.pisze i{width:5px;height:5px;border-radius:50%;background:var(--text-quiet);animation:pisze 1s infinite}
+.pisze i:nth-child(2){animation-delay:.15s}
+.pisze i:nth-child(3){animation-delay:.3s}
+@keyframes pisze{0%,60%,100%{opacity:.3;transform:none}30%{opacity:1;transform:translateY(-2px)}}
+
+/* Błysk: ciche liczenie sekund do grzmotu, dopisane za linijką */
+.fx-licznik{margin-left:.9em;font:.72em/1 var(--mono);letter-spacing:.2em;color:var(--text-quiet);white-space:nowrap}

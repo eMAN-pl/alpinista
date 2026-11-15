@@ -36,11 +36,10 @@
   const env = (p, a=.15, b=.25) => p < a ? smooth(p/a) : (p > 1-b ? smooth((1-p)/b) : 1);
   const R = Math.random, TAU = Math.PI*2;
   const colRect = () => main.getBoundingClientRect();
+  const rama = main.parentElement && main.parentElement !== document.body ? main.parentElement : null;
 
-  // 4.18 Długooo: drugi argument tego samego dziecka, w HUD-zie, a nie w akapicie —
-  // z tekstu („Ból dziecięcych nóg.”), a dopisywanie zdań do akapitu autor odrzucił przy Klik.
-  // Wcześniej rozważane: „jeszcze daleko?”.
-  const DLUGO_HUD = 'Noooogi mnie bolą!';
+  // katalog strony liczony od adresu tego skryptu: avatar ma działać także ze strony testowej w robocze/
+  const BAZA = document.currentScript && document.currentScript.src ? new URL('.', document.currentScript.src).href : '';
 
   /* ================= efekty ================= */
   const FX = {
@@ -139,10 +138,10 @@
         s.comp = document.createElement('canvas'); s.comp.width = fi.width; s.comp.height = fi.height;
         s.cc = s.comp.getContext('2d');
         const tg = s.target; tg.style.transition = 'color 1.4s, text-shadow 1.4s';
-        tg.style.color = `rgb(${fr})`; tg.style.textShadow = `0 0 4px rgba(${fr},.6)`;
+        tg.style.color = `rgb(${v('--frosttext-rgb')})`; tg.style.textShadow = `0 0 4px rgba(${fr},.6)`;
       },
       stop(s){ const tg = s.target; tg.style.color = ''; tg.style.textShadow = ''; setTimeout(() => tg.style.transition = '', 1500); },
-      draw(c, s, p, t, dt, M){
+      draw(c, s, p, t, dt, M, cb){
         const grow = 1 - Math.pow(1 - clamp(p/.55,0,1), 2.4), melt = 1 - smooth((p-.74)/.26);
         const th = .5*grow*melt - .02, d = s.img.data, tm = s.tm;
         for (let i=0;i<tm.length;i++) d[i*4+3] = clamp((th - tm[i])/.045, 0, 1)*255;
@@ -153,7 +152,15 @@
         cc.globalCompositeOperation = 'destination-in'; cc.imageSmoothingEnabled = true; cc.drawImage(s.mask, 0, 0, w, h);
         c.drawImage(s.comp, 0, 0, W, H);
         const fe = Math.max(0, th)*Math.min(W,H)*.62;
-        M.cold = Math.max(M.cold, .9*Math.min(1, th*3.5)*Math.min(1, p/.12));
+        const ziab = Math.min(1, Math.max(0, th)*3.5)*Math.min(1, p/.12);
+        M.cold = Math.max(M.cold, ziab); M.coldVar = '--frostbg';
+        M.noc = Math.max(M.noc, Math.min(1, Math.max(0, th)*4)*Math.min(1, p/.12));
+        // Poświata za tekstem: zimne światło wchodzi od krawędzi razem ze szronem, środek
+        // zostaje ciemny — tło zamarza, a nie tylko zmienia odcień (autor, 2026-11-15).
+        const R1 = Math.hypot(W, H)*.62, po = cb.createRadialGradient(W/2, H/2, R1*.18, W/2, H/2, R1);
+        po.addColorStop(0, rgba('--frost-rgb', 0)); po.addColorStop(.6, rgba('--frost-rgb', .1*ziab));
+        po.addColorStop(1, rgba('--frost-rgb', .34*ziab));
+        cb.fillStyle = po; cb.fillRect(0, 0, W, H);
         M.frost = {fe, fr: fe*1.7, fb: 9*Math.min(1, th*4), fa: .16*Math.min(1, th*4)};
       }},
 
@@ -165,7 +172,7 @@
       draw(c, s, p, t, dt, M){
         const e = env(p,.12,.2), cx = W/2;
         c.fillStyle = `rgba(3,4,9,${(.74*e).toFixed(3)})`; c.fillRect(0,0,W,H);
-        M.sat *= 1 - .7*e;
+        M.sat *= 1 - .7*e; M.noc = Math.max(M.noc, e);
         c.globalCompositeOperation = 'lighter';
         for (const l of s.l) {
           const q = clamp((p-l.d)/.6*l.sp,0,1); if (q <= 0) continue;
@@ -188,6 +195,9 @@
         c.globalCompositeOperation = 'source-over';
       }},
 
+    /* Szczelina — wersja pierwotna, przywrócona na życzenie autora (2026-11-15). Próby
+       „poprawy” (szersza z lodem, ściany z brył, samo rozsunięcie) autor odrzucił:
+       ta była najciekawsza. Nie przerabiać bez jego prośby. */
     szczelina: { dur: 4200,
       init(s){
         const tg = s.target, r = tg.getBoundingClientRect(), mr = main.getBoundingClientRect();
@@ -199,7 +209,7 @@
         s.pts.push([w, s.pts[s.pts.length-1][1]]);
         const P = a => a.map(([x,y]) => `${x.toFixed(1)}px ${y.toFixed(1)}px`).join(',');
         const top = tg.cloneNode(true), bot = tg.cloneNode(true);
-        [top, bot].forEach(n => { n.removeAttribute('id'); n.querySelectorAll('button').forEach(b => b.setAttribute('tabindex','-1')); });
+        [top, bot].forEach(n => { n.removeAttribute('id'); n.querySelectorAll('[data-fx]').forEach(b => b.setAttribute('tabindex','-1')); });
         top.style.clipPath = `polygon(0px -60px, ${w}px -60px, ${P(s.pts.slice().reverse())})`;
         bot.style.clipPath = `polygon(${P(s.pts)}, ${w}px ${h+60}px, 0px ${h+60}px)`;
         wrap.append(top, bot); main.appendChild(wrap); tg.style.visibility = 'hidden';
@@ -266,7 +276,7 @@
       draw(c, s, p, t, dt, M){
         const e = env(p,.08,.2), k = dt/16, tms = p*this.dur;
         c.fillStyle = `rgba(2,3,7,${(.72*e).toFixed(3)})`; c.fillRect(0,0,W,H);
-        M.op *= 1 - .3*e; M.sat *= 1 - .8*e; M.cold = Math.max(M.cold, .55*e);
+        M.op *= 1 - .3*e; M.sat *= 1 - .8*e; M.cold = Math.max(M.cold, .55*e); M.noc = Math.max(M.noc, e);
         let f = 0, fx = W/2;
         for (const st of s.strikes) {
           const d = tms - st.at*this.dur;
@@ -328,7 +338,7 @@
           const przed = o.x;
           o.x += sp*o.m*k; o.y += Math.sin(o.x/70+o.ph)*.8*k;
           const len = sp*o.m*2.2, ctx = o.fr ? c : cb;
-          ctx.strokeStyle = rgba('--snow-rgb', (o.fr ? .5 : .28)*e); ctx.lineWidth = o.fr ? o.r*1.4 : o.r;
+          ctx.strokeStyle = rgba('--wind-rgb', (o.fr ? .5 : .28)*e); ctx.lineWidth = o.fr ? o.r*1.4 : o.r;
           ctx.beginPath(); ctx.moveTo(o.x-len,o.y); ctx.lineTo(o.x,o.y); ctx.stroke();
           // smuga liczy się tylko w chwili, gdy wchodzi na kolumnę, i tym mocniej, im bliżej
           if (przed < lewa && o.x >= lewa && o.y > gora && o.y < dol) uderzenie += o.m*(o.fr ? 1 : .45);
@@ -351,29 +361,51 @@
         M.shadow.push(`${(-6*sila).toFixed(1)}px 0 1px rgba(${v('--fg-rgb')},${(.26*sila).toFixed(3)})`, `${(-13*sila).toFixed(1)}px 0 3px rgba(${v('--fg-rgb')},${(.12*sila).toFixed(3)})`);
       }},
 
+    /* Lawinki (Rysy, „co kilka minut schodziła kolejna lawinka”): trzy małe lawiny pyłowe,
+       jedna po drugiej, każda innym żlebem. Czoło zsuwa się ukosem i zwalnia, za nim rośnie
+       i rzednie obłok pyłu. Wcześniejsza wersja sypała drobinami z góry ekranu i wyglądała
+       jak zwykły śnieg (przegląd 2026-11-15). */
     lawinki: { dur: 6500,
-      init(s){ s.g = []; s.sed = []; s.colH = new Float32Array(Math.ceil(W/3)+1); },
+      init(s){
+        const bok = R() < .5 ? 1 : -1;
+        // start poza kolumną tekstu, zjazd w stronę środka; kolejne lawiny na zmianę z obu stron
+        s.zleby = [.06, .34, .6].map((at, i) => { const strona = i % 2 ? -bok : bok;
+          const x0 = W*(.5 - strona*(.3 + R()*.14)), y0 = H*(.04 + R()*.1), kat = (38 + R()*16)*Math.PI/180;
+          return {at, x0, y0, dx: strona*Math.cos(kat), dy: Math.sin(kat), dl: H*(.5 + R()*.2), ost: -1}; });
+        s.pyl = []; s.grudki = [];
+      },
       draw(c, s, p, t, dt, M){
-        const k = dt/16, e = env(p,.05,.2);
-        const rum = p < .12 ? smooth(p/.12)*.5 : (p < .4 ? .5 + .5*Math.sin((p-.12)/.28*Math.PI) : Math.max(0, .5 - (p-.4)*1.6));
-        M.dx += 2.2*rum*(Math.sin(t*.052) + .5*Math.sin(t*.17)); M.dy += 1.6*rum*(Math.sin(t*.061) + .5*Math.sin(t*.21));
-        const fall = p < .1 ? 0 : (p < .55 ? smooth((p-.1)/.12) : 1 - smooth((p-.55)/.25));
-        const hz = c.createLinearGradient(0,0,0,H*.32);
-        hz.addColorStop(0, rgba('--powder-rgb', .22*fall*e)); hz.addColorStop(1, rgba('--powder-rgb', 0));
-        c.fillStyle = hz; c.fillRect(0,0,W,H*.32);
-        let n = 18*fall*k;
-        while (n > 0) { if (n >= 1 || R() < n) { const big = R() < .06;
-          s.g.push({x:R()*W, y:-6 - R()*20, vx:(R()-.5)*.6, vy:big ? 2 + R()*2 : .5 + R()*1.1, r:big ? 1.3 + R()*1.2 : .35 + R()*.8, big, ph:R()*6, a:.45 + R()*.5}); } n--; }
+        const k = dt/16, e = env(p,.03,.2), ms = p*this.dur;
+        let rum = 0;
+        for (const z of s.zleby) {
+          const q = (ms - z.at*this.dur)/1900; if (q < 0 || q > 1) continue;
+          const u = 1 - Math.pow(1 - q, 2.2), sila = Math.sin(Math.min(1, q*1.15)*Math.PI);   // zwalnia przy końcu
+          const x = z.x0 + z.dx*z.dl*u, y = z.y0 + z.dy*z.dl*u;
+          rum = Math.max(rum, sila);
+          // obłok: rzadkie, szerokie kłęby, które wloką się za czołem i unoszą
+          let n = (2.4 + 3.4*sila)*k;
+          while (n > 0) { if (n >= 1 || R() < n) { const w = (R()-.5)*(40 + 110*q), tyl = R()*70*q;
+            s.pyl.push({x: x - z.dy*w - z.dx*tyl + (R()-.5)*14, y: y + z.dx*w - z.dy*tyl + (R()-.5)*14,
+              vx: z.dx*(1.3*(1-q) + .15) + (R()-.5)*.7, vy: z.dy*(1.3*(1-q) + .15) - .3 - R()*.5,
+              r: 9 + R()*16, rr: .45 + R()*.7, age: 0, life: 700 + R()*1100, a: (.07 + R()*.1)*(.45 + .55*sila)}); } n--; }
+          // czoło: grudki śniegu wyrzucane przed lawinę — to one mówią, że coś się sypie
+          let g = 7*sila*k;
+          while (g > 0) { if (g >= 1 || R() < g) { const w = (R()-.5)*(30 + 70*q), sp = 2.5 + R()*3.5;
+            s.grudki.push({x: x - z.dy*w, y: y + z.dx*w, vx: z.dx*sp + (R()-.5)*1.4, vy: z.dy*sp - R()*1.6,
+              r: .6 + R()*1.3, age: 0, life: 380 + R()*420}); } g--; }
+        }
         c.fillStyle = rgba('--powder-rgb', 1);
-        s.g = s.g.filter(g => {
-          if (g.big) g.vy += .12*k; else g.vx += Math.sin(g.y/30 + g.ph + t/400)*.03*k;
-          g.x += g.vx*k; g.y += g.vy*k;
-          const i = clamp(Math.round(g.x/3), 0, s.colH.length-1), floor = H - 2 - s.colH[i];
-          if (g.y >= floor) { s.colH[i] = Math.min(10, s.colH[i] + g.r*.9); s.sed.push({x:g.x, y:floor - R()*1.5, r:g.r, a:g.a}); return false; }
-          c.globalAlpha = g.a*e; c.fillRect(g.x, g.y, g.r*2, g.r*2); return true;
-        });
-        for (const d of s.sed) { c.globalAlpha = d.a*e*.9; c.fillRect(d.x, d.y, d.r*2, d.r*2); }
+        s.grudki = s.grudki.filter(d => { d.age += dt; const a = 1 - d.age/d.life; if (a <= 0) return false;
+          d.vy += .11*k; d.x += d.vx*k; d.y += d.vy*k;
+          c.globalAlpha = .85*a*e; c.fillRect(d.x, d.y, d.r*2, d.r*2); return true; });
         c.globalAlpha = 1;
+        s.pyl = s.pyl.filter(d => { d.age += dt; const a = 1 - d.age/d.life; if (a <= 0) return false;
+          d.x += d.vx*k; d.y += d.vy*k; d.vx *= Math.pow(.975, k); d.vy *= Math.pow(.975, k); d.r += d.rr*k;
+          const g = c.createRadialGradient(d.x, d.y, 0, d.x, d.y, d.r);
+          g.addColorStop(0, rgba('--powder-rgb', d.a*a*e)); g.addColorStop(1, rgba('--powder-rgb', 0));
+          c.fillStyle = g; c.fillRect(d.x - d.r, d.y - d.r, d.r*2, d.r*2); return true; });
+        // huk odbity od ścian: tekst drży tylko wtedy, gdy lawina idzie
+        M.dx += 1.5*rum*e*(Math.sin(t*.052) + .5*Math.sin(t*.17)); M.dy += 1.1*rum*e*(Math.sin(t*.061) + .5*Math.sin(t*.21));
       }},
 
     bidon: { dur: 7000,
@@ -439,7 +471,7 @@
         const tg = s.target, r = tg.getBoundingClientRect(), mr = main.getBoundingClientRect();
         const wrap = document.createElement('div'); wrap.className = 'glitchwrap';
         Object.assign(wrap.style, {left:(r.left-mr.left)+'px', top:(r.top-mr.top)+'px', width:r.width+'px', height:r.height+'px'});
-        const orig = () => { const n = tg.cloneNode(true); n.removeAttribute('id'); n.querySelectorAll('button').forEach(b => b.setAttribute('tabindex','-1')); return n; };
+        const orig = () => { const n = tg.cloneNode(true); n.removeAttribute('id'); n.querySelectorAll('[data-fx]').forEach(b => b.setAttribute('tabindex','-1')); return n; };
         const hal = document.createElement('p'); hal.className = 'halluc'; hal.textContent = this.lines[Math.floor(R()*this.lines.length)];
         s.base = orig(); s.hal = hal; s.r = orig(); s.r.classList.add('rgb-r'); s.c = orig(); s.c.classList.add('rgb-c');
         s.sl = Array.from({length: 2 + s.lv}, () => orig());
@@ -467,79 +499,6 @@
         if (s.lv >= 5 && glitching && R() < .15) { c.fillStyle = `rgba(${v('--fg-rgb')},.05)`; c.fillRect(0, R()*H, W, 2 + R()*6); }
       }},
 
-    /* 4.18 Długooo (Pilsko) — marudzące dziecko. „o” w „długo” rozciąga się do 12 liter,
-       pytajnik mnoży się do „???”, napis chwilę trwa, potem zwija się szybciej, niż rósł.
-       Bez skoków układu: dopisane litery siedzą w inline-blocku, którego szerokość rośnie
-       płynnie, a clip-path tnie tylko w poziomie — litera wyłania się, zamiast wskakiwać
-       w całości i przesuwać akapit o swoją szerokość. Bez koloru, drżenia i dźwięku.
-       Dopisane znaki mają aria-hidden; przycisk ma aria-label z oryginałem (build.py). */
-    dlugo: { dur: 2600,
-      init(s){
-        const b = s.btn, txt = b.textContent;
-        const m = txt.match(/^(.*?)dług(o)(.*?)(\?)?$/);
-        s.html = b.innerHTML;
-        if (!m) { s.done = true; return; }
-        // Akapit ma text-wrap: pretty — gdy końcówka rośnie, przeglądarka przełamuje na nowo
-        // wiersze POWYŻEJ frazy (zmierzone: „kadrów.” skakało wiersz wyżej po 220 ms).
-        // Na czas efektu zamrażamy złamania nad frazą: <br> tam, gdzie wiersze łamią się
-        // teraz, i zwykłe łamanie zamiast pretty. Wiersz z frazą może się zawinąć — tyle wolno.
-        s.p = b.closest('p'); s.brs = [];
-        if (s.p) {
-          const starts = [], tw = document.createTreeWalker(s.p, NodeFilter.SHOW_TEXT);
-          let node, top = null;
-          while ((node = tw.nextNode())) {
-            if (b.contains(node) || (node.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_PRECEDING)) break;
-            for (const w of node.nodeValue.matchAll(/\S+/g)) {
-              const r = document.createRange(); r.setStart(node, w.index); r.setEnd(node, w.index + w[0].length);
-              const box = r.getClientRects()[0]; if (!box) continue;
-              if (top !== null && box.top - top > 2) starts.push([node, w.index]);
-              top = box.top;
-            }
-          }
-          for (const [nd, i] of starts.reverse()) {
-            const rest = nd.splitText(i), br = document.createElement('br');
-            rest.before(br); s.brs.push(br);
-          }
-          s.p.style.textWrap = 'wrap';
-        }
-        // Inline-block nie dziedziczy podkreślenia rodzica — przepisujemy je z przycisku,
-        // żeby kreska pod frazą rosła razem z literami.
-        const cs = getComputedStyle(b);
-        const pod = `text-decoration:${cs.textDecorationLine} ${cs.textDecorationStyle} ${cs.textDecorationColor};`
-          + `text-decoration-thickness:${cs.textDecorationThickness};text-underline-offset:${cs.textUnderlineOffset};`;
-        const ext = (n, z) => `<span class="dl-ext" aria-hidden="true" style="display:inline-block;width:0;`
-          + `white-space:nowrap;clip-path:inset(-60% 0 -60% 0);${pod}">${z.repeat(n)}</span>`;
-        // „długo” razem z dopiskiem nie może się złamać w pół słowa
-        b.innerHTML = `${m[1]}<span style="white-space:nowrap">dług${m[2]}${ext(11, 'o')}</span>`
-          + `${m[3]}${m[4] || ''}${m[4] ? ext(2, '?') : ''}`;
-        [s.oExt, s.qExt] = b.querySelectorAll('.dl-ext');
-        // szerokość jednego znaku: pełny dopisek zmierzony raz, zanim cokolwiek widać
-        const zmierz = el => { if (!el) return 0; el.style.width = 'auto'; const w = el.getBoundingClientRect().width; el.style.width = '0px'; return w; };
-        s.oW = zmierz(s.oExt) / 11; s.qW = zmierz(s.qExt) / 2;
-      },
-      stop(s){
-        s.btn.innerHTML = s.html;
-        if (s.p) { s.brs.forEach(br => br.remove()); s.p.normalize(); s.p.style.textWrap = ''; }
-      },
-      draw(c, s, p, t){
-        const ms = Math.max(0, t - s.start);
-        const easeOut = u => 1 - Math.pow(1 - clamp(u,0,1), 2.4);
-        let n, q;
-        if (ms < 1400) {                         // rozwijanie: 1 → 12 liter, zwalnia pod koniec
-          n = 11 * easeOut(ms / 1400);
-          q = smooth((ms - 600) / 120) + smooth((ms - 1000) / 120);
-        } else if (ms < 2000) {                  // pauza: dziecko czeka na odpowiedź
-          n = 11; q = 2;
-        } else {                                 // zwijanie, szybciej niż rozwijanie
-          const u = smooth((ms - 2000) / 600);
-          n = 11 * (1 - u); q = 2 * (1 - u);
-        }
-        s.oExt.style.width = (n * s.oW).toFixed(2) + 'px';
-        if (s.qExt) s.qExt.style.width = (q * s.qW).toFixed(2) + 'px';
-        // HUD w chwili, gdy „długooo???” stoi w pełni — jak odpowiedź, której tata nie daje
-        if (DLUGO_HUD && !s.hud && ms >= 1400) { s.hud = true; hud(DLUGO_HUD); }
-      }},
-
     drzenie: { dur: 3600,
       init(s){ s.sp = splitText(s.btn, 'char'); s.n = 0; },
       stop(s){ s.sp.restore(); },
@@ -549,16 +508,73 @@
         for (const ch of s.sp.units) ch.style.transform = `translate(${((R()-.5)*2*amp).toFixed(2)}px,${((R()-.5)*2*amp).toFixed(2)}px) rotate(${((R()-.5)*4*e).toFixed(1)}deg)`;
       }},
 
-    odpadasz: { dur: 4600,
-      init(s){ s.target.style.willChange = 'transform'; },
-      stop(s){ s.target.style.transform = ''; s.target.style.willChange = ''; },
+    /* Odpadasz (Mnich): lot na linie, liczony jak prawdziwy. Słowo odrywa się, leci swobodnie
+       i obraca się w locie, lina jest luźna i wlecze się łukiem. Gdy się napnie, szarpie:
+       rozciąga się i oddaje (lina dynamiczna), a słowo idzie wahadłem pod ostatni punkt
+       asekuracji i kołysze się, aż wytraci ruch. Na koniec lina je wybiera z powrotem na
+       miejsce. Ruch wychodzi z symulacji (grawitacja, lina jako jednostronna sprężyna,
+       tłumienie), nie z rozpisanej krzywej — poprzednia wersja zjeżdżała sztywno w dół
+       po prostej kresce i wyglądała jak spadający klocek (autor, 2026-11-15). */
+    odpadasz: { dur: 5600,
+      init(s){
+        const b = s.btn.style, r = s.btn.getBoundingClientRect(), pr = s.target.getBoundingClientRect();
+        b.display = 'inline-block'; b.willChange = 'transform'; b.position = 'relative'; b.zIndex = '4';
+        b.transformOrigin = '50% 0';                       // lina trzyma słowo za środek górnej krawędzi
+        const tlo = v('--bg');                             // otok w kolorze tła: słowo nie zlewa się z tekstem, nad którym leci
+        b.textShadow = `0 0 3px ${tlo}, 0 0 3px ${tlo}, 0 0 6px ${tlo}, 0 0 6px ${tlo}`;
+        s.dom = {x: r.left + r.width/2 - pr.left, y: r.top - pr.top};      // miejsce słowa względem akapitu
+        // ostatni punkt asekuracji: trochę w bok i tuż nad wierszem — stąd bierze się wahadło
+        const bok = Math.min(70, Math.max(34, r.width*.8));
+        s.punkt = {x: -bok, y: -3};
+        s.L0 = Math.hypot(bok, 3);                         // tyle liny jest między punktem a wspinaczem
+        s.L = s.L0 + clamp(H*.13, 70, 120);                // + luz: tyle leci, zanim lina zacznie trzymać
+        s.x = 0; s.y = 0; s.vx = 26; s.vy = -40;           // odpada lekko od ściany
+        s.kat = 0; s.w = (R() < .5 ? -1 : 1)*(2.2 + R()*1.4);              // obrót w locie
+        s.czas = 0; s.zlapane = 0;
+      },
+      stop(s){ const b = s.btn.style; b.transform = ''; b.willChange = ''; b.display = ''; b.position = ''; b.zIndex = '';
+        b.transformOrigin = ''; b.textShadow = ''; },
       draw(c, s, p, t, dt, M){
-        const ms = Math.max(0, t - s.start), T1 = 520, Y1 = 150, L = 118; let y, rot = 0;
-        if (ms < T1) { const q = ms/T1; y = Y1*q*q; }
-        else if (ms < 2600) { const tau = ms - T1; y = L + (Y1 - L)*Math.exp(-tau/260)*Math.cos(tau/62); rot = 1.3*Math.exp(-tau/700)*Math.sin(tau/320); if (!s.caught) s.caught = t; }
-        else { y = L*(1 - smooth((ms - 2600)/1700)); }
-        if (s.caught) { const d = t - s.caught; M.dy += 4*Math.exp(-d/120)*Math.cos(d/30); }
-        s.target.style.transform = `translateY(${y.toFixed(1)}px) rotate(${rot.toFixed(2)}deg)`;
+        const ms = p*this.dur, WYB = 3500, wyb = smooth((ms - WYB)/(this.dur - WYB - 250));    // wybieranie liny
+        // punkt i długość liny: przy wybieraniu punkt schodzi na miejsce słowa, a lina się skraca
+        const ax = s.punkt.x*(1 - wyb), ay = s.punkt.y*(1 - wyb), L = s.L*(1 - wyb);
+        // symulacja małymi krokami — sprężyna liny jest sztywna, duży krok by ją rozsadził
+        let zostalo = Math.min(48, dt)/1000;
+        while (zostalo > 0) { const h = Math.min(.004, zostalo); zostalo -= h;
+          let fx = 0, fy = 1500;                                           // grawitacja, px/s²
+          const dx = s.x - ax, dy = s.y - ay, d = Math.hypot(dx, dy) || 1, napiecie = d - L;
+          if (napiecie > 0) {                                              // lina trzyma tylko rozciągnięta
+            const ux = dx/d, uy = dy/d, vr = s.vx*ux + s.vy*uy;
+            const sila = 260*napiecie + (16 + 60*wyb)*vr;
+            fx -= sila*ux; fy -= sila*uy;
+            if (!s.zlapane && napiecie > 2) s.zlapane = t;
+            // słowo wisi za górną krawędź, więc ustawia się wzdłuż liny
+            const cel = (Math.atan2(dy, dx) - Math.PI/2)*(1 - wyb);
+            s.w += (-46*(s.kat - cel) - 7*s.w)*h;
+          } else s.w -= .5*s.w*h;                                          // w locie obraca się prawie bez oporu
+          const opor = .55 + 5*wyb;
+          s.vx += (fx - opor*s.vx)*h; s.vy += (fy - opor*s.vy)*h;
+          s.x += s.vx*h; s.y += s.vy*h; s.kat += s.w*h;
+        }
+        if (wyb > .985) { s.x *= .5; s.y *= .5; s.kat *= .5; }             // ostatnie piksele: dosiada na miejsce
+        if (s.zlapane) { const d = t - s.zlapane; M.dy += 3.5*Math.exp(-d/130)*Math.cos(d/32); }
+        s.btn.style.transform = `translate(${s.x.toFixed(1)}px,${s.y.toFixed(1)}px) rotate(${s.kat.toFixed(3)}rad)`;
+
+        // lina na płótnie: od punktu do górnej krawędzi słowa
+        const pr = s.target.getBoundingClientRect(), hx = pr.left + s.dom.x, hy = pr.top + s.dom.y;
+        const Ax = hx + ax, Ay = hy + ay, Bx = hx + s.x, By = hy + s.y, e = env(p, .01, .06);
+        const d = Math.hypot(Bx - Ax, By - Ay), luz = Math.max(0, L - d);
+        // luźna lina zwisa łukiem; napięta drga jak struna tuż po szarpnięciu
+        let kx = (Ax + Bx)/2, ky = (Ay + By)/2 + Math.min(60, luz*.75);
+        if (s.zlapane && !luz) { const q = t - s.zlapane, drg = 7*Math.exp(-q/260)*Math.sin(q/21);
+          kx += -(By - Ay)/d*drg; ky += (Bx - Ax)/d*drg; }
+        const fg = v('--fg-rgb');
+        c.lineCap = 'round';
+        c.beginPath(); c.moveTo(Ax, Ay); c.quadraticCurveTo(kx, ky, Bx, By);
+        c.strokeStyle = `rgba(${fg},${(.7*e).toFixed(3)})`; c.lineWidth = 1.2; c.stroke();
+        // punkt asekuracji: kółko w tekście, tam gdzie ostatnio się wpiął
+        c.beginPath(); c.arc(Ax, Ay, 3, 0, TAU);
+        c.strokeStyle = `rgba(${fg},${(.85*e*(1 - wyb)).toFixed(3)})`; c.lineWidth = 1.3; c.stroke();
       }},
 
     most: { dur: 5200,
@@ -572,6 +588,39 @@
         const e = env(p,.2,.3);
         s.words.forEach((w, i) => { w.style.transform = `translateY(${(7*e*Math.sin(t/230 - s.xs[i]/90)).toFixed(2)}px)`; });
         s.sec.style.transform = `rotate(${(.5*e*Math.sin(t/700)).toFixed(3)}deg) translateX(${(4*e*Math.sin(t/700)).toFixed(2)}px)`;
+      }},
+
+    /* Błysk (wstęp, „Błysk. / Liczysz do dziewięciu. / Grzmot.”): błyskawica, ciche liczenie
+       przy następnej linijce i grzmot jako drżenie. Drugi „Błysk.” liczy do sześciu i grzmi
+       mocniej — burza jest bliżej. Pierwszy zapalnik eseju, zaraz po burzy z intro. */
+    blysk: { dur: 4800,
+      init(s){
+        let n = s.btn.closest('.line');
+        do { n = n && n.nextElementSibling; } while (n && !n.classList.contains('line'));
+        s.ile = n && /sześciu/.test(n.textContent) ? 6 : 9;
+        s.dur = 620 + s.ile*290 + 1500;
+        if (n) { s.licz = document.createElement('span'); s.licz.className = 'fx-licznik'; s.licz.setAttribute('aria-hidden', 'true'); n.append(s.licz); }
+      },
+      stop(s){ if (s.licz) s.licz.remove(); },
+      draw(c, s, p, t, dt, M){
+        const ms = t - s.start;
+        // podwójny błysk — ta sama krzywa co burza w intro (dwa błyski w 180 ms, potem cisza)
+        const fo = ms < 55 ? .85 : ms < 120 ? .12 : ms < 180 ? .6 : ms < 900 ? .6*Math.exp(-(ms-180)/140) : 0;
+        if (fo > .004) {
+          const jasny = root.getAttribute('data-theme') === 'jasny';   // na jasnej stronie błysk jest mrugnięciem w ciemność
+          c.fillStyle = jasny ? `rgba(22,25,28,${(fo*.5).toFixed(3)})` : `rgba(228,236,250,${(fo*.5).toFixed(3)})`;
+          c.fillRect(0,0,W,H);
+          if (!jasny) M.bright *= 1 + .45*fo;
+        }
+        const k = clamp(Math.floor((ms - 620)/290) + 1, 0, s.ile);
+        if (s.licz && k !== s.k) { s.k = k; s.licz.textContent = Array.from({length: k}, (_, i) => i + 1).join(' '); }
+        const g = ms - (620 + s.ile*290);
+        if (g > 0) {
+          const moc = s.ile === 6 ? 1.6 : 1, a = moc*4.2*Math.exp(-g/420)*Math.min(1, g/60);
+          M.dx += a*(Math.sin(g*.071) + .5*Math.sin(g*.19)); M.dy += a*.7*(Math.sin(g*.083) + .5*Math.sin(g*.23));
+          if (!s.buzz) { s.buzz = true; try { navigator.vibrate && navigator.vibrate(s.ile === 6 ? [40, 60, 90] : 60); } catch(_){} }
+          if (s.licz) s.licz.style.opacity = Math.max(0, 1 - g/900).toFixed(2);
+        }
       }},
 
     cyk: { dur: 1500, lastFlash: -1e9,
@@ -589,7 +638,7 @@
         if (q > 0) { const h = smooth(q)*H/2; c.fillStyle = 'rgba(0,0,0,.95)'; c.fillRect(0,0,W,h); c.fillRect(0,H-h,W,h); }
         if (ms >= 300 && !s.counted) { s.counted = true; tick(); }
         if (s.flash && ms >= 330 && ms < 700) {
-          const f = Math.exp(-(ms-330)/110), light = root.getAttribute('data-theme') === 'light';
+          const f = Math.exp(-(ms-330)/110), light = root.getAttribute('data-theme') === 'jasny';
           const g = c.createRadialGradient(W/2, H*.42, 0, W/2, H*.42, Math.max(W,H)*.75);
           g.addColorStop(0, `rgba(255,248,236,${((light ? .3 : .38)*f).toFixed(3)})`); g.addColorStop(1, `rgba(255,248,236,${((light ? .12 : .16)*f).toFixed(3)})`);
           c.fillStyle = g; c.fillRect(0,0,W,H);
@@ -666,10 +715,31 @@
     clearTimeout(filmTimer); filmTimer = setTimeout(() => film.classList.remove('show'), 1800); }
   const KLATEK = document.querySelectorAll('[data-fx="cyk"]').length || 1;
   function tick(){ frames = Math.min(KLATEK, frames + 1); hud(`klisza ${frames}/${KLATEK}`); }
-  const fresh = () => ({cold:0, blur:0, op:1, dx:0, dy:0, skew:0, bright:1, sat:1, shadow:[], tunnel:null, frost:null});
-  const hex = h => { h = h.replace('#',''); return [0,2,4].map(i => parseInt(h.slice(i,i+2),16)); };
+  const fresh = () => ({cold:0, coldVar:'', noc:0, blur:0, op:1, dx:0, dy:0, skew:0, bright:1, sat:1, shadow:[], tunnel:null, frost:null});
+  // kolor z tokenu: „#rrggbb” albo „rgb(r, g, b)” (ten drugi, gdy paleta nocna już go nadpisała)
+  const hex = h => { h = h.trim();
+    if (h[0] === '#') { h = h.slice(1); return [0,2,4].map(i => parseInt(h.slice(i,i+2),16)); }
+    return (h.match(/[\d.]+/g) || [0,0,0]).slice(0,3).map(Number); };
+
+  // Paleta nocna: sceny nocne (świetliki, burza) w jasnym motywie pożyczają na swój czas
+  // ciemne kolory strony — tło, tekst i linie przechodzą płynnie w noc i z powrotem.
+  // Bez tego jasna strona tylko szarzała, a światła były matowymi plamami (przegląd 2026-11-15).
+  const NOC = {'--bg':[22,25,28], '--text':[211,216,220], '--text-strong':[242,245,247], '--text-quiet':[166,174,181],
+               '--rule':[69,75,81], '--nav-quiet':[69,73,78], '--dot':[90,97,104]};
+  let dzien = null;
+  function noc(m){
+    if (root.getAttribute('data-theme') !== 'jasny' || m < .004) {
+      if (dzien) { for (const kl in NOC) root.style.removeProperty(kl); dzien = null; }
+      return;
+    }
+    if (!dzien) { dzien = {}; for (const kl in NOC) dzien[kl] = hex(v(kl)); }
+    const u = smooth(m);
+    for (const kl in NOC) root.style.setProperty(kl,
+      `rgb(${dzien[kl].map((x,i) => Math.round(x + (NOC[kl][i]-x)*u)).join(',')})`);
+  }
   function apply(M){
-    if (M.cold > .002) { const a = hex(v('--bg')), b = hex(v('--cold')), m = clamp(M.cold,0,1);
+    noc(M.noc);
+    if (M.cold > .002) { const a = hex(v('--bg')), b = hex(v(M.coldVar || '--cold')), m = clamp(M.cold,0,1);
       const col = `rgb(${a.map((x,i) => Math.round(x + (b[i]-x)*m)).join(',')})`;
       root.style.backgroundColor = col; document.body.style.backgroundColor = col; }
     else { root.style.backgroundColor = ''; document.body.style.backgroundColor = ''; }
@@ -682,6 +752,9 @@
     main.style.opacity = M.op < .998 ? M.op.toFixed(3) : '';
     main.style.textShadow = M.shadow.join(',');
     main.style.willChange = active.size ? 'filter, transform' : '';
+    // Przesunięty tekst wystawał pod koniec strony, więc jej wysokość zmieniała się co klatkę
+    // i suwak przewijania migał. Rama (element <main>) przycina to, co wystaje (w pionie i w poziomie).
+    if (rama) rama.style.overflow = active.size ? 'clip' : '';
     if (M.tunnel) { const T = M.tunnel; tunnel.style.opacity = '1';
       tunnel.style.setProperty('--r1', T.r1.toFixed(1)+'%'); tunnel.style.setProperty('--r2', T.r2.toFixed(1)+'%');
       tunnel.style.setProperty('--b', T.b.toFixed(2)+'px'); tunnel.style.setProperty('--a', T.a.toFixed(3)); }
@@ -811,6 +884,48 @@
     klikRun.timer = setTimeout(clearKlik, 450 + 320*klikLevel);
   }
 
+  /* ---------- Długo: rozmowa z dzieckiem ----------
+     Kliknięcie od razu zaczyna rozmowę — rozciągane „długooo???” wypadło, skoro jest ten
+     efekt (autor, 2026-11-15). Pod akapitem z „czy długo jeszcze?” pojawiają się dymki jak w komunikatorze: dziecko
+     (avatar z makiety Pilska) marudzi i pyta, tata odpowiada krótko. Ostatnie pytanie jest
+     z tekstu eseju i zostaje bez odpowiedzi. „Jeszcze kawałek.” wraca na końcu rozdziału 11.
+     Inaczej niż w „Enter”: bez ramki i etykiet, pismo tekstu — tam gadają modele, tu ludzie. */
+  const CZAT_DZIECKA = [
+    ['d', 'Czy długo jeszcze?', 200],
+    ['t', 'Jeszcze kawałek.', 1100],
+    ['d', 'Nogi mnie bolą.', 1300],
+    ['d', 'A teraz? Długo jeszcze?', 1500],
+    ['t', 'Jeszcze kawałek.', 1100],
+    ['d', 'Tato, a skąd góra wie, kiedy przestać rosnąć?', 1700],
+    ['t', '…', 1500],
+  ];
+  let czatRun = null;
+  function stopCzat(){ if (!czatRun) return; czatRun.timers.forEach(clearTimeout); czatRun.box.remove();
+    czatRun.btn.setAttribute('aria-pressed', 'false'); czatRun = null; }
+  function czatDziecka(btn){
+    if (czatRun) { stopCzat(); return; }            // drugie kliknięcie przerywa
+    const tg = btn.closest('p'); if (!tg) return;
+    btn.setAttribute('aria-pressed', 'true');
+    const box = document.createElement('div'); box.className = 'czat-dziecka';
+    box.setAttribute('role', 'log'); box.setAttribute('aria-label', 'Rozmowa dziecka z tatą');
+    tg.after(box);
+    const run = czatRun = {box, btn, timers: []}, at = (ms, fn) => run.timers.push(setTimeout(fn, ms));
+    let tm = 0, poprzedni = '';
+    for (const [kto, tekst, przerwa] of CZAT_DZIECKA) {
+      tm += przerwa; const ciag = kto === poprzedni; poprzedni = kto;
+      at(tm, () => {
+        const m = document.createElement('div'); m.className = 'dymek ' + (kto === 'd' ? 'dziecko' : 'tata') + (ciag ? ' ciag' : '');
+        if (kto === 'd') { const im = document.createElement('img'); im.src = BAZA + 'assets/web/dziecko-132.webp'; im.alt = ''; im.width = 36; im.height = 36; m.append(im); }
+        const sp = document.createElement('span');
+        if (tekst === '…') { sp.className = 'pisze'; sp.setAttribute('aria-label', 'tata pisze'); sp.innerHTML = '<i></i><i></i><i></i>'; } else sp.textContent = tekst;
+        m.append(sp); box.append(m);
+      });
+    }
+    at(tm + 2800, () => { box.style.maxHeight = box.offsetHeight + 'px'; box.style.opacity = '0';
+      requestAnimationFrame(() => { box.style.maxHeight = '0px'; box.style.marginBlock = '0px'; }); });
+    at(tm + 3700, stopCzat);
+  }
+
   /* ---------- Enter: model rozmawia z modelem ---------- */
   const CHAT = [
     ['a','Rekruter (model)','Dziękujemy za aplikację! Twoje doświadczenie idealnie pasuje do naszych wartości.'],
@@ -852,6 +967,7 @@
     uruchom(btn, ev) {
       const name = btn.dataset.fx;
       if (name === 'klik') { if (enabled) klik(btn, ev); return; }
+      if (name === 'dlugo') { if (enabled || czatRun) czatDziecka(btn); return; }
       if (name === 'enter') { if (enabled || enterRun) enter(btn); return; }
       if (active.has(name)) { stop(name); if (!active.size) clearAll(); return; }
       if (!enabled) return;
@@ -860,8 +976,8 @@
     enter(btn) { if (enabled) enter(btn); },
     wlacz(flag) {
       enabled = !!flag;
-      if (!enabled) { [...active.keys()].forEach(stop); clearAll(); clearKlik(); stopEnter(); }
+      if (!enabled) { [...active.keys()].forEach(stop); clearAll(); clearKlik(); stopEnter(); stopCzat(); }
     },
-    czyDziala() { return active.size > 0 || !!enterRun; },
+    czyDziala() { return active.size > 0 || !!enterRun || !!czatRun; },
   };
 })();

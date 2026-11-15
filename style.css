@@ -1026,8 +1026,8 @@ article a:hover {
    Style muszą być tutaj, a nie w efekty.css, bo ten wczytuje się dopiero przy kliknięciu.
    Przy wyłączonych efektach zapalniki wyglądają i zachowują się jak zwykły tekst. */
 
-button.fx,
-button.ref {
+.fx,
+.ref {
   font: inherit;
   color: inherit;
   letter-spacing: inherit;
@@ -1039,8 +1039,8 @@ button.ref {
   cursor: pointer;
 }
 
-.js button.fx,
-.js button.ref {
+.js .fx,
+.js .ref {
   text-decoration-line: underline;
   text-underline-offset: 0.25em;
   text-decoration-thickness: 1.5px;
@@ -1049,15 +1049,15 @@ button.ref {
   transition: color 0.4s;
 }
 
-.js button.fx:hover,
-.js button.ref:hover,
-.js button.fx[aria-pressed="true"],
-.js button.ref[aria-pressed="true"] {
+.js .fx:hover,
+.js .ref:hover,
+.js .fx[aria-pressed="true"],
+.js .ref[aria-pressed="true"] {
   color: var(--accent);
 }
 
 /* „WTF” — słowo się rozsypuje: dwie przesunięte połówki z czerwoną i turkusową poświatą */
-button.fx-wtf {
+.fx-wtf {
   position: relative;      /* nosi nałożone połówki */
   display: inline-block;   /* przesunięcie i skos działają tylko na elemencie blokowym */
 }
@@ -1223,8 +1223,8 @@ article.is-shaken {
 }
 
 @media print {
-  button.fx,
-  button.ref {
+  .fx,
+  .ref {
     text-decoration: none !important;
   }
 }
@@ -1448,6 +1448,61 @@ article.is-shaken {
 .route ol a:focus-visible .route-name {
   color: var(--accent);
 }
+
+/* Czas czytania rozdziału: cichsza, wąska kolumna za wysokością (liczby stoją w słupku) */
+.route-min {
+  flex: 0 0 5.5ch;
+  font: 12px/1 var(--mono);
+  text-align: right;
+  color: color-mix(in srgb, var(--text-quiet) 70%, transparent);
+}
+
+/* Gdzie jesteś: przeczytane rozdziały przygasają, bieżący ma kropkę w akcencie — tę samą
+   co na osi z boku ekranu. Bez napisu „jesteś tutaj” (autor). Ustawia script.js. */
+.route ol a.is-za .route-name { color: var(--text-quiet); }
+
+.route ol a.is-za .route-num,
+.route ol a.is-za .route-alt { opacity: 0.6; }
+
+.route ol a.is-tu { position: relative; }
+
+.route ol a.is-tu .route-name { color: var(--text-strong); }
+
+.route ol a.is-tu::before {
+  content: "";
+  position: absolute;
+  left: -18px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 28%, transparent);
+  transform: translateY(-50%);
+}
+
+/* Źródła i autor: do końca eseju nie trzeba przewijać 74 minut */
+.route-dalej {
+  display: flex;
+  gap: 12px;
+  margin: calc(var(--line) * 0.75) 0 0;
+  font: 12px/1 var(--mono);
+  letter-spacing: 0.08em;
+  color: var(--text-quiet);
+}
+
+.route-dalej a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-underline-offset: 0.3em;
+}
+
+.route-dalej a:hover,
+.route-dalej a:focus-visible { color: var(--accent); }
 
 /* ---------- Stopka ----------
    Zamknięcie eseju: kto to pisał, kiedy, i gdzie zabrać tekst ze sobą.
@@ -2288,6 +2343,17 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
 @media (max-width: 40em) {
   .tb-autor { letter-spacing: 0.1em; font-size: 10px; }
   .menu-in { padding-top: 88px; }
+
+  /* 13 wierszy po 68 px spychało „Sprzęt” półtora ekranu w dół */
+  .menu .route ol a { padding-block: 4px; gap: 12px; }
+  .menu .route ol a.is-tu::before { left: -14px; width: 6px; height: 6px; }
+  .menu .route h2 { margin-bottom: var(--line); }
+}
+
+/* Na telefonie wykres nie ma podpisów (zlewałyby się) — zostaje jeden, przy miejscu,
+   w którym jesteś, żeby kropka na grani miała nazwę. */
+@media (max-width: 51.25em) {
+  .menu-profil .profil-szczyt.is-tu .profil-wys { display: block; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2297,4 +2363,60 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
 
 @media print {
   .topbar, .menu { display: none !important; }
+}
+
+/* ---------- Odnośniki w przypisach ----------
+   Na ekranie sama domena ze strzałką, w spokojnym kolorze: pełne adresy w akcencie robiły
+   pod tezą rozdziału ścianę czerwieni. Akcent wraca po najechaniu. Pełny adres zostaje
+   w druku i PDF oraz w Źródłach na końcu eseju. */
+
+.url-pelny { display: none; }
+
+.footnotes a:not(.fn-back) {
+  color: var(--text-quiet);
+  text-decoration-color: var(--rule);
+  white-space: nowrap;
+}
+
+.footnotes a:not(.fn-back):hover,
+.footnotes a:not(.fn-back):focus-visible {
+  color: var(--accent);
+  text-decoration-color: currentColor;
+}
+
+@media print {
+  .url-krotki { display: none; }
+  .url-pelny { display: inline; }
+  .footnotes a:not(.fn-back) { white-space: normal; }
+}
+
+/* ---------- Podpowiedź przy pierwszym zapalniku ----------
+   Jednorazowy dopisek nad frazą (script.js). Pismo metadanych, kolor akcentu. */
+
+.fx-podpowiedz { position: relative; }
+
+.fx-podpowiedz::after {
+  content: "kliknij";
+  position: absolute;
+  left: 0;
+  bottom: calc(100% - 0.15em);
+  font: 500 10px/1 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--accent);
+  pointer-events: none;
+  animation: podpowiedz-in 0.7s 0.3s ease-out both;
+}
+
+@keyframes podpowiedz-in {
+  from { opacity: 0; transform: translateY(4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-podpowiedz::after { animation: none; }
+}
+
+@media print {
+  .fx-podpowiedz::after { content: none; }
 }
