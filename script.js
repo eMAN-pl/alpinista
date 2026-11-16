@@ -166,10 +166,8 @@
       dalej.addEventListener("click", (event) => { event.preventDefault(); goTo(place); });
       const ile = document.createElement("b");
       ile.textContent = zostalo ? `zostało ok. ${zostalo} min` : `rozdział ${number}`;
-      const albo = document.createElement("span");
-      albo.textContent = "albo przewiń od początku";
-      const kreska = hint.querySelector("i");
-      hint.replaceChildren(dalej, ile, albo, ...(kreska ? [kreska] : []));
+      // dwie linijki, bez kreski „przewiń” — na telefonie dłuższy podpis wchodził w tytuł
+      hint.replaceChildren(dalej, ile);
       hint.classList.add("we-hint--wroc");
       return;
     }

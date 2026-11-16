@@ -174,3 +174,10 @@
 .we-scene { clip-path: inset(0); }
 .we-koniec { background: var(--bg); }
 .we-koniec .we-scene, .we-koniec .we-wisps, .we-koniec .we-flash { visibility: hidden; }
+
+/* Z podpisem „czytaj dalej” tytuł podnosi się o wysokość podpisu, żeby się nie stykały
+   (na telefonie „jest alpinistą” wchodziło w odnośnik — zgłoszenie autora 2026-11-16). */
+.we-stage:has(.we-hint--wroc) .we-title { bottom: calc(10vh + 48px); }
+@media (max-width: 760px) {
+  .we-stage:has(.we-hint--wroc) .we-title { bottom: calc(17vh + 40px); }
+}

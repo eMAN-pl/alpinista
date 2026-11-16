@@ -714,12 +714,12 @@ hr + h3 {
 
 /* Granica rozdziału: kreska na szerokość kolumny, z równym powietrzem po obu stronach.
    Suma odstępu zostaje ta sama co wcześniej — zmienia się tylko to, że widać krawędź. */
+/* Granica rozdziału to makieta góry nad nagłówkiem — kreska nad nią była drugą granicą
+   w tym samym miejscu (autor, 2026-11-16). Zostaje samo powietrze, ta sama odległość. */
 .chapter::before {
   content: "";
   display: block;
-  height: 1px;
   margin-bottom: calc(var(--sp-chapter) / 2);
-  background: var(--rule);
 }
 
 @media print {
@@ -2497,4 +2497,33 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
     max-width: calc(var(--measure) + 24rem + 7rem + 2 * var(--edge));
   }
   .menu-ustawienia { margin-top: 0; }
+}
+
+/* Nazwa rozdziału wyraźnie większa od podtytułów w środku rozdziału (te mają ~24 px):
+   wcześniej 24–34 px, różnica ginęła (autor, 2026-11-16). Tytuł intro zostaje największy. */
+@media screen {
+  .chapter > .chapter-head h2 {
+    font-size: clamp(2.1rem, 1.35rem + 2.6vw, 3.25rem);
+    line-height: 1.02;
+  }
+}
+
+/* Menu na telefonie: wysokość i minuty w dwóch wierszach po prawej, bez kropek — nazwa
+   dostaje szerokość i łamie się najwyżej na dwie linie (wcześniej trzy, a wiersz wychodził
+   poza ekran — zgłoszenie autora 2026-11-16). */
+@media (max-width: 40em) {
+  .menu { overflow-x: hidden; }
+  .menu .route ol a {
+    display: grid;
+    grid-template-columns: 2ch minmax(0, 1fr) auto;
+    grid-template-areas: "num name alt" "num name min";
+    column-gap: 12px;
+    row-gap: 4px;
+    align-items: center;
+  }
+  .menu .route-num { grid-area: num; }
+  .menu .route-name { grid-area: name; font-size: 1.1em; line-height: 1.05; }
+  .menu .route-alt { grid-area: alt; text-align: right; }
+  .menu .route-min { grid-area: min; flex: none; }
+  .menu .route-leader { display: none; }
 }
