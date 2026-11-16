@@ -886,7 +886,9 @@
         s.btnR.addEventListener('click', () => { if (s.zrobil || s.zgaslo) return; s.zrobil = performance.now(); s.box.classList.add('zrobione'); s.czas.textContent = '✓'; });
         // zdanie, które zostaje na końcu, gdy nikt nie kliknie
         s.html = tg.innerHTML;
-        tg.innerHTML = tg.innerHTML.replace(/(Wtedy stanie w(?:\s|&nbsp;| )miejscu też jest decyzją\.)/, '<span class="ruch-zdanie">$1</span>');
+        // zostaje „Wtedy stanie w miejscu też jest decyzją. Często najgorszą” — druga część na czerwono (autor, 16.11)
+        tg.innerHTML = tg.innerHTML.replace(/(Wtedy stanie w(?:\s|&nbsp;| )miejscu też jest decyzją\.)(\s+)(Często najgorszą)/,
+          '<span class="ruch-zdanie">$1</span>$2<span class="ruch-zdanie ruch-czerwone">$3</span>');
       },
       stop(s){ s.box.remove(); s.target.innerHTML = s.html; s.target.style.opacity = ''; s.target.style.filter = ''; s.target.style.transform = ''; s.target.classList.remove('ruch-cisza'); },
       draw(c, s, p, t){
