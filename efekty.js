@@ -951,7 +951,7 @@
         let q = 0;
         if (ms >= 230 && ms < 300) q = (ms-230)/70; else if (ms >= 300 && ms < 330) q = 1; else if (ms >= 330 && ms < 480) q = 1 - (ms-330)/150;
         if (q > 0) { const h = smooth(q)*H/2; c.fillStyle = 'rgba(0,0,0,.95)'; c.fillRect(0,0,W,h); c.fillRect(0,H-h,W,h); }
-        if (ms >= 300 && !s.counted) { s.counted = true; tick(); }
+        if (ms >= 300 && !s.counted) { s.counted = true; tick(s.btn); }
         if (s.flash && ms >= 330 && ms < 700) {
           const f = Math.exp(-(ms-330)/110), light = root.getAttribute('data-theme') === 'jasny';
           const g = c.createRadialGradient(W/2, H*.42, 0, W/2, H*.42, Math.max(W,H)*.75);
@@ -1043,7 +1043,11 @@
   function hud(text){ film.textContent = text; film.classList.add('show');
     clearTimeout(filmTimer); filmTimer = setTimeout(() => film.classList.remove('show'), 1800); }
   const KLATEK = document.querySelectorAll('[data-fx="cyk"]').length || 1;
-  function tick(){ frames = Math.min(KLATEK, frames + 1); hud(`klisza ${frames}/${KLATEK}`); }
+  // Klisza liczy RÓŻNE zdjęcia: każde „Cyk” w tekście to jedna klatka (jest ich tyle, ile zapalników
+  // Cyk na stronie — dziś 10). Ponowne kliknięcie tego samego „Cyk” nie przewija kliszy dalej.
+  const klatki = new Set();
+  function tick(btn){ if (btn) klatki.add(btn); frames = Math.min(KLATEK, klatki.size);
+    hud(`klisza ${frames}/${KLATEK}`); }
   const fresh = () => ({cold:0, coldVar:'', noc:0, blur:0, op:1, dx:0, dy:0, skew:0, bright:1, sat:1, shadow:[], tunnel:null, frost:null});
   // kolor z tokenu: „#rrggbb” albo „rgb(r, g, b)” (ten drugi, gdy paleta nocna już go nadpisała)
   const hex = h => { h = h.trim();
