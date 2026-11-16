@@ -27,19 +27,20 @@
     marmolada: 'Marmolada — łagodny wiatr', everest: 'Everest — wiatr', 'babia-gora': 'Babia Góra — wichura', rysy: 'Rysy — łagodny deszcz', 'gran-paradiso': 'Gran Paradiso — śnieżyca',
   };
   // Poziomy domyślne (mnożniki). Tu wpisujemy wynik z miksera autora.
-  const POZIOMY = { grupy: { tla: 1, wstep: 1, muzyka: 1 }, tla: { pilsko: .81, tatry: .9 }, wstep: { whoosh: 1 }, muzyka: { pilsko: .95 } };
+  const POZIOMY = { grupy: { tla: 1, wstep: 1, muzyka: 1 }, tla: { pilsko: .81, tatry: .9, 'gran-paradiso': 1.1, 'kroki-snieg': .8 }, wstep: { whoosh: 1 }, muzyka: { pilsko: .95 } };
   const GLOS_TLA = .8, GLOS_WHOOSH = .45, GLOS_MUZYKI = .3;    // muzyka to delikatne tło pod resztą dźwięków (autor, 2026-11-16)
   // Muzyka rozdziału (autor, 2026-11-16): cały utwór w pętli, dopóki czytelnik jest w swoim
   // rozdziale; po wyjściu gaśnie, po powrocie gra dalej od miejsca, w którym skończył. Utwory
   // z Pixabay. Wstęp ma muzykę dopiero od decyzji „Idę dalej” / „Zawracam”.
   const MUZYKA = { wybor: 'Wstęp po wyborze — Sommerso', pilsko: 'Pilsko — fortepian', dolina: 'Dolina Pięciu Stawów — From the Mountain',
     kozi: 'Kozi Wierch — Mountain', mnich: 'Mnich — Mountain Silence', marmolada: 'Marmolada — Cinematic Documentary', everest: 'Everest — Dark Documentary',
-    'babia-gora': 'Babia Góra — Stillness', rysy: 'Rysy — History Documentary' };
+    'babia-gora': 'Babia Góra — Stillness', rysy: 'Rysy — History Documentary',
+    'gran-paradiso': 'Gran Paradiso — Dark Academia' };
   // Epizody: krótkie fragmenty nagrania w losowych odstępach, pod tłem rozdziału (autor, 2026-11-16 —
   // kroki na śniegu w Gran Paradiso „budują obraz”). Każdy z innego miejsca nagrania, z innej strony
   // i z innej odległości, więc się nie powtarzają. dl i przerwa w sekundach: [od, do].
   const EPIZODY = { 'gran-paradiso': { n: 'kroki-snieg', dl: [5, 9], przerwa: [10, 26] } };
-  const MUZYKA_ROZDZIALU = { pilsko: 'pilsko', 'dolina-pieciu-stawow': 'dolina', 'kozi-wierch': 'kozi', mnich: 'mnich', marmolada: 'marmolada', everest: 'everest', 'babia-gora': 'babia-gora', rysy: 'rysy' };     // rozdział → utwór; wstęp dochodzi po wyborze
+  const MUZYKA_ROZDZIALU = { pilsko: 'pilsko', 'dolina-pieciu-stawow': 'dolina', 'kozi-wierch': 'kozi', mnich: 'mnich', marmolada: 'marmolada', everest: 'everest', 'babia-gora': 'babia-gora', rysy: 'rysy', 'gran-paradiso': 'gran-paradiso' };     // rozdział → utwór; wstęp dochodzi po wyborze
   const PRZENIK = 4, WEJSCIE = 2, WYJSCIE = 1.2;
 
   const KLUCZ = 'alpinista:mikser';
