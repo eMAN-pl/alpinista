@@ -170,7 +170,15 @@
 
 /* Koniec intro (intro.js): mgła ma już kolor strony, więc zdjęcia i smugi są wyłączone,
    a scena sama ma tło strony. Nic nie może wystawać spod mgły ani nad tekst wstępu. */
-.we-stage { contain: paint; }
+.we-stage { contain: paint; clip-path: inset(0); }
+/* Pełny ekran na komputerze (F11): „100svh” liczy wysokość tak, jakby pasek przeglądarki dalej
+   był widoczny — scena wychodziła niższa od okna o ten pasek (ok. 5% wysokości) i pod mgłą
+   zostawał pasek zdjęcia (zgłoszenie autora, 2026-11-16). Myszka = komputer: tu pasek nie
+   chowa się przy przewijaniu, więc wysokość okna jest stała i „100vh” jest dokładne.
+   Na dotyku zostaje svh — tam chowający się pasek adresu przesuwałby tekst. */
+@media (hover: hover) and (pointer: fine) {
+  .we-stage { height: 100vh; }
+}
 /* Trzecie zabezpieczenie: na końcu intro scena stoi przy dolnej krawędzi sekcji, a zdjęcie lodowca
    jest wyższe od sceny — sekcja przycina wszystko, co wystaje pod nią (overflow: clip nie psuje sticky). */
 .wejscie { overflow: clip; }
