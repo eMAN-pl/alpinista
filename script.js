@@ -821,7 +821,9 @@
   // przechodzi między wizytami — nowa wizyta to cisza (przeglądarka i tak wymaga kliknięcia).
   // Silnik dźwięku słucha zdarzenia „audio-zmiana” i czyta window.alpinistaAudio.
   const audio = { muzyka: false, dzwieki: false };
-  let ostatnie = { muzyka: true, dzwieki: true };   // co przywraca głośnik po wyciszeniu
+  // Co włącza głośnik: domyślnie same dźwięki — muzyka jest opcją, którą czytelnik włącza
+  // w menu (autor, 2026-11-17). Po wyciszeniu głośnik przywraca dokładnie ostatni wybór.
+  let ostatnie = { muzyka: false, dzwieki: true };
   window.alpinistaAudio = audio;
 
   const ikona = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
