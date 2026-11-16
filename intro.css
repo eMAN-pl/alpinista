@@ -147,7 +147,9 @@
 /* Druk: z intro zostaje sam tytuł jako strona tytułowa */
 @media print {
   .wejscie { height: auto; margin: 0 0 2rem; }
-  .we-stage { position: static; height: auto; overflow: visible; background: none; }
+  /* !important: intro.js ustawia tło sceny w stylu inline (kolor mgły) — w PDF zostawał
+     szary prostokąt za tytułem (autor, 2026-11-16) */
+  .we-stage { position: static; height: auto; overflow: visible; background: none !important; }
   .we-scene, #we-fog, .we-fog-fallback, .we-wisps, .we-flash, .we-beat, .we-hint { display: none !important; }
   .we-title { position: static; width: auto; padding: 0; opacity: 1 !important; transform: none !important; }
   .we-title h1 { color: #000; }

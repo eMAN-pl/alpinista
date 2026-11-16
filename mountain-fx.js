@@ -137,9 +137,9 @@
       if (o.back) behind += h; else pieces += h; });
     if (m.plumes) m.plumes.forEach(p => { const w = p.len / .86, h = w * p.ar, x = p.tip[0] - p.ox * w, y = p.tip[1] - p.oy * h;
       pieces += `<div class="plume" style="left:${pct(x)};top:${pct(y)};width:${pct(w)};height:${pct(h)};--ox:${p.ox * 100}%;--oy:${p.oy * 100}%;--r:${p.rot}deg;${m.windOp ? `--wo:${m.windOp};` : ''}${p.o ? `--po:${p.o};` : ''}${p.sy ? `--sy:${p.sy};` : ''}${p.d ? `--pd:${p.d}s;` : ''}"><img src="${P + p.src}" alt=""><img src="${P + p.src}" alt=""></div>`; });
-    if (m.gustLines) pieces += `<canvas class="gustl" width="1000" height="1000" style="--gm:url(${P + m.img})" aria-hidden="true"></canvas>`;
+    if (m.gustLines) pieces += `<canvas class="gustl" width="1000" height="1000" style="--gm:url(${m.src})" aria-hidden="true"></canvas>`;
     if (m.iceSheen) pieces += `<div class="icesheen" style="--im:url(${P + m.iceSheen})"><i></i></div>`;
-    if (m.dawn) pieces += `<div class="dawn" style="--mi:url(${P + m.img});--dx:${m.dawn.x / 10}%;--dy:${m.dawn.y / 10}%"></div>`;
+    if (m.dawn) pieces += `<div class="dawn" style="--mi:url(${m.src});--dx:${m.dawn.x / 10}%;--dy:${m.dawn.y / 10}%"></div>`;
 
     st.style.setProperty('--dur', m.dur + 's');
     st.style.setProperty('--delay', (-i * 1.7) + 's');
@@ -415,7 +415,7 @@
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
       [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T].forEach(k => gl.texParameteri(gl.TEXTURE_2D, k, gl.CLAMP_TO_EDGE));
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR); };
-    Promise.all([load(P + M.img), load(P + M.mask)]).then(([a, b]) => {
+    Promise.all([load(M.src), load(P + M.mask)]).then(([a, b]) => {
       tex(0, a); tex(1, b);
       gl.uniform1i(gl.getUniformLocation(pr, 'img'), 0); gl.uniform1i(gl.getUniformLocation(pr, 'msk'), 1);
       const U = n => gl.getUniformLocation(pr, n);
@@ -455,6 +455,9 @@
   MOUNTAINS.forEach((m, i) => {
     m.stage = document.querySelector(`.gora[data-gora="${m.id}"]`);
     if (!m.stage) return;
+    // ten sam adres co <img class="still"> (z ?v=) — inaczej przeglądarka pobierała makietę drugi raz
+    const still = m.stage.querySelector('img.still');
+    m.src = still ? still.getAttribute('src') : P + m.img;
     // scena powstaje z wyprzedzeniem ekranu, żeby wejście nie startowało od pustego miejsca
     new IntersectionObserver((e, o) => { if (e[0].isIntersecting) { o.disconnect(); build(m, i); applyState(); pause(m); } },
       { rootMargin: '600px 0px' }).observe(m.stage);

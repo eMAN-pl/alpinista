@@ -2067,6 +2067,12 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
 .tb-autor:hover,
 .tb-autor:focus-visible { color: var(--tb-ink); }
 
+/* Poniżej ~368 px nazwisko + trzy ikony nie mieszczą się (na 320 px przycisk menu
+   wychodził za ekran) — zostaje sam avatar, nazwisko jest w karcie autora na końcu. */
+@media (max-width: 23em) {
+  .tb-nazwisko { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
+
 .tb-akcje {
   display: flex;
   align-items: center;
@@ -2556,3 +2562,26 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
   vertical-align: 0.25em;
 }
 @media print { .echo-wyboru { display: none; } }
+
+/* ---------- PDF i druk: poprawki po przejrzeniu PDF (autor, 2026-11-16) ----------
+   - oba zakończenia wstępu stoją na papierze jedno pod drugim — bez etykiet czytały się
+     jak jedna historia („Decyzja zapadła. Idziesz dalej.” … „Decyzja zapadła. Zawracasz.”);
+   - przypis z końca rozdziału nie odrywa się od swojej kreski na poprzedniej stronie;
+   - w stopce znika to, czego na papierze nie da się użyć: „na górę”, rozwijana lista
+     zmian i linki do pobrania (względne adresy w PDF prowadzą donikąd). */
+@media print {
+  .js .wybor-odp::before {
+    content: attr(data-odp);
+    display: block;
+    margin-bottom: 0.6em;
+    font: 8pt/1 var(--mono);
+    letter-spacing: 0.18em;
+    color: var(--text-quiet);
+  }
+  .js .wybor-odp { margin-bottom: 1.4em; }
+  .footnotes { break-inside: avoid; }
+  .colophon-utils,
+  .changes,
+  .meta-pliki,
+  .meta dt:has(+ .meta-pliki) { display: none !important; }
+}
