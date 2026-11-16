@@ -596,7 +596,21 @@
        przebudzenie: ciemność schodzi szybko, bez błysku. Poprzednia wersja (falujące słowa)
        zostaje jako `most-stary` — do porównania na stronie testowej. */
     most: { dur: 6200,
+      // „Bałem się czegoś, czego nawet nie widziałem na własne oczy.” zostaje w ciemności jasne
+      // i ostre (autor, 16.11): kopia akapitu nad warstwą nocy, w której widać tylko to zdanie.
+      init(s){
+        const ak = s.btn.closest('p'); if (!ak) return;
+        const cs = getComputedStyle(ak), kl = ak.cloneNode(true);
+        kl.removeAttribute('id'); kl.querySelectorAll('[data-fx]').forEach(b => { b.removeAttribute('data-fx'); b.removeAttribute('role'); b.removeAttribute('tabindex'); });
+        kl.innerHTML = kl.innerHTML.replace(/(Bałem się czegoś, czego nawet nie widziałem na(?:\s|&nbsp;| )własne oczy\.)/, '<span class="most-jasne">$1</span>');
+        kl.className = 'most-swiatlo'; kl.setAttribute('aria-hidden', 'true');
+        Object.assign(kl.style, {font: cs.font, lineHeight: cs.lineHeight, letterSpacing: cs.letterSpacing, textWrap: cs.textWrap || '', width: ak.offsetWidth + 'px'});
+        document.body.append(kl); s.kl = kl; s.ak = ak; s.w0 = ak.offsetWidth;
+      },
+      stop(s){ s.kl?.remove(); },
       draw(c, s, p, t, dt, M){
+        if (s.kl) { const r = s.ak.getBoundingClientRect(), e0 = env(p, .22, .07);
+          Object.assign(s.kl.style, {left: r.left + 'px', top: r.top + 'px', transform: `scale(${(r.width/s.w0).toFixed(4)})`, opacity: e0.toFixed(3)}); }
         const e = env(p, .22, .07), hb = Math.pow(Math.max(0, Math.sin(t/760*TAU)), 8);
         c.fillStyle = `rgba(4,5,10,${(.66*e).toFixed(3)})`; c.fillRect(0, 0, W, H);
         const otch = c.createLinearGradient(0, H*.45, 0, H);                    // pustka pod stopami
