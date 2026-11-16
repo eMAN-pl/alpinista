@@ -35,6 +35,10 @@
   const MUZYKA = { wybor: 'Wstęp po wyborze — Sommerso', pilsko: 'Pilsko — fortepian', dolina: 'Dolina Pięciu Stawów — From the Mountain',
     kozi: 'Kozi Wierch — Mountain', mnich: 'Mnich — Mountain Silence', marmolada: 'Marmolada — Cinematic Documentary', everest: 'Everest — Dark Documentary',
     'babia-gora': 'Babia Góra — Stillness', rysy: 'Rysy — History Documentary' };
+  // Epizody: krótkie fragmenty nagrania w losowych odstępach, pod tłem rozdziału (autor, 2026-11-16 —
+  // kroki na śniegu w Gran Paradiso „budują obraz”). Każdy z innego miejsca nagrania, z innej strony
+  // i z innej odległości, więc się nie powtarzają. dl i przerwa w sekundach: [od, do].
+  const EPIZODY = { 'gran-paradiso': { n: 'kroki-snieg', dl: [5, 9], przerwa: [10, 26] } };
   const MUZYKA_ROZDZIALU = { pilsko: 'pilsko', 'dolina-pieciu-stawow': 'dolina', 'kozi-wierch': 'kozi', mnich: 'mnich', marmolada: 'marmolada', everest: 'everest', 'babia-gora': 'babia-gora', rysy: 'rysy' };     // rozdział → utwór; wstęp dochodzi po wyborze
   const PRZENIK = 4, WEJSCIE = 2, WYJSCIE = 1.2;
 
@@ -128,6 +132,7 @@
     const id = rozdzial(), n = solo || (wlaczone() ? TLA[id] || null : null);
     const m = solo ? null : (muzykaWlaczona() ? MUZYKA_ROZDZIALU[id] || null : null);
     if (!muzSolo && m !== muzTeraz) { if (muzTeraz) muzCisza(muzTeraz, 3); muzTeraz = m; if (m) muzGraj(m, szybkoMuzyka ? .8 : 2.5); }
+    epizodyDla(wlaczone() && !solo ? id : null);
     if (n === teraz) return;
     if (teraz) cisza(teraz, czas);
     teraz = n;
@@ -135,7 +140,7 @@
     // następne tło dociąga się po chwili w tym samym rozdziale — przejście nie czeka na sieć
     clearTimeout(dociag);
     const dalej = nastepny(id);
-    sprzataj([n, dalej].filter(Boolean));
+    sprzataj([n, dalej, EPIZODY[id]?.n].filter(Boolean));
     // muzyka następnego rozdziału też dociąga się zawczasu (sam plik, bez dekodowania)
     const i = sekcje.findIndex(x => x.id === id), mDalej = muzykaWlaczona() ? MUZYKA_ROZDZIALU[sekcje[i + 1]?.id] : null;
     if ((dalej || mDalej) && !solo) dociag = setTimeout(() => { if (dalej) bufor(dalej).catch(() => {}); if (mDalej) muzPlik(mDalej).catch(() => {}); }, 6000);
@@ -148,8 +153,35 @@
 
   // schowana karta milczy; powrót wznawia
   document.addEventListener('visibilitychange', () => { if (!A) return;
-    if (document.hidden) { if (teraz) { cisza(teraz, .4); teraz = null; } if (muzTeraz) { muzCisza(muzTeraz, .4); muzTeraz = null; } }
+    if (document.hidden) { if (teraz) { cisza(teraz, .4); teraz = null; } if (muzTeraz) { muzCisza(muzTeraz, .4); muzTeraz = null; } clearTimeout(epTimer); epRozdzial = null; }
     else wybierz(WEJSCIE); });
+
+  // ---------- epizody ----------
+  const los = ([a, b]) => a + Math.random()*(b - a);
+  let epTimer = 0, epRozdzial = null;
+  function epizodyDla(id) {
+    if (id === epRozdzial) return;
+    clearTimeout(epTimer); epRozdzial = id;
+    const e = EPIZODY[id]; if (!e) return;
+    bufor(e.n).catch(() => {});
+    const nastepny = pierwszy => { epTimer = setTimeout(() => {
+      if (epRozdzial !== id || !wlaczone()) return;
+      epizod(e); nastepny(false); }, 1000*(pierwszy ? 3 + Math.random()*4 : los(e.przerwa))); };
+    nastepny(true);
+  }
+  async function epizod(e) {
+    let b; try { b = await bufor(e.n); } catch { return; }
+    const d = los(e.dl), od = b.od + Math.random()*Math.max(0, b.do - b.od - d), t = A.currentTime + .05;
+    const blisko = Math.random(), v = poziomTla(e.n)*(.45 + .55*blisko);
+    const s = A.createBufferSource(), lp = A.createBiquadFilter(), g = A.createGain();
+    s.buffer = b; lp.type = 'lowpass'; lp.frequency.value = 2500 + 9500*blisko;   // dalej = głuszej
+    s.connect(lp).connect(g);
+    if (A.createStereoPanner) { const p = A.createStereoPanner(), x = (Math.random()*2 - 1)*.7;
+      p.pan.setValueAtTime(x, t); p.pan.linearRampToValueAtTime(Math.max(-1, Math.min(1, x + (Math.random() - .5)*.4)), t + d);
+      g.connect(p).connect(grupaTla); } else g.connect(grupaTla);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + 1.2); g.gain.setValueAtTime(v, t + d - 1.5); g.gain.linearRampToValueAtTime(0, t + d);
+    s.start(t, od); s.stop(t + d + .1);
+  }
 
   // ---------- whoosh slajdów wstępu: wariant B wybrany przez autora (przechodzący wiatr) ----------
   let szum = null;
@@ -307,6 +339,8 @@
     wiersz('grupy', 'efekty', 'Dźwięki efektów');
     wiersz('grupy', 'muzyka', 'Muzyka');
     naglowek('Tła');
+    for (const [id, e] of Object.entries(EPIZODY)) wiersz('tla', e.n, `${sekcje.find(x => x.id === id)?.dataset.nazwa || id} — kroki (epizody)`,
+      ['test', () => { kontekst(); A.resume(); epizod(e); }]);
     for (const n of Object.keys(NAZWY)) wiersz('tla', n, NAZWY[n], ['słuchaj', b => {
       kontekst(); A.resume();
       solo = solo === n ? null : n;
