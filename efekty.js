@@ -761,12 +761,14 @@
           c.save(); c.filter = 'blur(.35px)';
           c.strokeStyle = `rgba(250,252,255,${(.9*wid).toFixed(3)})`; c.lineWidth = .9;   // lina, jasna jak na śniegu w słońcu
           c.beginPath(); c.moveTo(p1[0], p1[1]); c.quadraticCurveTo((p1[0] + p2[0])/2, (p1[1] + p2[1])/2 + sag, p2[0], p2[1]); c.stroke();
-          for (const [x, y] of [p1, p2]) {
+          // ten na przedzie w czerwieni — dziecko w czerwonej kurtce z Pilska, dorosłe, na Mont Blanc (autor, 16.11)
+          for (const [x, y, czerwony] of [[...p1, false], [...p2, true]]) {
             const cs = c.createRadialGradient(x + 7, y + 6, 0, x + 7, y + 6, 9);       // miękki, długi cień postaci
             cs.addColorStop(0, `rgba(60,72,90,${(.32*wid).toFixed(3)})`); cs.addColorStop(1, 'rgba(60,72,90,0)');
             c.save(); c.translate(x + 7, y + 6); c.rotate(.6); c.scale(1.6, .5); c.translate(-(x + 7), -(y + 6));
             c.fillStyle = cs; c.fillRect(x - 4, y - 5, 22, 22); c.restore();
-            c.fillStyle = `rgba(28,32,38,${wid.toFixed(3)})`; c.beginPath(); c.ellipse(x, y - 3.2, 2.1, 4, 0, 0, TAU); c.fill();
+            c.fillStyle = czerwony ? `rgba(196,40,36,${wid.toFixed(3)})` : `rgba(28,32,38,${wid.toFixed(3)})`;
+            c.beginPath(); c.ellipse(x, y - 3.2, 2.1, 4, 0, 0, TAU); c.fill();
           }
           c.restore();
         }
