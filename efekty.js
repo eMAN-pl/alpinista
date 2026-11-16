@@ -1292,6 +1292,28 @@
   ];
   let enterRun = null;
   function stopEnter(){ if (!enterRun) return; enterRun.timers.forEach(clearTimeout); enterRun.box.remove(); enterRun.btn.setAttribute('aria-pressed','false'); enterRun = null; }
+  /* ---------- Enter na końcu fragmentu: „Masz absolutną rację.” generuje się ----------
+     „Może zabrakło testu na człowieczeństwo? Klik. Enter. Masz absolutną rację.” — drugie Enter
+     nie otwiera rozmowy, tylko wysyła prompt: odpowiedź znika i wraca tak, jak pisze model —
+     kropki „pisze…”, potem tekst kawałkami z kursorem, na końcu przebiega po nim połysk.
+     Bez kliknięcia zdanie stoi w tekście normalnie (autor, 2026-11-16). */
+  let odpRun = null;
+  function stopOdp(){ if (!odpRun) return; odpRun.timers.forEach(clearTimeout); odpRun.em.innerHTML = odpRun.html;
+    odpRun.em.classList.remove('gen', 'gen-blysk'); odpRun.btn.setAttribute('aria-pressed', 'false'); odpRun = null; }
+  function odpowiedzModelu(btn, em){
+    if (odpRun) { stopOdp(); return; }
+    const run = odpRun = {btn, em, html: em.innerHTML, timers: []}, at = (ms, fn) => run.timers.push(setTimeout(fn, ms));
+    const tekst = em.textContent; btn.setAttribute('aria-pressed', 'true');
+    em.classList.add('gen'); em.innerHTML = '<span class="gen-kropki" aria-hidden="true"><i></i><i></i><i></i></span>';
+    let tm = 900, i = 0;
+    const krok = () => { const ile = 1 + Math.floor(R()*3); i = Math.min(tekst.length, i + ile);
+      em.innerHTML = ''; em.append(tekst.slice(0, i)); const k = document.createElement('span'); k.className = 'gen-kursor'; k.setAttribute('aria-hidden', 'true'); em.append(k); };
+    while (i < tekst.length) { const t0 = tm; at(t0, krok); tm += 45 + R()*90; i += 2; }
+    i = 0;
+    at(tm + 80, () => { em.textContent = tekst; em.classList.add('gen-blysk'); });
+    at(tm + 1500, stopOdp);
+  }
+
   function enter(btn){
     if (enterRun) { stopEnter(); return; }
     const tg = document.getElementById(btn.dataset.target) || btn.closest('p');
@@ -1320,7 +1342,11 @@
       if (name === 'klik') { if (enabled) klik(btn, ev); return; }
       if (name === 'dlugo') { if (enabled || czatRun) czatDziecka(btn); return; }
       if (name === 'test') { if (enabled || testRun) testCzlowieka(btn); return; }
-      if (name === 'enter') { if (enabled || enterRun) enter(btn); return; }
+      if (name === 'enter') {
+        const em = btn.parentElement && [...btn.parentElement.querySelectorAll('em')].find(e => btn.compareDocumentPosition(e) & Node.DOCUMENT_POSITION_FOLLOWING);
+        if (em) { if (enabled || odpRun) odpowiedzModelu(btn, em); return; }
+        if (enabled || enterRun) enter(btn); return;
+      }
       if (active.has(name)) { stop(name); if (!active.size) clearAll(); return; }
       if (!enabled) return;
       start(name, btn);
@@ -1328,7 +1354,7 @@
     enter(btn) { if (enabled) enter(btn); },
     wlacz(flag) {
       enabled = !!flag;
-      if (!enabled) { [...active.keys()].forEach(stop); clearAll(); clearKlik(); stopEnter(); stopCzat(); stopTest(); }
+      if (!enabled) { [...active.keys()].forEach(stop); clearAll(); clearKlik(); stopEnter(); stopCzat(); stopTest(); stopOdp(); }
     },
     czyDziala() { return active.size > 0 || !!enterRun || !!czatRun || !!testRun; },
   };
