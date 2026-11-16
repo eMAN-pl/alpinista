@@ -723,27 +723,6 @@
 
     /* ===== Propozycje z 2026-11-16 (plan-poprawek.md, sekcja D) — do oceny autora ===== */
 
-    /* Paralotnia (Mont Blanc): skrzydło przelatuje wysoko nad tekstem, jego cień sunie po akapicie. */
-    paralotnia: { dur: 6400,
-      init(s){ s.kier = R() < .5 ? 1 : -1; s.y0 = H*(.14 + R()*.08); },
-      draw(c, s, p, t, dt, M, cb){
-        const e = env(p, .06, .1), u = smooth(p), x = s.kier > 0 ? W + 140 - u*(W + 300) : -140 + u*(W + 300);
-        const y = s.y0 + u*H*.12 + Math.sin(t/900)*8, kat = Math.sin(t/1100)*.07 - s.kier*.05;
-        const acc = v('--accent') || '#c0392b';
-        c.save(); c.translate(x, y); c.rotate(kat); c.globalAlpha = e;
-        c.beginPath(); c.ellipse(0, 0, 58, 15, 0, Math.PI, TAU); c.lineTo(58, 0);    // skrzydło
-        c.quadraticCurveTo(0, -6, -58, 0); c.fillStyle = acc; c.fill();
-        c.strokeStyle = `rgba(${v('--fg-rgb')},.55)`; c.lineWidth = .7; c.beginPath();      // linki
-        for (const lx of [-50, -25, 0, 25, 50]) { c.moveTo(lx, -2); c.lineTo(0, 46); } c.stroke();
-        c.fillStyle = `rgba(${v('--fg-rgb')},.9)`; c.beginPath(); c.arc(0, 48, 3.2, 0, TAU); c.fill();   // pilot
-        c.restore();
-        // cień na akapicie: miękka plama, przesunięta jak od słońca z boku
-        const col = colRect(), sx = x - s.kier*160, sy = Math.max(col.top + 20, Math.min(H*.7, (s.target?.getBoundingClientRect().top ?? H*.5) + 20));
-        const g = cb.createRadialGradient(sx, sy, 0, sx, sy, 90);
-        g.addColorStop(0, `rgba(0,0,0,${(.32*e).toFixed(3)})`); g.addColorStop(1, 'rgba(0,0,0,0)');
-        cb.save(); cb.translate(sx, sy); cb.scale(1.8, .45); cb.translate(-sx, -sy); cb.fillStyle = g; cb.fillRect(sx - 90, sy - 90, 180, 180); cb.restore();
-      }},
-
     /* Kamienie (Mont Blanc, „usłyszeliśmy kamienie. Poleciały dokładnie tamtędy.”): przez kolumnę
        tekstu, dokładnie tam, gdzie przed chwilą była ścieżka, leci kilka kamieni i odbija się od półek. */
     kamienie: { dur: 4800,
