@@ -590,7 +590,28 @@
         c.strokeStyle = `rgba(${fg},${(.85*e*(1 - wyb)).toFixed(3)})`; c.lineWidth = 1.3; c.stroke();
       }},
 
-    most: { dur: 5200,
+    /* Most (Skalka, „Ten most śnił mi się jeszcze przed wyjazdem.”) — mara nocna (autor, 16.11).
+       Zapada noc, pod tekstem otwiera się czarna pustka, tekst powoli w nią osiada, oddycha
+       i rozdwaja się jak obraz we śnie, a w rytmie serca robi się mętny. Na końcu nagłe
+       przebudzenie: ciemność schodzi szybko, bez błysku. Poprzednia wersja (falujące słowa)
+       zostaje jako `most-stary` — do porównania na stronie testowej. */
+    most: { dur: 6200,
+      draw(c, s, p, t, dt, M){
+        const e = env(p, .22, .07), hb = Math.pow(Math.max(0, Math.sin(t/760*TAU)), 8);
+        c.fillStyle = `rgba(4,5,10,${(.66*e).toFixed(3)})`; c.fillRect(0, 0, W, H);
+        const otch = c.createLinearGradient(0, H*.45, 0, H);                    // pustka pod stopami
+        otch.addColorStop(0, 'rgba(0,0,0,0)'); otch.addColorStop(1, `rgba(0,0,0,${(.88*e).toFixed(3)})`);
+        c.fillStyle = otch; c.fillRect(0, H*.45, W, H*.55);
+        M.noc = Math.max(M.noc, e); M.sat *= 1 - .6*e;
+        M.blur += (.9 + 1.6*hb)*e;
+        M.scale *= 1 + .025*e*Math.sin(t/1500);                                 // oddech
+        M.dy += 16*e*smooth(p/.9);                                              // osiada w pustkę
+        const gx = 9*Math.sin(t/950)*e, gy = 5*Math.cos(t/1200)*e, fg = v('--fg-rgb');
+        M.shadow.push(`${gx.toFixed(1)}px ${gy.toFixed(1)}px 5px rgba(${fg},${(.34*e).toFixed(3)})`,
+                      `${(-gx*1.4).toFixed(1)}px ${(-gy).toFixed(1)}px 8px rgba(${fg},${(.2*e).toFixed(3)})`);
+      }},
+
+    'most-stary': { dur: 5200,
       init(s){
         s.sec = s.btn.closest('section'); s.ps = [...s.sec.querySelectorAll('p:not(.fxnote)')];
         s.sp = s.ps.map(pp => splitText(pp, 'word')); s.words = s.sp.flatMap(x => x.units);
