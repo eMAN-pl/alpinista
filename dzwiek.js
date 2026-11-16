@@ -245,7 +245,7 @@
       const t = A.currentTime + .05; [1, .92, .84].forEach((n, i) => whoosh(n, t + i*2.5)); }]);
     // dźwięki efektów: lista z modułu (wczytuje się od razu w trybie miksera)
     const OPIS = {
-      blysk: 'Wstęp — błysk i grzmot', dlugo: 'Pilsko — czy długo jeszcze', drzenie: 'Dolina — moje dłonie', odpadasz: 'Mnich — odpadasz',
+      blysk: 'Wstęp — błysk i grzmot', wybor: 'Wstęp — idę dalej / zawracam (grzmot)', dlugo: 'Pilsko — czy długo jeszcze', drzenie: 'Dolina — moje dłonie', odpadasz: 'Mnich — odpadasz',
       ruch: 'Mnich — zrób ruch', puf: 'Marmolada — puf', tlen: 'Everest — tlen', kadr: 'Everest — poza kadrem', oszus: 'Everest — oszus',
       zamiec: 'Babia Góra — zamieć', szron: 'Babia Góra — szron', czolowka: 'Babia Góra — czołówka', test: 'Rysy — test', shipit: 'Rysy — ship it',
       swietliki: 'Gran Paradiso — świetliki', szczelina: 'Gran Paradiso — szczelina', burza: 'Gran Paradiso — burza', enter: 'Gran Paradiso — enter',

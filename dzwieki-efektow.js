@@ -421,6 +421,12 @@
         krzywa(g.gain, tt, .45, u => .3*Math.sin(u*Math.PI)); os.start(tt); lfo.start(tt); os.stop(tt + .5); lfo.stop(tt + .5); }
       return d + .4;
     },
+    wybor(o, t, btn) {                             // „Idę dalej” / „Zawracam” we wstępie: bliski grzmot nad głową
+      const r = btn && btn.getBoundingClientRect ? btn.getBoundingClientRect() : null;
+      const x = r ? r.left + r.width/2 : innerWidth/2;
+      grzmot(miejsce(o, x + (R() - .5)*innerWidth*.4, innerHeight*.08, .25), t + .04, {moc: 1.15, dal: .2, opozn: .05});
+      return 5;
+    },
     blysk(o, t, btn) {                             // błysk jest cichy; liczenie; grzmot po 9 lub 6
       const ile = blyskIle(btn), tg = t + .62 + ile*.334;
       uderz(o, t, {f: 6000, q: .5, dur: .03, vol: .04, typ: 'highpass'});
@@ -694,6 +700,8 @@
     Object.defineProperty(window, 'Efekty', {configurable: true, get: () => czeka,
       set(v) { Object.defineProperty(window, 'Efekty', {value: v, writable: true, configurable: true}); podepnij(); }});
   }
+  // decyzja we wstępie (script.js): grzmot, gdy dźwięki są włączone
+  addEventListener('dzwiek:wybor', () => zagraj('wybor', document.activeElement?.closest?.('.wybor-opcja') || null));
   new MutationObserver(zDomu).observe(document.body, {childList: true, subtree: true, attributes: true, attributeFilter: ['class']});
 
   const btn = document.getElementById('t-dzwiek'), suw = document.getElementById('t-glosnosc');
