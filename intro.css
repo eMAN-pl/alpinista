@@ -171,6 +171,9 @@
 /* Koniec intro (intro.js): mgła ma już kolor strony, więc zdjęcia i smugi są wyłączone,
    a scena sama ma tło strony. Nic nie może wystawać spod mgły ani nad tekst wstępu. */
 .we-stage { contain: paint; }
+/* Trzecie zabezpieczenie: na końcu intro scena stoi przy dolnej krawędzi sekcji, a zdjęcie lodowca
+   jest wyższe od sceny — sekcja przycina wszystko, co wystaje pod nią (overflow: clip nie psuje sticky). */
+.wejscie { overflow: clip; }
 /* Każda scena przycina własne zdjęcie — drugie zabezpieczenie, gdyby przeglądarka nie przycięła
    go krawędzią sceny głównej w trakcie szybkiego przewijania, zanim mgła dojdzie do końca. */
 .we-scene { clip-path: inset(0); }

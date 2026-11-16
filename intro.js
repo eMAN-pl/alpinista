@@ -173,7 +173,10 @@
     // Zdjęcie lodowca jest wyższe od sceny i wystaje poza jej dolną krawędź; przycina je sama
     // scena, ale część przeglądarek nie przycina warstw z własnym przyspieszeniem — zostawał
     // pasek zdjęcia NAD tekstem wstępu (zgłoszenie autora z produkcji, 2026-11-16).
-    const koniec = p >= .972;
+    // Liczy się też rzeczywiste przewinięcie (target), nie tylko wygładzone p: przy szybkim
+    // przewinięciu p doganiało koniec z opóźnieniem, scena już odjeżdżała w górę, a spod niej
+    // wystawał dół zdjęcia lodowca (zgłoszenie autora, szeroki monitor, 2026-11-16).
+    const koniec = Math.max(p, target) >= .972;
     if (koniec !== bylKoniec) { bylKoniec = koniec; stage.classList.toggle('we-koniec', koniec); }
     const beat = (el, a, b) => {
       el.style.opacity = ramp(p, a, a + .03) * (1 - ramp(p, b - .03, b));
