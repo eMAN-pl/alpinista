@@ -34,7 +34,7 @@
   const KLUCZ = 'alpinista:mikser';
   let MIX = {};
   const wczytajMix = () => { try { MIX = JSON.parse(localStorage.getItem(KLUCZ) || '{}'); } catch { MIX = {}; }
-    for (const k of ['grupy', 'tla', 'wstep']) MIX[k] = MIX[k] || {}; };
+    for (const k of ['grupy', 'tla', 'wstep', 'efekty']) MIX[k] = MIX[k] || {}; };
   wczytajMix();
   const mn = (grupa, k) => (POZIOMY[grupa]?.[k] ?? 1)*(MIX[grupa]?.[k] ?? 1);
   const poziomTla = n => GLOS_TLA*mn('tla', n)*mn('grupy', 'tla');
@@ -155,6 +155,23 @@
   }
   addEventListener('intro:slajd', e => { if (A && wlaczone()) whoosh([1, .92, .84][e.detail?.nr] ?? 1); });
 
+  // ---------- dźwięki efektów: osobny moduł, wczytywany przy pierwszym włączeniu „Dźwięków” ----------
+  let modulEfektow = null;
+  function efekty() {
+    if (!modulEfektow) modulEfektow = new Promise((ok, blad) => {
+      const s = document.createElement('script');
+      s.src = document.body.dataset.dzwiekiEfektowJs || `${BAZA}dzwieki-efektow.js`;
+      s.onload = ok; s.onerror = blad; document.head.append(s);
+    });
+    return modulEfektow;
+  }
+  // Tło rozdziału na chwilę cichnie pod dźwiękiem efektu — efekt ma być wyraźny, a tło nie ma
+  // się z nim kłócić. Wraca łagodnie po sekundzie.
+  addEventListener('dzwiek:efekt', e => { if (!A || !grupaTla) return;
+    const g = grupaTla.gain, now = A.currentTime, czas = e.detail?.czas ?? 3;
+    g.cancelScheduledValues(now); g.setValueAtTime(g.value, now);
+    g.linearRampToValueAtTime(.45, now + .25); g.setValueAtTime(.45, now + czas); g.linearRampToValueAtTime(1, now + czas + 1.2); });
+
   // ---------- API dla script.js ----------
   window.Dzwiek = {
     // podgląd stanu do sprawdzania w konsoli: co gra i co jest w pamięci
@@ -162,6 +179,8 @@
       graja: Object.values(sciezki).filter(t => t.zrodlo).map(t => `${t.n} ${t.g.gain.value.toFixed(2)}`)}),
     ustaw(nowy) {
       stan = {...nowy};
+      if (stan.dzwieki) efekty().then(() => window.Dzwieki?.wlacz(true)).catch(() => {});
+      else window.Dzwieki?.wlacz(false);
       if (!stan.dzwieki && !solo && !A) return;            // nic nie gra i nic nie zagra
       kontekst(); if (A.state === 'suspended') A.resume();
       wybierz(stan.dzwieki ? WEJSCIE : WYJSCIE);
@@ -191,11 +210,11 @@
       .mikser textarea { width: 100%; height: 90px; margin-top: 6px; font: inherit; background: none; color: var(--text); border: 1px solid var(--rule); }
     </style>
     <div class="mk-gora"><b>Mikser</b><button data-a="kopiuj">kopiuj</button><button data-a="zeruj">na 1,00</button><button data-a="zwin">zwiń</button></div>
-    <div class="mk-tresc"><p style="margin:6px 0 0;color:var(--text-quiet)">Suwak to mnożnik: 1,00 = obecny poziom. „Słuchaj” gra tło bez względu na rozdział.</p>
+    <div class="mk-tresc"><p style="margin:6px 0 0;color:var(--text-quiet)">Suwak to mnożnik: 1,00 = obecny poziom. „Słuchaj” gra tło bez względu na rozdział, „graj” — dźwięk efektu bez obrazu.</p>
     <div class="mk-lista"></div><textarea hidden readonly></textarea></div>`;
     document.body.append(panel);
     const lista = panel.querySelector('.mk-lista');
-    const zapisz = () => { try { localStorage.setItem(KLUCZ, JSON.stringify(MIX)); } catch {} odswiezPoziomy(); };
+    const zapisz = () => { try { localStorage.setItem(KLUCZ, JSON.stringify(MIX)); } catch {} odswiezPoziomy(); window.Dzwieki?.ustaw(MIX); };
     const wiersze = [];
     function wiersz(grupa, k, nazwa, akcja) {
       const w = document.createElement('div'); w.className = 'mk-w';
@@ -212,6 +231,7 @@
     naglowek('Grupy');
     wiersz('grupy', 'tla', 'Tła rozdziałów');
     wiersz('grupy', 'wstep', 'Whoosh wstępu');
+    wiersz('grupy', 'efekty', 'Dźwięki efektów');
     naglowek('Tła');
     for (const n of Object.keys(NAZWY)) wiersz('tla', n, NAZWY[n], ['słuchaj', b => {
       kontekst(); A.resume();
@@ -223,10 +243,26 @@
     naglowek('Wstęp');
     wiersz('wstep', 'whoosh', 'Whoosh slajdów (3 podmuchy)', ['test', () => { kontekst(); A.resume();
       const t = A.currentTime + .05; [1, .92, .84].forEach((n, i) => whoosh(n, t + i*2.5)); }]);
+    // dźwięki efektów: lista z modułu (wczytuje się od razu w trybie miksera)
+    const OPIS = {
+      blysk: 'Wstęp — błysk i grzmot', dlugo: 'Pilsko — czy długo jeszcze', drzenie: 'Dolina — moje dłonie', odpadasz: 'Mnich — odpadasz',
+      ruch: 'Mnich — zrób ruch', puf: 'Marmolada — puf', tlen: 'Everest — tlen', kadr: 'Everest — poza kadrem', oszus: 'Everest — oszus',
+      zamiec: 'Babia Góra — zamieć', szron: 'Babia Góra — szron', czolowka: 'Babia Góra — czołówka', test: 'Rysy — test', shipit: 'Rysy — ship it',
+      swietliki: 'Gran Paradiso — świetliki', szczelina: 'Gran Paradiso — szczelina', burza: 'Gran Paradiso — burza', enter: 'Gran Paradiso — enter',
+      most: 'Skalka — most', wiatr: 'Grossglockner — wiatr', lawinki: 'Grossglockner — lawinki', brocken: 'Grossglockner — widmo Brockenu',
+      dwa: 'Mont Blanc — dwa świetliki', choinka: 'Mont Blanc — choinka', oczami: 'Mont Blanc — jego oczami', kamienie: 'Mont Blanc — kamienie',
+      bidon: 'Mont Blanc — bidon', cyk: 'refren — cyk', klik: 'refren — klik', wtf: 'refren — WTF', 'wtf-stary': 'refren — WTF (Orla Perć)',
+    };
+    efekty().then(() => {
+      window.Dzwieki?.ustaw(MIX);
+      naglowek('Efekty');
+      const lista = (window.Dzwieki?.lista() || []).filter(n => OPIS[n]).sort((a, b) => OPIS[a].localeCompare(OPIS[b], 'pl'));
+      for (const n of lista) wiersz('efekty', n, OPIS[n], ['graj', () => { kontekst(); A.resume(); window.Dzwieki.graj(n); }]);
+    }).catch(() => {});
     panel.addEventListener('click', async e => {
       const a = e.target.closest('[data-a]')?.dataset.a; if (!a) return;
       if (a === 'zwin') { panel.classList.toggle('mk-zwiniety'); e.target.textContent = panel.classList.contains('mk-zwiniety') ? 'rozwiń' : 'zwiń'; }
-      if (a === 'zeruj') { MIX = {grupy: {}, tla: {}, wstep: {}}; zapisz(); wiersze.forEach(f => f()); }
+      if (a === 'zeruj') { MIX = {grupy: {}, tla: {}, wstep: {}, efekty: {}}; zapisz(); wiersze.forEach(f => f()); }
       if (a === 'kopiuj') { const tx = panel.querySelector('textarea'), json = JSON.stringify(MIX);
         tx.hidden = false; tx.value = json; tx.select();
         try { await navigator.clipboard.writeText(json); e.target.textContent = 'skopiowane'; } catch { e.target.textContent = 'Ctrl+C'; } }

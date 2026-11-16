@@ -105,10 +105,11 @@
   }
 
   // Efekty: przełącznik wrócił do menu (autor, 2026-11-16) — „Sprzęt” → Efekty.
-  // Wybór jest zapamiętany; bez wyboru efekty są włączone, chyba że system prosi
-  // o ograniczenie ruchu. Wyłączone: zapalniki wyglądają i działają jak zwykły tekst.
+  // Wybór jest zapamiętany; bez wyboru efekty są włączone dla wszystkich (autor: „mają być
+  // włączone od początku”), także przy systemowym ograniczeniu ruchu — wyłącza się je w menu.
+  // Wyłączone: zapalniki wyglądają i działają jak zwykły tekst.
   const EFEKTY_KEY = "alpinista:efekty";
-  let efektyOn = (remember(EFEKTY_KEY) ?? (reduceMotion.matches ? "0" : "1")) === "1";
+  let efektyOn = (remember(EFEKTY_KEY) ?? "1") === "1";
   document.documentElement.classList.toggle("bez-efektow", !efektyOn);
 
   function effectsEnabled() {
