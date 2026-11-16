@@ -775,23 +775,36 @@
         if (s.rum) { const d = t - s.rum; M.dx += 2.2*Math.exp(-d/110)*Math.sin(d/17); M.dy += 1.4*Math.exp(-d/110)*Math.cos(d/23); }
       }},
 
-    /* Widmo Brockenu (Grossglockner): mgła, a w niej cień postaci otoczony tęczowymi kręgami. */
-    brocken: { dur: 5600,
-      init(s){ s.cx = W*(.55 + R()*.15); s.cy = H*.42; },
-      draw(c, s, p, t, dt, M){
-        const e = env(p, .2, .25), R0 = Math.min(W, H)*.11, cx = s.cx, cy = s.cy + Math.sin(t/1400)*4;
-        c.fillStyle = rgba('--fog-rgb', .55*e); c.fillRect(0, 0, W, H);
-        M.blur += 1.2*e;
+    /* Widmo Brockenu (Grossglockner): miękka tęczowa poświata w mgle, jak światło świetlików —
+       bez obrysowanych kręgów, rozmycia tekstu i rysowanej postaci (wcześniejsza wersja wyszła
+       „tragicznie”, autor 16.11). Pośrodku ledwie widoczny, rozmyty cień — widmo. */
+    brocken: { dur: 6000,
+      init(s){ const col = colRect(); s.cx = Math.min(W - 120, col.right - col.width*.18); s.cy = H*.4; },
+      draw(c, s, p, t){
+        const e = env(p, .3, .32), jasny = root.getAttribute('data-theme') === 'jasny';
+        const R0 = Math.min(W, H)*.2*(1 + .03*Math.sin(t/900)), cx = s.cx + Math.sin(t/2300)*10, cy = s.cy + Math.cos(t/1900)*6;
+        const a = (jasny ? .22 : .3)*e*(.85 + .15*Math.sin(t/700));
+        // delikatna mgła wokół, żeby światło miało w czym świecić
+        const mg = c.createRadialGradient(cx, cy, 0, cx, cy, R0*2.6);
+        mg.addColorStop(0, rgba('--fog-rgb', .1*e)); mg.addColorStop(1, rgba('--fog-rgb', 0));
+        c.fillStyle = mg; c.fillRect(cx - R0*2.6, cy - R0*2.6, R0*5.2, R0*5.2);
+        c.globalCompositeOperation = jasny ? 'multiply' : 'lighter';
+        const g = c.createRadialGradient(cx, cy, 0, cx, cy, R0*1.6);
+        g.addColorStop(0, 'rgba(255,255,255,0)');
+        g.addColorStop(.34, `hsla(200,85%,72%,0)`);
+        g.addColorStop(.46, `hsla(200,85%,72%,${(a*.7).toFixed(3)})`);
+        g.addColorStop(.56, `hsla(140,70%,66%,${(a*.6).toFixed(3)})`);
+        g.addColorStop(.66, `hsla(50,95%,66%,${(a*.6).toFixed(3)})`);
+        g.addColorStop(.77, `hsla(12,90%,62%,${(a*.7).toFixed(3)})`);
+        g.addColorStop(.9, `hsla(290,60%,68%,${(a*.25).toFixed(3)})`);
+        g.addColorStop(1, 'rgba(255,255,255,0)');
+        c.fillStyle = g; c.fillRect(cx - R0*1.6, cy - R0*1.6, R0*3.2, R0*3.2);
         c.globalCompositeOperation = 'source-over';
-        const barwy = [[200,80,70],[175,85,72],[120,70,70],[55,85,65],[205,70,72],[270,55,72],[0,75,68]];   // od środka: niebieski → czerwony, potem drugi krąg
-        barwy.forEach(([h, sa, l], i) => { c.beginPath(); c.arc(cx, cy, R0 + i*10, 0, TAU);
-          c.strokeStyle = `hsla(${h},${sa}%,${l}%,${(.3*e*(1 - i*.07)).toFixed(3)})`; c.lineWidth = 9; c.stroke(); });
-        const g = c.createRadialGradient(cx, cy, 0, cx, cy, R0); g.addColorStop(0, `rgba(255,255,255,${(.35*e).toFixed(3)})`); g.addColorStop(1, 'rgba(255,255,255,0)');
-        c.fillStyle = g; c.fillRect(cx - R0, cy - R0, R0*2, R0*2);
-        // cień: głowa w środku kręgów, ciało wydłużone w dół, rozmyte jak w mgle
-        c.save(); c.filter = 'blur(4px)'; c.fillStyle = `rgba(40,46,56,${(.55*e).toFixed(3)})`;
-        c.beginPath(); c.arc(cx, cy, R0*.16, 0, TAU); c.fill();
-        c.beginPath(); c.moveTo(cx - R0*.22, cy + R0*.2); c.lineTo(cx + R0*.22, cy + R0*.2); c.lineTo(cx + R0*.42, cy + R0*2.6); c.lineTo(cx - R0*.42, cy + R0*2.6); c.closePath(); c.fill();
+        // widmo: miękki, wydłużony cień w środku kręgu
+        c.save(); c.translate(cx, cy); c.scale(.55, 1.6);
+        const w = c.createRadialGradient(0, R0*.18, 0, 0, R0*.18, R0*.4);
+        w.addColorStop(0, `rgba(10,14,20,${((jasny ? .1 : .22)*e).toFixed(3)})`); w.addColorStop(1, 'rgba(10,14,20,0)');
+        c.fillStyle = w; c.fillRect(-R0*.4, -R0*.3, R0*.8, R0*1);
         c.restore();
       }},
 
@@ -806,37 +819,6 @@
         s.t.style.opacity = (pojaw*(1 - smooth((p - .8)/.2))).toFixed(2);
         s.t.style.width = (s.w0*(1 - spad)).toFixed(1) + 'px';      // po odpadnięciu kropka dosuwa się do „Oszus”
         s.t.style.transform = `translate(${(spad*6).toFixed(1)}px,${(spad*spad*70).toFixed(1)}px) rotate(${(chwiej + spad*80).toFixed(1)}deg)`;
-      }},
-
-    /* Przyleciał (Rysy): śmigłowca nie rysujemy — rysowany wirnik wyglądał jak krzyż
-       z kresek (autor, 16.11). Widać tylko skutki: miękki, rozmyty cień nadlatuje i zawisa
-       nad tekstem, pulsuje w rytmie łopat, podmuch wyrzuca pył i śnieg na boki,
-       a litery szarpią się w tym samym rytmie. */
-    smiglowiec: { dur: 5600,
-      init(s){ s.pyl = []; },
-      draw(c, s, p, t, dt, M, cb){
-        const e = env(p, .05, .14), k = dt/16, wlot = smooth(p/.32), odlot = smooth((p - .72)/.28);
-        const cx = W*1.2 + (W*.55 - W*1.2)*wlot + (-W*.4 - W*.55)*odlot, cy = -H*.1 + (H*.38 + H*.1)*wlot - H*.25*odlot;
-        const blisko = Math.max(0, 1 - Math.hypot(cx - W*.55, cy - H*.38)/(W*.55));
-        const lopaty = .5 + .5*Math.sin(t*.055);                     // rytm wirnika, ok. 9 uderzeń na sekundę
-        // cień: duża, rozmyta plama na płótnie tylnym, lekko pulsuje z łopatami
-        const R0 = Math.min(W, H)*.42, g = cb.createRadialGradient(cx, cy, 0, cx, cy, R0);
-        const a0 = (.34 + .08*lopaty)*e*(.4 + .6*blisko);
-        g.addColorStop(0, `rgba(0,0,0,${a0.toFixed(3)})`); g.addColorStop(.6, `rgba(0,0,0,${(a0*.45).toFixed(3)})`); g.addColorStop(1, 'rgba(0,0,0,0)');
-        cb.fillStyle = g; cb.fillRect(cx - R0, cy - R0, R0*2, R0*2);
-        // podmuch: drobiny wylatują spod wirnika na boki, mocniej przy każdym uderzeniu łopat
-        // pył przy „ziemi”: tuż pod cieniem, rozdmuchiwany poziomo w obie strony
-        let n = (.8 + 2.4*lopaty)*blisko*e*k;
-        while (n > 0) { if (n >= 1 || R() < n) { const strona = R() < .5 ? -1 : 1, sp = 3 + R()*5;
-          s.pyl.push({x: cx + strona*R()*R0*.25, y: cy + R0*.3 + (R() - .5)*40, vx: strona*sp, vy: (R() - .6)*.8, age: 0, life: 600 + R()*600, d: R()}); } n--; }
-        s.pyl = s.pyl.filter(q => { q.age += dt; const al = 1 - q.age/q.life; if (al <= 0) return false;
-          q.x += q.vx*k; q.y += q.vy*k; q.vx *= .985; q.vy *= .985;
-          c.strokeStyle = rgba('--snow-rgb', (.12 + .28*q.d)*al*e); c.lineWidth = .6 + .8*q.d;
-          c.beginPath(); c.moveTo(q.x, q.y); c.lineTo(q.x - q.vx*1.6, q.y - q.vy*1.6); c.stroke(); return true; });
-        // tekst: szarpnięcia w rytmie łopat, odpychany od środka podmuchu
-        const sila = 3.2*blisko*e;
-        M.dx += sila*(lopaty - .5)*Math.sign(W*.5 - cx || 1)*-1 + (R() - .5)*sila*.5;
-        M.dy += sila*.5*(lopaty - .5); M.blur += .5*blisko*e;
       }},
 
     /* Ship it! (Rysy, konferencja): konfetti wystrzeliwuje ze słowa i smętnie opada. */
