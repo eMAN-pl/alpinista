@@ -1240,7 +1240,7 @@
      jeśli nie kliknie, test robi się sam. Wynik zawsze negatywny; kolejne powody są
      z tekstu („Unikają myślników. Celowo robią nierówne akapity.”). */
   // Jedna próba, wszystko w jednym wierszu (autor, 2026-11-16): w miejscu pola wyboru kręci się
-  // kółko, potem krzyżyk, a „Jestem człowiekiem” zmienia się na czerwone „Ups. Nie jestem człowiekiem.”
+  // kółko, potem krzyżyk, a „Jestem człowiekiem” zmienia się na czerwone „Ups. Nie jestem.”
   let testRun = null;
   function stopTest(){ if (!testRun) return; testRun.timers.forEach(clearTimeout); testRun.box.remove();
     testRun.btn.setAttribute('aria-pressed', 'false'); testRun = null; }
@@ -1261,7 +1261,7 @@
       if (zaczete) return; zaczete = true;
       pole.className = 'tc-pole krec'; pole.disabled = true;
       at(1600, () => {
-        pole.className = 'tc-pole zle'; napis.textContent = 'Ups. Nie jestem człowiekiem.'; napis.classList.add('zle');
+        pole.className = 'tc-pole zle'; napis.textContent = 'Ups. Nie jestem.'; napis.classList.add('zle');
         at(3600, () => { box.style.opacity = '0'; at(650, stopTest); });
       });
     };
