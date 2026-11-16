@@ -694,7 +694,7 @@
   // ---------- przełącznik, głośność, podpięcie pod silnik ----------
   let glosnosc = .8;
   // wyrównanie poziomów po pomiarze (Dzwieki.zmierz): ciche szkice podciągnięte do reszty
-  const POZIOM = {szron: 1.8, puf: 2, kadr: 1.6, oszus: 1.8, 'dwa~': 1.4, swietliki: .6, dwa: 3.2, choinka: .5, brocken: 2.2, klik: 1.5, wtf: .7, 'wtf-stary': .7, 'most-stary': 1.5, oczami: 1.3};
+  const POZIOM = {szron: 1.8, puf: 2, kadr: 1.6, oszus: 1.8, 'dwa~': 1.4, swietliki: .6, dwa: 3.2, choinka: .5, brocken: 2.2, klik: 1.5, wtf: .56, 'wtf-stary': .56, 'most-stary': 1.5, oczami: 1.3};
   const graj = new Map();                          // nazwa → szyna grającego dźwięku
   function zagraj(name, btn) {
     if (!wlaczony || !A || !S[name]) return;
