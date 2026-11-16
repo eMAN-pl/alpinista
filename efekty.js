@@ -872,32 +872,44 @@
        Kto kliknie, wraca do tekstu szarpnięciem. Kto czeka za długo, zostaje mu tylko zdanie
        z tego samego akapitu: „stanie w miejscu też jest decyzją”. */
     ruch: { dur: 9000,
+      // Przycisk unosi się NAD akapitem i drży coraz mocniej — jak ręka, która traci siłę;
+      // trudno w niego trafić. W środku odliczanie 6 → 1, a wypełnienie spływa z góry na dół
+      // jak siła w przedramionach (autor, 16.11).
       init(s){
-        const tg = s.target;
+        const tg = s.target, mr = main.getBoundingClientRect(), r = tg.getBoundingClientRect();
         s.box = document.createElement('div'); s.box.className = 'ruch-pole';
-        s.box.innerHTML = '<button type="button" class="ruch-btn">Zrób ruch</button><span class="ruch-czas" aria-live="polite"></span>';
-        tg.after(s.box); s.czas = s.box.querySelector('.ruch-czas');
-        s.box.querySelector('.ruch-btn').addEventListener('click', () => { s.zrobil = performance.now(); s.box.classList.add('zrobione'); s.czas.textContent = 'ruch.'; });
+        s.box.innerHTML = '<button type="button" class="ruch-btn"><span class="ruch-napis">Zrób ruch</span><b class="ruch-czas" aria-live="polite">6</b></button>';
+        s.cx = r.left - mr.left + r.width/2; s.cy = r.top - mr.top + r.height/2;
+        Object.assign(s.box.style, {left: s.cx + 'px', top: s.cy + 'px'});
+        main.append(s.box); s.btnR = s.box.querySelector('.ruch-btn'); s.czas = s.box.querySelector('.ruch-czas');
+        s.maxX = Math.max(10, Math.min(r.width/2 - 90, 140)); s.maxY = Math.max(10, Math.min(r.height/2 - 20, 70));
+        s.btnR.addEventListener('click', () => { if (s.zrobil || s.zgaslo) return; s.zrobil = performance.now(); s.box.classList.add('zrobione'); s.czas.textContent = '✓'; });
         // zdanie, które zostaje na końcu, gdy nikt nie kliknie
         s.html = tg.innerHTML;
         tg.innerHTML = tg.innerHTML.replace(/(Wtedy stanie w(?:\s|&nbsp;| )miejscu też jest decyzją\.)/, '<span class="ruch-zdanie">$1</span>');
-        s.zdanie = tg.querySelector('.ruch-zdanie');
       },
-      stop(s){ s.box.remove(); s.target.innerHTML = s.html; s.target.style.opacity = ''; s.target.style.filter = ''; s.target.style.transform = ''; },
+      stop(s){ s.box.remove(); s.target.innerHTML = s.html; s.target.style.opacity = ''; s.target.style.filter = ''; s.target.style.transform = ''; s.target.classList.remove('ruch-cisza'); },
       draw(c, s, p, t){
         const ms = t - s.start, tg = s.target;
         if (s.zrobil) {                                                  // ruch zrobiony: szarpnięcie i powrót
           const d = t - s.zrobil; tg.style.opacity = ''; tg.style.filter = '';
           tg.style.transform = `translateY(${(-6*Math.exp(-d/120)*Math.cos(d/30)).toFixed(2)}px)`;
+          s.box.style.opacity = Math.max(0, 1 - d/700).toFixed(2);
           if (d > 1600) s.done = true; return;
         }
-        const w = Math.min(1, ms/6000), sek = Math.floor(ms/1000);    // 6 s wahania
-        s.czas.textContent = sek ? `${sek} s` : '';
+        const w = Math.min(1, ms/6000);
         if (ms < 6000) {
+          s.czas.textContent = String(6 - Math.floor(ms/1000));
+          s.btnR.style.setProperty('--sila', (100*(1 - w)).toFixed(1) + '%');
+          // dryf i drżenie rosną z czasem: wolne kołysanie + szybkie drgania
+          const dx = (Math.sin(t/430) + .6*Math.sin(t/170))*s.maxX*(.25 + .75*w) + (R()-.5)*6*w;
+          const dy = (Math.cos(t/510) + .5*Math.sin(t/210))*s.maxY*(.25 + .75*w) + (R()-.5)*5*w;
+          s.box.style.transform = `translate(calc(-50% + ${dx.toFixed(1)}px), calc(-50% + ${dy.toFixed(1)}px)) rotate(${(Math.sin(t/260)*4*w).toFixed(2)}deg)`;
           tg.style.opacity = (1 - .72*w).toFixed(3); tg.style.filter = `blur(${(1.6*w*w).toFixed(2)}px)`;
           const a = 1.4*w*w; tg.style.transform = `translate(${((R()-.5)*a).toFixed(2)}px,${((R()-.5)*a).toFixed(2)}px)`;
         } else {                                                          // za długo: zostaje jedno zdanie
-          s.box.classList.add('zgaslo'); s.czas.textContent = '';
+          if (!s.zgaslo) { s.zgaslo = true; s.box.classList.add('zgaslo'); s.czas.textContent = '0'; s.btnR.style.setProperty('--sila', '0%'); }
+          s.box.style.opacity = Math.max(0, 1 - (ms - 6000)/600).toFixed(2);
           tg.style.transform = ''; tg.style.filter = ''; tg.style.opacity = '1';
           tg.classList.add('ruch-cisza');
           if (ms > 8600) tg.classList.remove('ruch-cisza');
