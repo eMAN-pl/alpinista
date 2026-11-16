@@ -21,10 +21,11 @@
     wstep: 'wstep', pilsko: 'pilsko',
     'dolina-pieciu-stawow': 'tatry', 'kozi-wierch': 'tatry', mnich: 'tatry',
     marmolada: 'marmolada', everest: 'everest', 'babia-gora': 'babia-gora', rysy: 'rysy', 'gran-paradiso': 'gran-paradiso', grossglockner: 'everest',   // ten sam wiatr co Everest (autor)
+    skalka: 'skalka', 'mont-blanc': 'mont-blanc',
   };
   const NAZWY = {
     wstep: 'Strona główna i wstęp — wiatr', pilsko: 'Pilsko — las', tatry: 'Dolina, Kozi Wierch, Mnich — wiatr',
-    marmolada: 'Marmolada — łagodny wiatr', everest: 'Everest i Grossglockner — wiatr', 'babia-gora': 'Babia Góra — wichura', rysy: 'Rysy — łagodny deszcz', 'gran-paradiso': 'Gran Paradiso — śnieżyca',
+    marmolada: 'Marmolada — łagodny wiatr', everest: 'Everest i Grossglockner — wiatr', 'babia-gora': 'Babia Góra — wichura', rysy: 'Rysy — łagodny deszcz', 'gran-paradiso': 'Gran Paradiso — śnieżyca', skalka: 'Skalka — las, wiatr, ptaki', 'mont-blanc': 'Mont Blanc — wiatr',
   };
   // Poziomy domyślne (mnożniki). Tu wpisujemy wynik z miksera autora.
   const POZIOMY = { grupy: { tla: 1, wstep: 1, muzyka: 1 }, tla: { pilsko: .81, tatry: .9, 'gran-paradiso': 1.1, 'kroki-snieg': .8 }, wstep: { whoosh: 1 }, muzyka: { pilsko: .95 } };
@@ -35,12 +36,13 @@
   const MUZYKA = { wybor: 'Wstęp po wyborze — Sommerso', pilsko: 'Pilsko — fortepian', dolina: 'Dolina Pięciu Stawów — From the Mountain',
     kozi: 'Kozi Wierch — Mountain', mnich: 'Mnich — Mountain Silence', marmolada: 'Marmolada — Cinematic Documentary', everest: 'Everest — Dark Documentary',
     'babia-gora': 'Babia Góra — Stillness', rysy: 'Rysy — History Documentary',
-    'gran-paradiso': 'Gran Paradiso — Dark Academia', grossglockner: 'Grossglockner — Investigation (fortepian)' };
+    'gran-paradiso': 'Gran Paradiso — Dark Academia', grossglockner: 'Grossglockner — Investigation (fortepian)',
+    skalka: 'Skalka — Narrative Piano', 'mont-blanc': 'Mont Blanc — Times' };
   // Epizody: krótkie fragmenty nagrania w losowych odstępach, pod tłem rozdziału (autor, 2026-11-16 —
   // kroki na śniegu w Gran Paradiso „budują obraz”). Każdy z innego miejsca nagrania, z innej strony
   // i z innej odległości, więc się nie powtarzają. dl i przerwa w sekundach: [od, do].
   const EPIZODY = { 'gran-paradiso': { n: 'kroki-snieg', dl: [5, 9], przerwa: [10, 26] } };
-  const MUZYKA_ROZDZIALU = { pilsko: 'pilsko', 'dolina-pieciu-stawow': 'dolina', 'kozi-wierch': 'kozi', mnich: 'mnich', marmolada: 'marmolada', everest: 'everest', 'babia-gora': 'babia-gora', rysy: 'rysy', 'gran-paradiso': 'gran-paradiso', grossglockner: 'grossglockner' };     // rozdział → utwór; wstęp dochodzi po wyborze
+  const MUZYKA_ROZDZIALU = { pilsko: 'pilsko', 'dolina-pieciu-stawow': 'dolina', 'kozi-wierch': 'kozi', mnich: 'mnich', marmolada: 'marmolada', everest: 'everest', 'babia-gora': 'babia-gora', rysy: 'rysy', 'gran-paradiso': 'gran-paradiso', grossglockner: 'grossglockner', skalka: 'skalka', 'mont-blanc': 'mont-blanc' };     // rozdział → utwór; wstęp dochodzi po wyborze
   const PRZENIK = 4, WEJSCIE = 2, WYJSCIE = 1.2;
 
   const KLUCZ = 'alpinista:mikser';
