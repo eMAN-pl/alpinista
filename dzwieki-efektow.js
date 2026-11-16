@@ -9,6 +9,16 @@
   if (new URLSearchParams(location.search).get('fx')) return;        // tryb klatki: cisza
 
   let A = null, master = null, wet = null, wlaczony = false;
+  const BAZA = document.currentScript && document.currentScript.src ? new URL('.', document.currentScript.src).href : '';
+  // nagrania (assets/audio/efekty/): pobierane przy pierwszym włączeniu dźwięków, dekodowane raz
+  const PROBKI = {grzmot: 'grzmot.mp3'}, probki = {};
+  function probka(n) {
+    if (!probki[n]) probki[n] = fetch(`${BAZA}assets/audio/efekty/${PROBKI[n]}`)
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+      .then(d => new Promise((ok, blad) => { const p = A.decodeAudioData(d, ok, blad); if (p && p.then) p.then(ok, blad); }))
+      .catch(e => { delete probki[n]; throw e; });
+    return probki[n];
+  }
   const R = Math.random, clamp = (x, a, b) => Math.max(a, Math.min(b, x));
   const smooth = t => { t = clamp(t, 0, 1); return t*t*(3 - 2*t); };
   const envF = (u, a = .15, b = .25) => u < a ? smooth(u/a) : (u > 1 - b ? smooth((1 - u)/b) : 1);
@@ -421,12 +431,15 @@
         krzywa(g.gain, tt, .45, u => .3*Math.sin(u*Math.PI)); os.start(tt); lfo.start(tt); os.stop(tt + .5); lfo.stop(tt + .5); }
       return d + .4;
     },
-    blysk(o, t, btn) {                             // błysk jest cichy; liczenie; grzmot po 9 lub 6
-      const ile = blyskIle(btn), tg = t + .62 + ile*.334;
-      uderz(o, t, {f: 6000, q: .5, dur: .03, vol: .04, typ: 'highpass'});
-      for (let k = 1; k <= ile; k++) uderz(o, t + .62 + (k - 1)*.334, {f: 1900, q: 4, dur: .006, vol: .06});
-      grzmot(o, tg, ile === 6 ? {moc: 1.15, dal: .45, opozn: .02} : {moc: .75, dal: .9, opozn: .02});
-      return .62 + ile*.334 + 4.5;
+    blysk(o, t, btn) {                             // błysk jest cichy, liczenie też (autor: bez tykania); potem grzmot
+      // Grzmot z nagrania autora (refumedia, Pixabay), skrócony do 4,6 s. Po dziewięciu jest daleko:
+      // ciszej i głucho (wysokie tony giną z odległością); po sześciu bliżej — pełny i głośniejszy.
+      const ile = blyskIle(btn), tg = t + .62 + ile*.334, blisko = ile === 6;
+      probka('grzmot').then(b => {
+        const s = A.createBufferSource(), lp = filt('lowpass', blisko ? 9000 : 1100, .6), g = gain(blisko ? 1 : .55);
+        s.buffer = b; s.connect(lp).connect(g).connect(o); s.start(Math.max(tg, A.currentTime + .01));
+      }).catch(() => grzmot(o, tg, blisko ? {moc: 1.15, dal: .45, opozn: .02} : {moc: .75, dal: .9, opozn: .02}));
+      return .62 + ile*.334 + 5;
     },
     puf(o, t) {                                    // dmuchnięcie, litery jak piasek od lewej do prawej, powrót
       const d = 3.9;
@@ -747,7 +760,7 @@
     // strona (dzwiek.js): dźwięki efektów idą za przełącznikiem „Dźwięki”
     wlacz(on) {
       wlaczony = !!on;
-      if (wlaczony) { if (!A) przygotuj(wspolny()); if (A.state === 'suspended') A.resume(); }
+      if (wlaczony) { if (!A) przygotuj(wspolny()); if (A.state === 'suspended') A.resume(); probka('grzmot').catch(() => {}); }
       else if (A) { graj.forEach(s => s.stop(A.currentTime, .3)); graj.clear(); }
     },
     async zmierz(nazwy = Object.keys(S)) {

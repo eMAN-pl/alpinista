@@ -46,6 +46,8 @@
 !/assets/audio/tlo/*
 # Muzyka: krótkie urywki z początków utworów (Pixabay), grane raz w swoim miejscu eseju.
 !/assets/audio/muzyka/*
+# Nagrania do efektów (np. grzmot po błysku we wstępie), skrócone.
+!/assets/audio/efekty/*
 
 # Makiety gór: moduł i pliki (assets/makiety-gor/ to materiał roboczy, zostaje lokalnie)
 !/mountain-fx.js
