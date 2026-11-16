@@ -849,11 +849,12 @@
         const r = s.btn.getBoundingClientRect();
         s.x = r.left + r.width/2; s.y = r.top + r.height/2; s.tx = s.x; s.ty = s.y; s.ruch = 0;
         const v0 = document.createElement('div'); v0.className = 'czolowka'; v0.setAttribute('aria-hidden', 'true');
-        document.body.append(v0); s.v = v0;
+        const sw = document.createElement('div'); sw.className = 'czolowka-swiatlo'; sw.setAttribute('aria-hidden', 'true');
+        document.body.append(v0, sw); s.v = v0; s.sw = sw;
         s.on = ev => { const q = ev.touches ? ev.touches[0] : ev; if (!q) return; s.tx = q.clientX; s.ty = q.clientY; s.ruch = performance.now(); };
         addEventListener('pointermove', s.on, {passive: true}); addEventListener('touchmove', s.on, {passive: true});
       },
-      stop(s){ s.v.remove(); removeEventListener('pointermove', s.on); removeEventListener('touchmove', s.on); },
+      stop(s){ s.v.remove(); s.sw.remove(); removeEventListener('pointermove', s.on); removeEventListener('touchmove', s.on); },
       draw(c, s, p, t, dt){
         const e = env(p, .12, .14), k = Math.min(1, dt/16);
         if (t - s.ruch > 1400) { s.tx = W*.5 + Math.sin(t/1700)*W*.22; s.ty = H*.5 + Math.sin(t/1100)*H*.16; }   // krąg błądzi sam
@@ -861,10 +862,15 @@
         const rr = Math.min(W, H)*(.16 + .015*Math.sin(t/240));        // światło lekko pulsuje — oddech
         s.v.style.setProperty('--x', s.x.toFixed(0) + 'px'); s.v.style.setProperty('--y', s.y.toFixed(0) + 'px');
         s.v.style.setProperty('--r', rr.toFixed(0) + 'px'); s.v.style.opacity = e.toFixed(3);
-        // płatki w świetle: kilka jasnych kresek tylko wewnątrz kręgu
-        c.strokeStyle = `rgba(255,255,255,${(.7*e).toFixed(3)})`; c.lineWidth = 1.2;
-        for (let i = 0; i < 26; i++) { const a = (i*2.399 + t/900) % TAU, d = ((i*37 + t*.09) % rr);
-          const x = s.x + Math.cos(a)*d, y = s.y + Math.sin(a)*d*.7; c.beginPath(); c.moveTo(x, y); c.lineTo(x + 5, y + 3); c.stroke(); }
+        for (const k of ['--x', '--y', '--r']) s.sw.style.setProperty(k, s.v.style.getPropertyValue(k));
+        s.sw.style.opacity = e.toFixed(3);
+        // płatki: gęsto w świetle, jaśniejsze bliżej środka; poza kręgiem ich nie widać
+        const jasny = root.getAttribute('data-theme') === 'jasny';
+        for (let i = 0; i < 46; i++) { const a = (i*2.399 + t/1300) % TAU, d = ((i*29 + t*.07) % (rr*1.05));
+          const x = s.x + Math.cos(a)*d + Math.sin(t/300 + i)*3, y = s.y + Math.sin(a)*d*.75 + ((t*.05 + i*17) % 40) - 20;
+          const al = e*(1 - d/(rr*1.05))*.9;
+          c.strokeStyle = jasny ? `rgba(120,135,155,${al.toFixed(3)})` : `rgba(255,250,240,${al.toFixed(3)})`; c.lineWidth = 1.3;
+          c.beginPath(); c.moveTo(x, y); c.lineTo(x + 6, y + 3.5); c.stroke(); }
       }},
 
     /* Ruch (Mnich, paraliż — „Strach każe kurczowo ściskać chwyt.”): pod akapitem pojawia się

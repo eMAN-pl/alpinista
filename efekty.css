@@ -146,6 +146,14 @@ canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
   -webkit-mask-image:radial-gradient(circle var(--r) at var(--x) var(--y),transparent 55%,#000 100%);
   mask-image:radial-gradient(circle var(--r) at var(--x) var(--y),transparent 55%,#000 100%)}
 :root[data-theme="jasny"] .czolowka{background:rgb(250,251,252)}
+/* W ciemnym motywie krąg był ciemniejszy od bieli wokół i czytał się jak dziura, nie jak
+   światło (autor, 16.11). Na zewnątrz jest więc ciemna, gęsta zamieć, a w kręgu ciepłe
+   światło czołówki, w którym widać tekst i płatki. */
+:root:not([data-theme="jasny"]) .czolowka{background:rgb(31,35,40)}
+.czolowka-swiatlo{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:0;mix-blend-mode:screen;
+  background:radial-gradient(circle calc(var(--r) * 1.1) at var(--x) var(--y),rgba(255,236,200,.22),rgba(255,236,200,.08) 55%,transparent 75%)}
+:root[data-theme="jasny"] .czolowka-swiatlo{mix-blend-mode:multiply;
+  background:radial-gradient(circle calc(var(--r) * 1.1) at var(--x) var(--y),rgba(255,224,170,.35),transparent 70%)}
 
 /* Ruch: przycisk pod akapitem i zdanie, które zostaje, gdy nikt nie kliknie */
 .ruch-cisza{color:transparent !important;transition:color .8s}
