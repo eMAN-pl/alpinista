@@ -891,7 +891,7 @@
     }
   }
   // roboczy mikser autora: panel głośności każdego dźwięku (dzwiek.js)
-  if (new URLSearchParams(location.search).has("mikser")) wczytajDzwiek().catch(() => {});
+  if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) && new URLSearchParams(location.search).has("mikser")) wczytajDzwiek().catch(() => {});
 
   // Głośnik: gdy cokolwiek gra — wycisza wszystko i pamięta, co grało; gdy cisza — przywraca.
   glosnik.addEventListener("click", () => {

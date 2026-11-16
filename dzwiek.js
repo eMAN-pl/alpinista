@@ -394,7 +394,10 @@
   function odswiezPoziomy() { if (A && teraz && sciezki[teraz]?.gra) glos(sciezki[teraz], poziomTla(teraz), .1);
     for (const u of Object.values(utwory)) if (A && u.gra) glos(u, poziomMuzyki(u.n), .1); }
 
-  if (new URLSearchParams(location.search).has('mikser')) {
+  // Mikser jest narzędziem autora i działa tylko lokalnie (podgląd na localhost) — na opublikowanej
+  // stronie ?mikser=1 niczego nie pokazuje (autor, 2026-11-17).
+  const LOKALNIE = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+  if (LOKALNIE && new URLSearchParams(location.search).has('mikser')) {
     const panel = document.createElement('aside');
     panel.className = 'mikser';
     panel.setAttribute('aria-label', 'Mikser dźwięków (roboczy)');
