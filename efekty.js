@@ -1220,8 +1220,8 @@
   /* ---------- Długo: rozmowa z dzieckiem ----------
      Kliknięcie od razu zaczyna rozmowę — rozciągane „długooo???” wypadło, skoro jest ten
      efekt (autor, 2026-11-15). Pod akapitem z „czy długo jeszcze?” pojawiają się dymki jak w komunikatorze: dziecko
-     (avatar z makiety Pilska) marudzi i pyta, tata odpowiada krótko. Ostatnie pytanie jest
-     z tekstu eseju i zostaje bez odpowiedzi. „Jeszcze kawałek.” wraca na końcu rozdziału 11.
+     (avatar z makiety Pilska) marudzi i pyta, tata odpowiada krótko. Ostatnie pytanie
+     („Czy góry czują łaskotki…”, autor) zostaje bez odpowiedzi. „Jeszcze kawałek.” wraca na końcu rozdziału 11.
      Inaczej niż w „Enter”: bez ramki i etykiet, pismo tekstu — tam gadają modele, tu ludzie. */
   const CZAT_DZIECKA = [
     ['d', 'Czy długo jeszcze?', 200],
@@ -1229,7 +1229,7 @@
     ['d', 'Nogi mnie bolą.', 1300],
     ['d', 'A teraz? Długo jeszcze?', 1500],
     ['t', 'Jeszcze kawałek.', 1100],
-    ['d', 'Tato, a skąd góra wie, kiedy przestać rosnąć?', 1700],
+    ['d', 'Czy góry czują łaskotki, kiedy po nich chodzimy?', 1700],
     ['t', '…', 1500],
   ];
   let czatRun = null;
@@ -1248,7 +1248,9 @@
       tm += przerwa; const ciag = kto === poprzedni; poprzedni = kto;
       at(tm, () => {
         const m = document.createElement('div'); m.className = 'dymek ' + (kto === 'd' ? 'dziecko' : 'tata') + (ciag ? ' ciag' : '');
-        if (kto === 'd') { const im = document.createElement('img'); im.src = BAZA + 'assets/web/dziecko-132.webp'; im.alt = ''; im.width = 36; im.height = 36; m.append(im); }
+        // avatary obu stron, wycięte z makiety Pilska: dziecko w czerwonej kurtce i tata obok (autor, 16.11)
+        const im = document.createElement('img'); im.src = BAZA + `assets/web/${kto === 'd' ? 'dziecko' : 'tata'}-132.webp`;
+        im.alt = ''; im.width = 36; im.height = 36; m.append(im);
         const sp = document.createElement('span');
         if (tekst === '…') { sp.className = 'pisze'; sp.setAttribute('aria-label', 'tata pisze'); sp.innerHTML = '<i></i><i></i><i></i>'; } else sp.textContent = tekst;
         m.append(sp); box.append(m);
