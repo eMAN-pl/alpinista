@@ -29,10 +29,11 @@
   // Poziomy domyślne (mnożniki). Tu wpisujemy wynik z miksera autora.
   const POZIOMY = { grupy: { tla: 1, wstep: 1, muzyka: 1 }, tla: {}, wstep: { whoosh: 1 }, muzyka: {} };
   const GLOS_TLA = .8, GLOS_WHOOSH = .45, GLOS_MUZYKI = .6;
-  // Muzyka to krótkie momenty, nie playlista (autor, 2026-11-16): urywki z początków utworów
-  // (Pixabay), każdy gra raz na wizytę, w swoim miejscu, i kończy się naturalnym wyciszeniem.
-  const MUZYKA = { wybor: 'Wybór we wstępie — Sommerso (57 s)', pilsko: 'Pilsko — fortepian (24 s)' };
-  const MUZYKA_ROZDZIALU = { pilsko: 'pilsko' };     // rozdział → urywek grany przy pierwszym wejściu
+  // Muzyka rozdziału (autor, 2026-11-16): cały utwór w pętli, dopóki czytelnik jest w swoim
+  // rozdziale; po wyjściu gaśnie, po powrocie gra dalej od miejsca, w którym skończył. Utwory
+  // z Pixabay. Wstęp ma muzykę dopiero od decyzji „Idę dalej” / „Zawracam”.
+  const MUZYKA = { wybor: 'Wstęp po wyborze — Sommerso', pilsko: 'Pilsko — fortepian' };
+  const MUZYKA_ROZDZIALU = { pilsko: 'pilsko' };     // rozdział → utwór; wstęp dochodzi po wyborze
   const PRZENIK = 4, WEJSCIE = 2, WYJSCIE = 1.2;
 
   const KLUCZ = 'alpinista:mikser';
@@ -122,7 +123,8 @@
 
   function wybierz(czas = PRZENIK) {
     const id = rozdzial(), n = solo || (wlaczone() ? TLA[id] || null : null);
-    if (muzykaWlaczona() && MUZYKA_ROZDZIALU[id]) muzyka(MUZYKA_ROZDZIALU[id]);
+    const m = solo ? null : (muzykaWlaczona() ? MUZYKA_ROZDZIALU[id] || null : null);
+    if (!muzSolo && m !== muzTeraz) { if (muzTeraz) muzCisza(muzTeraz, 3); muzTeraz = m; if (m) muzGraj(m, 2.5); }
     if (n === teraz) return;
     if (teraz) cisza(teraz, czas);
     teraz = n;
@@ -131,7 +133,9 @@
     clearTimeout(dociag);
     const dalej = nastepny(id);
     sprzataj([n, dalej].filter(Boolean));
-    if (dalej && !solo) dociag = setTimeout(() => bufor(dalej).catch(() => {}), 6000);
+    // muzyka następnego rozdziału też dociąga się zawczasu (sam plik, bez dekodowania)
+    const i = sekcje.findIndex(x => x.id === id), mDalej = muzykaWlaczona() ? MUZYKA_ROZDZIALU[sekcje[i + 1]?.id] : null;
+    if ((dalej || mDalej) && !solo) dociag = setTimeout(() => { if (dalej) bufor(dalej).catch(() => {}); if (mDalej) muzPlik(mDalej).catch(() => {}); }, 6000);
   }
   // Tło zmienia się dopiero, gdy czytelnik zatrzyma się w rozdziale: skok z menu albo szybkie
   // przewijanie przez kilka rozdziałów nie zapala po drodze tła każdego z nich.
@@ -141,7 +145,7 @@
 
   // schowana karta milczy; powrót wznawia
   document.addEventListener('visibilitychange', () => { if (!A) return;
-    if (document.hidden) { if (teraz) { cisza(teraz, .4); teraz = null; } zgasMuzyke(.4); }
+    if (document.hidden) { if (teraz) { cisza(teraz, .4); teraz = null; } if (muzTeraz) { muzCisza(muzTeraz, .4); muzTeraz = null; } }
     else wybierz(WEJSCIE); });
 
   // ---------- whoosh slajdów wstępu: wariant B wybrany przez autora (przechodzący wiatr) ----------
@@ -163,44 +167,53 @@
   addEventListener('intro:slajd', e => { if (A && wlaczone()) whoosh([1, .92, .84][e.detail?.nr] ?? 1); });
   // „Idę dalej” / „Zawracam” we wstępie: ten sam podmuch co przy slajdach (autor, 2026-11-16 —
   // zamiast grzmotu). Głośność idzie za suwakiem whoosha w mikserze.
-  addEventListener('dzwiek:wybor', () => { if (A && wlaczone()) whoosh(.9); if (A && muzykaWlaczona()) muzyka('wybor'); });
+  addEventListener('dzwiek:wybor', () => { if (A && wlaczone()) whoosh(.9); if (A) { MUZYKA_ROZDZIALU.wstep = 'wybor'; wybierz(); } });
 
-  // ---------- muzyka: urywki grane raz, w swoim miejscu ----------
+  // ---------- muzyka rozdziału: cały utwór w pętli ----------
   const poziomMuzyki = n => GLOS_MUZYKI*mn('muzyka', n)*mn('grupy', 'muzyka');
-  const muzPliki = new Map(), zagrane = new Set();
-  let grana = null;
-  // pliki są małe (0,4–0,9 MB) — dociągamy oba od razu po włączeniu muzyki, dekodujemy przy graniu
+  const muzPliki = new Map(), muzBufory = new Map(), utwory = {};
+  let muzTeraz = null, muzSolo = null;
+  // pliki (2,5–3 MB) dociągają się po włączeniu muzyki; dekodujemy w 32 kHz — pełne pasmo
+  // fortepianu i smyczków zostaje, a pamięć spada o jedną trzecią. W pamięci tylko to, co gra.
   const muzPlik = n => { if (!muzPliki.has(n)) muzPliki.set(n, fetch(`${BAZA}assets/audio/muzyka/${n}.mp3`)
     .then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); }).catch(e => { muzPliki.delete(n); throw e; })); return muzPliki.get(n); };
-  // Urywek nie przerywa innego: jeśli coś jeszcze gra (np. Sommerso po wyborze, a czytelnik
-  // już wszedł w Pilsko), czeka, aż tamto wybrzmi — i gra, jeśli czytelnik dalej jest w tym rozdziale.
-  let kolejka = null;
-  async function muzyka(n, wymus = false) {
-    if (!wymus && zagrane.has(n)) return;
-    if (!wymus && grana) { kolejka = n; return; }
-    zagrane.add(n);
-    kontekst();
-    let b; try { const dane = (await muzPlik(n)).slice(0); b = await new Promise((ok, blad) => { const p = A.decodeAudioData(dane, ok, blad); if (p && p.then) p.then(ok, blad); }); }
-    catch { zagrane.delete(n); return; }
-    if (!wymus && !muzykaWlaczona()) { zagrane.delete(n); return; }
-    zgasMuzyke(.8);
-    const s = A.createBufferSource(), g = A.createGain(); s.buffer = b; g.gain.value = poziomMuzyki(n);
-    s.connect(g).connect(grupaMuzyki); s.start(A.currentTime + .05);
-    grana = {s, g, n}; s.onended = () => { if (grana?.s !== s) return; grana = null;
-      const k = kolejka; kolejka = null;
-      if (k && muzykaWlaczona() && MUZYKA_ROZDZIALU[rozdzial()] === k) muzyka(k); };
-    // tło przycicha pod muzyką i wraca, gdy urywek wybrzmi
-    const tg = grupaTla.gain, now = A.currentTime;
-    tg.cancelScheduledValues(now); tg.setValueAtTime(tg.value, now);
-    tg.linearRampToValueAtTime(.6, now + 1.5); tg.setValueAtTime(.6, now + b.duration - 3); tg.linearRampToValueAtTime(1, now + b.duration + 1);
+  function muzBufor(n) {
+    if (!muzBufory.has(n)) muzBufory.set(n, muzPlik(n).then(dane => new Promise((ok, blad) => {
+      const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+      let dek; try { dek = new OAC(2, 1, 32000); } catch { dek = kontekst(); }
+      const p = dek.decodeAudioData(dane.slice(0), ok, blad); if (p && p.then) p.then(ok, blad);
+    })).then(b => { const d = b.getChannelData(0); let s = 0; while (s < 8000 && Math.abs(d[s]) < 1e-4) s++;
+      let e = d.length; while (e > d.length - 8000 && Math.abs(d[e - 1]) < 1e-4) e--; b.od = s/b.sampleRate; b.do = e/b.sampleRate; return b; })
+      .catch(e => { muzBufory.delete(n); throw e; }));
+    return muzBufory.get(n);
   }
-  function zgasMuzyke(czas) {
-    kolejka = null;
-    if (!grana || !A) return; const {s, g} = grana; grana = null;
-    const now = A.currentTime; g.gain.cancelScheduledValues(now); g.gain.setValueAtTime(g.gain.value, now); g.gain.linearRampToValueAtTime(0, now + czas);
-    try { s.stop(now + czas + .05); } catch {}
-    const tg = grupaTla.gain; tg.cancelScheduledValues(now); tg.setValueAtTime(tg.value, now); tg.linearRampToValueAtTime(1, now + 1.5);
+  // Utwór kończy się naturalnie i zaczyna cicho — pętla wraca od początku jak ponowne zagranie.
+  async function muzGraj(n, czas) {
+    const u = utwory[n] || (utwory[n] = {n, g: null, zrodlo: null, poz: 0, start: 0, gra: false});
+    u.gra = true;
+    if (!u.g) { u.g = A.createGain(); u.g.gain.value = 0; u.g.connect(grupaMuzyki); }
+    let b; try { b = await muzBufor(n); } catch { return; }
+    if (!u.gra) return;
+    if (!u.zrodlo) {
+      const s = A.createBufferSource(); s.buffer = b; s.loop = true; s.loopStart = b.od; s.loopEnd = b.do; s.connect(u.g);
+      const dl = b.do - b.od, od = b.od + ((u.poz % dl) + dl) % dl;
+      s.start(0, od); u.zrodlo = s; u.start = A.currentTime - (od - b.od);
+    }
+    glos(u, poziomMuzyki(n), czas);
+    przyciszTlo();
   }
+  function muzCisza(n, czas) {
+    const u = utwory[n]; if (!u) return;
+    u.gra = false; glos(u, 0, czas);
+    const s = u.zrodlo;
+    setTimeout(() => { if (u.gra || u.zrodlo !== s || !s) return;
+      u.poz = A.currentTime - u.start; try { s.stop(); } catch {} s.disconnect(); u.zrodlo = null;
+      for (const k of muzBufory.keys()) if (!utwory[k]?.gra) muzBufory.delete(k); }, czas*1000 + 100);
+    przyciszTlo();
+  }
+  // tło przycicha, dopóki gra muzyka rozdziału
+  function przyciszTlo() { if (!A) return; const gra = Object.values(utwory).some(u => u.gra);
+    const g = grupaTla.gain, now = A.currentTime; g.cancelScheduledValues(now); g.setValueAtTime(g.value, now); g.linearRampToValueAtTime(gra ? .6 : 1, now + 2); }
 
   // ---------- dźwięki efektów: osobny moduł, wczytywany przy pierwszym włączeniu „Dźwięków” ----------
   let modulEfektow = null;
@@ -222,14 +235,15 @@
   // ---------- API dla script.js ----------
   window.Dzwiek = {
     // podgląd stanu do sprawdzania w konsoli: co gra i co jest w pamięci
-    stan: () => ({teraz, solo, muzyka: grana?.n ?? null, zagrane: [...zagrane], kontekst: A?.state, wPamieci: [...bufory.keys()],
+    stan: () => ({teraz, solo, muzyka: muzTeraz, muzSolo, kontekst: A?.state, wPamieci: [...bufory.keys()],
       graja: Object.values(sciezki).filter(t => t.zrodlo).map(t => `${t.n} ${t.g.gain.value.toFixed(2)}`)}),
     ustaw(nowy) {
       stan = {...nowy};
       if (stan.dzwieki) efekty().then(() => window.Dzwieki?.wlacz(true)).catch(() => {});
       else window.Dzwieki?.wlacz(false);
-      if (stan.muzyka) Object.keys(MUZYKA).forEach(n => muzPlik(n).catch(() => {}));
-      else zgasMuzyke(1.2);
+      // Sommerso czeka na decyzję we wstępie — plik dociąga się, gdy czytelnik jest jeszcze we wstępie
+      if (stan.muzyka && rozdzial() === 'wstep') muzPlik('wybor').catch(() => {});
+      else if (muzTeraz) { muzCisza(muzTeraz, 1.5); muzTeraz = null; }
       if (!stan.dzwieki && !stan.muzyka && !solo && !A) return;   // nic nie gra i nic nie zagra
       kontekst(); if (A.state === 'suspended') A.resume();
       wybierz(stan.dzwieki ? WEJSCIE : WYJSCIE);
@@ -239,7 +253,7 @@
   // ---------- mikser (?mikser=1) ----------
   addEventListener('storage', e => { if (e.key === KLUCZ) { wczytajMix(); odswiezPoziomy(); } });
   function odswiezPoziomy() { if (A && teraz && sciezki[teraz]?.gra) glos(sciezki[teraz], poziomTla(teraz), .1);
-    if (A && grana) grana.g.gain.setTargetAtTime(poziomMuzyki(grana.n), A.currentTime, .1); }
+    for (const u of Object.values(utwory)) if (A && u.gra) glos(u, poziomMuzyki(u.n), .1); }
 
   if (new URLSearchParams(location.search).has('mikser')) {
     const panel = document.createElement('aside');
@@ -292,8 +306,12 @@
       wybierz(1.5);
     }]);
     naglowek('Muzyka');
-    for (const n of Object.keys(MUZYKA)) wiersz('muzyka', n, MUZYKA[n], ['graj', b => {
-      if (grana?.n === n) { zgasMuzyke(.6); return; } kontekst(); A.resume(); muzyka(n, true); }]);
+    for (const n of Object.keys(MUZYKA)) wiersz('muzyka', n, MUZYKA[n], ['słuchaj', b => {
+      kontekst(); A.resume();
+      if (muzSolo) { muzCisza(muzSolo, .8); if (muzSolo === n) { muzSolo = null; b.setAttribute('aria-pressed', 'false'); muzTeraz = null; wybierz(1); return; } }
+      panel.querySelectorAll('[data-msolo]').forEach(x => x.setAttribute('aria-pressed', 'false'));
+      if (muzTeraz) { muzCisza(muzTeraz, .8); muzTeraz = null; }
+      muzSolo = n; b.dataset.msolo = n; b.setAttribute('aria-pressed', 'true'); muzGraj(n, 1); }]);
     naglowek('Wstęp');
     wiersz('wstep', 'whoosh', 'Whoosh slajdów (3 podmuchy)', ['test', () => { kontekst(); A.resume();
       const t = A.currentTime + .05; [1, .92, .84].forEach((n, i) => whoosh(n, t + i*2.5)); }]);
