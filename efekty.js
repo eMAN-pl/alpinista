@@ -646,7 +646,7 @@
         let n = s.btn.closest('.line');
         do { n = n && n.nextElementSibling; } while (n && !n.classList.contains('line'));
         s.ile = n && /sześciu/.test(n.textContent) ? 6 : 9;
-        s.dur = 620 + s.ile*290 + 1500;
+        s.dur = 620 + s.ile*334 + 1500;
         // Liczenie idzie pionowo pod linijką, cyfra pod cyfrą, i zostaje na stronie (autor, 16.11):
         // wstęp może się wydłużyć, a tekst nie skacze drugi raz, gdy liczba by znikała.
         // Cyfry dochodzą po jednej i za każdą tekst niżej rozsuwa się o wiersz (autor, 16.11).
@@ -667,10 +667,10 @@
           c.fillRect(0,0,W,H);
           if (!jasny) M.bright *= 1 + .45*fo;
         }
-        const k = clamp(Math.floor((ms - 620)/290) + 1, 0, s.ile);
+        const k = clamp(Math.floor((ms - 620)/334) + 1, 0, s.ile);
         if (s.licz && !s.juz && k !== s.k) { s.k = k;
           while (s.licz.children.length < k) { const d = document.createElement('i'); d.textContent = s.licz.children.length + 1; s.licz.append(d); } }
-        const g = ms - (620 + s.ile*290);
+        const g = ms - (620 + s.ile*334);
         if (g > 0) {
           const moc = s.ile === 6 ? 1.6 : 1, a = moc*4.2*Math.exp(-g/420)*Math.min(1, g/60);
           M.dx += a*(Math.sin(g*.071) + .5*Math.sin(g*.19)); M.dy += a*.7*(Math.sin(g*.083) + .5*Math.sin(g*.23));
