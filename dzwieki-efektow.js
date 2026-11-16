@@ -11,7 +11,7 @@
   let A = null, master = null, wet = null, wlaczony = false;
   const BAZA = document.currentScript && document.currentScript.src ? new URL('.', document.currentScript.src).href : '';
   // nagrania (assets/audio/efekty/): pobierane przy pierwszym włączeniu dźwięków, dekodowane raz
-  const PROBKI = {grzmot: 'grzmot.mp3'}, probki = {};
+  const PROBKI = {grzmot: 'grzmot.mp3', glitch: 'glitch.mp3'}, probki = {};
   function probka(n) {
     if (!probki[n]) probki[n] = fetch(`${BAZA}assets/audio/efekty/${PROBKI[n]}`)
       .then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
@@ -548,7 +548,7 @@
       uderz(o, t + d + .05, {f: 1800, q: 1, dur: .006, vol: .07});                                                  // tekst wraca
       return d + .5;
     },
-    wtf(o, t) {                                    // zacięcie, zawieszenie, martwy system, restart
+    'wtf~'(o, t) {                                 // SYNTEZA (zapas, gdy nagranie się nie wczyta): zacięcie, zawieszenie, restart
       wtfLevel = Math.min(6, wtfLevel + 1);
       const L = wtfLevel, kr = krusz(9 - L), out = gain(1); kr.connect(out).connect(o);
       // 1. zacięcie: jedno krótkie ziarno dźwięku powtarzane jak zacięty bufor, coraz krócej
@@ -576,7 +576,7 @@
       [.55, .63].forEach(y => uderz(o, tr + y, {f: 2400, q: 3, dur: .005, vol: .12}));
       return tr - t + 1.1;
     },
-    'wtf-stary'(o, t) {                            // stary glitch słowa (1,35 s): zacięcie, twarde szarpnięcie, zgaśnięcie
+    'wtf-stary~'(o, t) {                           // SYNTEZA (zapas): zacięcie, twarde szarpnięcie, zgaśnięcie
       const kr = krusz(4), out = gain(1); kr.connect(out).connect(o);
       let x = 0; const f = 400 + R()*1600;
       for (let k = 0; k < 7; k++) { const len = .05*(1 - k/7*.6); uderz(kr, t + x, {f: f*(k % 2 ? 1.5 : 1), q: 5, dur: len*.4, vol: .22, pan: (k % 2 ? .4 : -.4)});
@@ -588,6 +588,21 @@
       return 1.8;
     },
 
+    // WTF i WTF z Orlej Perci: nagranie glitcha (kave_msri, Pixabay; autor 2026-11-16).
+    // Każde odtworzenie trochę inaczej (prędkość ±6%); refren WTF z każdym kliknięciem głośniej.
+    wtf(o, t) {
+      wtfLevel = Math.min(6, wtfLevel + 1); const L = wtfLevel;
+      probka('glitch').then(b => { const s = A.createBufferSource(), g = gain(.7 + .05*L);
+        s.buffer = b; s.playbackRate.value = .94 + R()*.12; s.connect(g).connect(o); s.start(Math.max(t, A.currentTime + .005)); })
+        .catch(() => S['wtf~'](o, t));
+      return 2;
+    },
+    'wtf-stary'(o, t) {
+      probka('glitch').then(b => { const s = A.createBufferSource(), g = gain(.85);
+        s.buffer = b; s.playbackRate.value = .9 + R()*.1; s.connect(g).connect(o); s.start(Math.max(t, A.currentTime + .005)); })
+        .catch(() => S['wtf-stary~'](o, t));
+      return 2;
+    },
     enter(o, t, btn) {                             // pisanie pytania i wysłanie; dymki łapie obserwator
       const em = btn.parentElement && [...btn.parentElement.querySelectorAll('em')].find(e => btn.compareDocumentPosition(e) & Node.DOCUMENT_POSITION_FOLLOWING);
       uderz(o, t, {f: 2500, q: 1, dur: .01, vol: .25}); ton(o, t, {f: 300, dur: .03, vol: .08});
@@ -629,6 +644,7 @@
   function zDomu(muts) {
     if (!wlaczony || !A) return;
     const t = A.currentTime + .01;
+    let stary = false;
     for (const m of muts) {
       if (m.type === 'childList') for (const n of m.addedNodes) {
         if (!(n instanceof HTMLElement)) continue;
@@ -648,7 +664,9 @@
           for (let x = 0; x < 1.55; x += .11) uderz(b, t + x, {f: 2400, q: 5, dur: .006, vol: .04}); }
         if (el.classList.contains('tc-pole') && el.classList.contains('zle') && el.dataset.dz !== '2') { el.dataset.dz = 2; const b = o('test');
           ton(b, t, {f: 330, dur: .14, vol: .08, typ: 'square'}); ton(b, t + .16, {f: 247, dur: .25, vol: .08, typ: 'square'}); }
-        if (el.dataset.fx === 'wtf-stary' && el.classList.contains('is-glitching')) zagraj('wtf-stary', el);   // strona testowa odpala go poza silnikiem
+        // WTF z Orlej Perci odpala się poza silnikiem (script.js: glitch). Restart animacji zdejmuje
+        // i zakłada klasę — w jednej paczce zmian są dwa wpisy, a dźwięk ma zagrać raz.
+        if (el.dataset.fx === 'wtf-stary' && el.classList.contains('is-glitching') && !stary) { stary = true; zagraj('wtf-stary', el); }
         if (el.classList.contains('ruch-pole') && ruchStan) {
           if (el.classList.contains('zrobione')) { graj.get('ruch')?.stop(t, .08); const b = o('ruch');
             uderz(b, t, {f: 1200, q: .8, dur: .1, vol: .35, szum: 'pink'}); ton(b, t, {f: 90, f2: 45, dur: .2, vol: .5});
@@ -760,7 +778,7 @@
     // strona (dzwiek.js): dźwięki efektów idą za przełącznikiem „Dźwięki”
     wlacz(on) {
       wlaczony = !!on;
-      if (wlaczony) { if (!A) przygotuj(wspolny()); if (A.state === 'suspended') A.resume(); probka('grzmot').catch(() => {}); }
+      if (wlaczony) { if (!A) przygotuj(wspolny()); if (A.state === 'suspended') A.resume(); probka('grzmot').catch(() => {}); probka('glitch').catch(() => {}); }
       else if (A) { graj.forEach(s => s.stop(A.currentTime, .3)); graj.clear(); }
     },
     async zmierz(nazwy = Object.keys(S)) {

@@ -20,11 +20,11 @@
   const TLA = {
     wstep: 'wstep', pilsko: 'pilsko',
     'dolina-pieciu-stawow': 'tatry', 'kozi-wierch': 'tatry', mnich: 'tatry',
-    marmolada: 'marmolada', everest: 'everest', 'babia-gora': 'babia-gora', rysy: 'rysy',
+    marmolada: 'marmolada', everest: 'everest', 'babia-gora': 'babia-gora', rysy: 'rysy', 'gran-paradiso': 'gran-paradiso',
   };
   const NAZWY = {
     wstep: 'Strona główna i wstęp — wiatr', pilsko: 'Pilsko — las', tatry: 'Dolina, Kozi Wierch, Mnich — wiatr',
-    marmolada: 'Marmolada — łagodny wiatr', everest: 'Everest — wiatr', 'babia-gora': 'Babia Góra — wichura', rysy: 'Rysy — ulewa',
+    marmolada: 'Marmolada — łagodny wiatr', everest: 'Everest — wiatr', 'babia-gora': 'Babia Góra — wichura', rysy: 'Rysy — łagodny deszcz', 'gran-paradiso': 'Gran Paradiso — śnieżyca',
   };
   // Poziomy domyślne (mnożniki). Tu wpisujemy wynik z miksera autora.
   const POZIOMY = { grupy: { tla: 1, wstep: 1, muzyka: 1 }, tla: { pilsko: .81, tatry: .9 }, wstep: { whoosh: 1 }, muzyka: { pilsko: .95 } };
@@ -33,8 +33,9 @@
   // rozdziale; po wyjściu gaśnie, po powrocie gra dalej od miejsca, w którym skończył. Utwory
   // z Pixabay. Wstęp ma muzykę dopiero od decyzji „Idę dalej” / „Zawracam”.
   const MUZYKA = { wybor: 'Wstęp po wyborze — Sommerso', pilsko: 'Pilsko — fortepian', dolina: 'Dolina Pięciu Stawów — From the Mountain',
-    kozi: 'Kozi Wierch — Mountain', mnich: 'Mnich — Mountain Silence', marmolada: 'Marmolada — Dark Academia', everest: 'Everest — Dark Documentary' };
-  const MUZYKA_ROZDZIALU = { pilsko: 'pilsko', 'dolina-pieciu-stawow': 'dolina', 'kozi-wierch': 'kozi', mnich: 'mnich', marmolada: 'marmolada', everest: 'everest' };     // rozdział → utwór; wstęp dochodzi po wyborze
+    kozi: 'Kozi Wierch — Mountain', mnich: 'Mnich — Mountain Silence', marmolada: 'Marmolada — Cinematic Documentary', everest: 'Everest — Dark Documentary',
+    'babia-gora': 'Babia Góra — Stillness', rysy: 'Rysy — History Documentary' };
+  const MUZYKA_ROZDZIALU = { pilsko: 'pilsko', 'dolina-pieciu-stawow': 'dolina', 'kozi-wierch': 'kozi', mnich: 'mnich', marmolada: 'marmolada', everest: 'everest', 'babia-gora': 'babia-gora', rysy: 'rysy' };     // rozdział → utwór; wstęp dochodzi po wyborze
   const PRZENIK = 4, WEJSCIE = 2, WYJSCIE = 1.2;
 
   const KLUCZ = 'alpinista:mikser';
