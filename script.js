@@ -104,10 +104,15 @@
     return value;
   }
 
-  // Efekty: przełącznik „wyłącz efekty” usunięty (autor, 2026-11-14) — efekty uruchamia
-  // sam czytelnik kliknięciem. Zostaje tylko systemowe „ogranicz ruch”.
+  // Efekty: przełącznik wrócił do menu (autor, 2026-11-16) — „Sprzęt” → Efekty.
+  // Wybór jest zapamiętany; bez wyboru efekty są włączone, chyba że system prosi
+  // o ograniczenie ruchu. Wyłączone: zapalniki wyglądają i działają jak zwykły tekst.
+  const EFEKTY_KEY = "alpinista:efekty";
+  let efektyOn = (remember(EFEKTY_KEY) ?? (reduceMotion.matches ? "0" : "1")) === "1";
+  document.documentElement.classList.toggle("bez-efektow", !efektyOn);
+
   function effectsEnabled() {
-    return !reduceMotion.matches;
+    return efektyOn;
   }
 
   // --- Zapamiętywanie miejsca ---
@@ -806,321 +811,79 @@
     akapit.after(echo);
   }
 
-  // --- Muzyka do czytania (Scott Buckley, CC BY 4.0) ---
-  // Trzy zasady, w tej kolejności: nic nie gra samo, nic się nie pobiera przed kliknięciem,
-  // nic nie przechodzi między wizytami. Dlatego <audio> powstaje dopiero przy pierwszym
-  // kliknięciu, ma preload="none", a wybór nie idzie do localStorage — nowa wizyta to cisza.
-  // Playlista gra po kolei; finał ma własny utwór, bo to zejście, a nie kolejne podejście.
-
-  const MUZYKA = {
-    "in-this-moment": { tytul: "In This Moment" },
-    "home-was-you": { tytul: "Home Was You" },
-    "memories-of-stone": { tytul: "Memories Of Stone" },
-    "with-these-hands": { tytul: "With These Hands" },
-    "convergence": { tytul: "Convergence" },
-    "unraveling": { tytul: "Unraveling" },
-    "aphelion": { tytul: "Aphelion" },
-    "phoenix-2026": { tytul: "Phoenix" },
-    "katabasis-i": { tytul: "Katabasis I", album: "The Weight of Air" },
-  };
-
-  // Kolejność na czas czytania — od spokojnego fortepianu po orkiestrę, tak jak rosną góry
-  // w tekście. Żeby zrezygnować z utworu, wystarczy wyjąć go z tej listy.
-  const LISTA = ["in-this-moment", "home-was-you", "memories-of-stone", "with-these-hands",
-                 "convergence", "unraveling", "aphelion", "phoenix-2026"];
-  const FINAL = "katabasis-i";
-
-  const MUZYKA_AUTOR = "Scott Buckley";
-  const MUZYKA_WWW = "https://www.scottbuckley.com.au/";
-  const LICENCJA_WWW = "https://creativecommons.org/licenses/by/4.0/";
-  const GLOSNOSC = 0.35;
-  const WEJSCIE = 2500;      // narastanie przy włączeniu
-  const WYJSCIE = 1500;      // wyciszenie przed pauzą
-  const PRZEJSCIE = 4000;    // crossfade przy wejściu w finał
-  const SKOK = 1200;         // crossfade przy ręcznej zmianie utworu
-  const POWROT = 1200;       // powrót po przełączeniu karty
-  const PODPIS = 6000;       // jak długo widać, co gra
+  // --- Dźwięk: muzyka, dźwięki, efekty (autor, 2026-11-16) ---
+  // Bez odtwarzacza i playlisty: to esej decyduje, gdzie i co gra. Czytelnik ma trzy
+  // przełączniki w menu („Sprzęt”) i głośnik w pasku, który wycisza albo przywraca całe audio.
+  // Muzyka i dźwięki: nic nie gra samo, nic się nie pobiera przed kliknięciem i wybór nie
+  // przechodzi między wizytami — nowa wizyta to cisza (przeglądarka i tak wymaga kliknięcia).
+  // Silnik dźwięku słucha zdarzenia „audio-zmiana” i czyta window.alpinistaAudio.
+  const audio = { muzyka: false, dzwieki: false };
+  let ostatnie = { muzyka: true, dzwieki: true };   // co przywraca głośnik po wyciszeniu
+  window.alpinistaAudio = audio;
 
   const ikona = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${d}</svg>`;
+  // Lucide (ISC): volume-2 i volume-x
+  const GLOSNIK = '<path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/>';
+  const GRA = GLOSNIK + '<path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/>';
+  const CISZA = GLOSNIK + '<line x1="22" x2="16" y1="9" y2="15"/><line x1="16" x2="22" y1="9" y2="15"/>';
 
-  // W rzędzie kontrolek stoi tylko nuta — ona decyduje o ciszy. Przewijanie mieszka
-  // w podpisie, przy nazwie utworu, bo dotyczy tego, co właśnie gra: gołe strzałki,
-  // bez obwódki, żeby nie udawały trzeciego równorzędnego przycisku.
-  const musicButton = document.createElement("button");
-  musicButton.type = "button";
-  musicButton.className = "music-toggle";
-  musicButton.innerHTML = ikona('<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>');
-  musicButton.setAttribute("aria-pressed", "false");
-  const tbMuzyka = document.querySelector(".tb-muzyka") ?? reader;   // nuta w górnym pasku (bez zmian działania)
-  tbMuzyka.append(musicButton);
+  const glosnik = document.createElement("button");
+  glosnik.type = "button";
+  glosnik.className = "music-toggle tb-dzwiek";
+  document.querySelector(".tb-muzyka")?.append(glosnik);
 
-  // Podpis wymagany licencją: gdy muzyka gra, widać autora, utwór i licencję.
-  const musicNow = document.createElement("p");
-  musicNow.className = "music-now";
-  musicNow.hidden = true;
-  const prevButton = document.createElement("button");
-  const nextButton = document.createElement("button");
-  const musicName = document.createElement("span");
-  prevButton.type = nextButton.type = "button";
-  prevButton.className = nextButton.className = "music-skip";
-  musicName.className = "music-name";
-  prevButton.innerHTML = ikona('<polygon points="19 20 9 12 19 4 19 20" fill="currentColor"/><line x1="5" x2="5" y1="19" y2="5"/>');
-  nextButton.innerHTML = ikona('<polygon points="5 4 15 12 5 20 5 4" fill="currentColor"/><line x1="19" x2="19" y1="5" y2="19"/>');
-  prevButton.setAttribute("aria-label", "Poprzedni utwór");
-  nextButton.setAttribute("aria-label", "Następny utwór");
-  musicNow.append(prevButton, musicName, nextButton);
-  tbMuzyka.append(musicNow);
+  function przelacznik() {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "przelacznik";
+    return b;
+  }
+  const przelaczniki = { muzyka: przelacznik(), dzwieki: przelacznik(), efekty: przelacznik() };
+  const pokazStan = (b, on) => { b.setAttribute("aria-pressed", String(on)); b.textContent = on ? "wł." : "wył."; };
 
-  // Podpis nie wisi przez cały esej: pokazuje się przy starcie i przy zmianie utworu,
-  // potem gaśnie, a wraca na najechanie albo fokus. Trwałą atrybucję — tego wymaga
-  // licencja — niesie sekcja Źródła w stopce i metadane na ekranie blokady telefonu.
-  // Tam, gdzie nie ma kursora, podpis nie ma jak wrócić — a w nim siedzi przewijanie.
-  // Na dotyku zostaje więc widoczny tak długo, jak gra muzyka; panel i tak jest wtedy otwarty.
-  const bezKursora = matchMedia("(hover: none)");
-  let podpisTimer = 0;
-
-  function pokazPodpis(tresc, ms) {
-    clearTimeout(podpisTimer);
-    podpisTimer = 0;
-    musicName.innerHTML = tresc;
-    prevButton.hidden = nextButton.hidden = !muzykaOn;
-    musicNow.hidden = false;
-    if (ms) podpisTimer = setTimeout(() => { podpisTimer = 0; musicNow.hidden = true; }, ms);
+  function odswiezAudio() {
+    const gra = audio.muzyka || audio.dzwieki;
+    glosnik.innerHTML = ikona(gra ? GRA : CISZA);
+    glosnik.classList.toggle("is-on", gra);
+    glosnik.setAttribute("aria-pressed", String(gra));
+    glosnik.setAttribute("aria-label", gra ? "Wycisz dźwięk" : "Włącz dźwięk");
+    glosnik.dataset.tip = gra ? "wycisz" : "włącz dźwięk";
+    pokazStan(przelaczniki.muzyka, audio.muzyka);
+    pokazStan(przelaczniki.dzwieki, audio.dzwieki);
+    pokazStan(przelaczniki.efekty, efektyOn);
   }
 
-  function schowajPodpis() {
-    clearTimeout(podpisTimer);
-    podpisTimer = 0;
-    musicNow.hidden = true;
+  function ustawAudio(zmiana) {
+    Object.assign(audio, zmiana);
+    odswiezAudio();
+    dispatchEvent(new CustomEvent("audio-zmiana", { detail: { ...audio } }));
   }
 
-  const odtwarzacze = {};
-  const przejscia = new WeakMap();
-  let muzykaOn = false;        // wybór czytelnika
-  let grany = null;            // utwór, który jest na wierzchu
-  let pozycja = 0;             // miejsce w LISTA — finał go nie rusza
-  let wstrzymaneWTle = false;  // pauza z powodu schowanej karty
-  let wFinale = false;         // czy czytelnik jest w rozdziale finałowym
-
-  function sciemniaj(el, docelowa, ms) {
-    cancelAnimationFrame(przejscia.get(el));
-    const od = el.volume;
-    if (ms <= 0 || Math.abs(od - docelowa) < 0.001) {
-      el.volume = docelowa;
-      return Promise.resolve();
-    }
-    const start = performance.now();
-    return new Promise((koniec) => {
-      const krok = (teraz) => {
-        const p = Math.min(1, (teraz - start) / ms);
-        el.volume = Math.max(0, Math.min(1, od + (docelowa - od) * p));
-        if (p < 1) przejscia.set(el, requestAnimationFrame(krok));
-        else koniec();
-      };
-      przejscia.set(el, requestAnimationFrame(krok));
-      // Zasłonięte albo zminimalizowane okno wstrzymuje requestAnimationFrame. Bez tego
-      // przejście stanęłoby w pół drogi: nowy utwór zostałby cichy, a stary nigdy nie
-      // doszedłby do pauzy, bo ta czeka na koniec wyciszania.
-      setTimeout(() => {
-        if (Math.abs(el.volume - docelowa) < 0.001) return;
-        cancelAnimationFrame(przejscia.get(el));
-        el.volume = docelowa;
-        koniec();
-      }, ms + 150);
-    });
-  }
-
-  // preload="none" znaczy, że samo podanie src nie wysyła żądania — plik rusza przy play()
-  function odtwarzacz(id) {
-    if (odtwarzacze[id]) return odtwarzacze[id];
-    const el = document.createElement("audio");
-    el.preload = "none";
-    el.loop = id === FINAL;          // finał zapętla się, bo po nim nic już nie ma
-    el.volume = 0;
-    el.src = `assets/audio/${id}.mp3`;
-    el.addEventListener("ended", () => {
-      if (!muzykaOn || grany !== id || wFinale) return;
-      el.pause();                    // przeglądarka już go zatrzymała; to tylko pewność
-      pozycja = (pozycja + 1) % LISTA.length;
-      zagraj(LISTA[pozycja], SKOK);
-    });
-    // element idzie do dokumentu: bez controls jest niewidoczny, a odtwarzanie elementu
-    // poza drzewem nie jest pewne we wszystkich przeglądarkach
-    document.body.append(el);
-    odtwarzacze[id] = el;
-    return el;
-  }
-
-  // Format podpisu wprost ze strony autora: 'Tytuł' by Scott Buckley – released under
-  // CC-BY 4.0. www.scottbuckley.com.au
-  function podpisUtworu(id) {
-    const u = MUZYKA[id];
-    const numer = LISTA.includes(id) ? `${LISTA.indexOf(id) + 1}/${LISTA.length} · ` : "finał · ";
-    return `${numer}„${u.tytul}”`
-      + ` — <a href="${MUZYKA_WWW}" target="_blank" rel="noopener">${MUZYKA_AUTOR}</a>`
-      + ` · <a href="${LICENCJA_WWW}" target="_blank" rel="noopener">CC BY 4.0</a>`;
-  }
-
-  function mediaSession(id) {
-    if (!("mediaSession" in navigator)) return;
-    const u = MUZYKA[id];
-    try {
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: u.tytul, artist: MUZYKA_AUTOR, album: u.album ?? "scottbuckley.com.au",
-      });
-      navigator.mediaSession.playbackState = "playing";
-      navigator.mediaSession.setActionHandler("pause", () => setMusic(false));
-      navigator.mediaSession.setActionHandler("play", () => setMusic(true));
-      navigator.mediaSession.setActionHandler("previoustrack", () => przeskocz(-1));
-      navigator.mediaSession.setActionHandler("nexttrack", () => przeskocz(1));
-    } catch {
-      // bez Media Session podpis niesie sama strona
-    }
-  }
-
-  // zPodpisem: wznowienie po powrocie do karty nie przypomina, co gra — nic się nie zmieniło
-  async function zagraj(id, ms, { zPodpisem = true, odNowa = false } = {}) {
-    const el = odtwarzacz(id);
-    grany = id;
-    if (odNowa) { try { el.currentTime = 0; } catch { /* jeszcze nie wczytany */ } }
-    if (zPodpisem) pokazPodpis(podpisUtworu(id), bezKursora.matches ? 0 : PODPIS);
-    else musicName.innerHTML = podpisUtworu(id);
-    mediaSession(id);
-    try {
-      await el.play();
-    } catch {
-      return false;      // przeglądarka odmówiła — zostaje cisza, nie błąd na stronie
-    }
-    sciemniaj(el, GLOSNOSC, ms);
-    return true;
-  }
-
-  async function wycisz(id, ms) {
-    const el = odtwarzacze[id];
-    if (!el) return;
-    await sciemniaj(el, 0, ms);
-    el.pause();
-  }
-
-  function zmien(id, ms, odNowa = false) {
-    if (!muzykaOn || grany === id) return;
-    const poprzedni = grany;
-    zagraj(id, ms, { odNowa });
-    if (poprzedni) wycisz(poprzedni, ms);
-  }
-
-  // Ręczna zmiana utworu. W finale przeskok wraca na playlistę — inaczej nie dałoby się
-  // z niego wyjść bez przewijania strony.
-  function przeskocz(krok) {
-    if (!muzykaOn) return;
-    if (!wFinale || grany !== FINAL) pozycja = (pozycja + krok + LISTA.length) % LISTA.length;
-    zmien(LISTA[pozycja], SKOK, true);
-  }
-
-  function setMusic(on) {
-    muzykaOn = on;
-    musicButton.setAttribute("aria-pressed", String(on));
-    musicButton.classList.toggle("is-on", on);
-    musicButton.setAttribute("aria-label", on ? "Wyłącz muzykę" : "Muzyka do czytania");
-    musicButton.dataset.tip = on ? "wyłącz muzykę" : "muzyka do czytania";
-    prevButton.hidden = nextButton.hidden = !on;
-    if (on) {
-      wstrzymaneWTle = false;
-      zagraj(grany ?? (wFinale ? FINAL : LISTA[pozycja]), WEJSCIE);
-    } else {
-      for (const id of Object.keys(odtwarzacze)) wycisz(id, WYJSCIE);
-      schowajPodpis();
-      if ("mediaSession" in navigator) navigator.mediaSession.playbackState = "paused";
-    }
-  }
-
-  setMusic(false);
-  musicButton.addEventListener("click", () => setMusic(!muzykaOn));
-
-  // Ten sam przełącznik muzyki w menu („Sprzęt”) — w otwartym menu ikony z rogu znikają.
-  // To tylko drugi uchwyt do setMusic: stan czyta z nuty w pasku, więc nic się nie rozjedzie.
-  if (opcje) {
-    const menuMusic = document.createElement("button");
-    menuMusic.type = "button";
-    menuMusic.className = "music-toggle";
-    menuMusic.innerHTML = musicButton.innerHTML;
-    const sync = () => {
-      menuMusic.setAttribute("aria-pressed", musicButton.getAttribute("aria-pressed"));
-      menuMusic.setAttribute("aria-label", musicButton.getAttribute("aria-label"));
-      menuMusic.classList.toggle("is-on", musicButton.classList.contains("is-on"));
-    };
-    menuMusic.addEventListener("click", () => { setMusic(!muzykaOn); sync(); });
-    musicButton.addEventListener("click", sync);
-    sync();
-    opcje.append(opcja("Muzyka do czytania", menuMusic));
-  }
-  prevButton.addEventListener("click", () => przeskocz(-1));
-  nextButton.addEventListener("click", () => przeskocz(1));
-
-  // Gdy podpis już zgasł, najechanie na nutę przywołuje go z powrotem — razem ze strzałkami.
-  // Nuta i podpis są jednym obszarem: zwłoka pozwala przejechać kursorem przez przerwę
-  // między nimi, a w pierwszych sekundach po zmianie utworu zjechanie i tak nic nie gasi.
-  let zwloka = 0;
-
-  function przypomnijPodpis() {
-    clearTimeout(zwloka);
-    if (muzykaOn && grany) pokazPodpis(podpisUtworu(grany), 0);
-  }
-
-  function ukryjPodpis() {
-    clearTimeout(zwloka);
-    if (bezKursora.matches) return;
-    zwloka = setTimeout(() => { if (!podpisTimer) schowajPodpis(); }, 260);
-  }
-
-  for (const el of [musicButton, musicNow]) {
-    el.addEventListener("pointerenter", przypomnijPodpis);
-    el.addEventListener("pointerleave", ukryjPodpis);
-  }
-  for (const el of [musicButton, prevButton, nextButton]) {
-    el.addEventListener("focus", przypomnijPodpis);
-    el.addEventListener("blur", ukryjPodpis);
-  }
-
-  // Schowana karta milczy. Powrót wznawia tylko to, czego czytelnik sam nie wyłączył.
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) {
-      if (!muzykaOn || !grany) return;
-      wstrzymaneWTle = true;
-      wycisz(grany, 400);
-    } else if (wstrzymaneWTle) {
-      wstrzymaneWTle = false;
-      if (muzykaOn) zagraj(grany, POWROT, { zPodpisem: false });
-    }
+  // Głośnik: gdy cokolwiek gra — wycisza wszystko i pamięta, co grało; gdy cisza — przywraca.
+  glosnik.addEventListener("click", () => {
+    if (audio.muzyka || audio.dzwieki) {
+      ostatnie = { ...audio };
+      ustawAudio({ muzyka: false, dzwieki: false });
+    } else ustawAudio(ostatnie);
+  });
+  przelaczniki.muzyka.addEventListener("click", () => ustawAudio({ muzyka: !audio.muzyka }));
+  przelaczniki.dzwieki.addEventListener("click", () => ustawAudio({ dzwieki: !audio.dzwieki }));
+  przelaczniki.efekty.addEventListener("click", () => {
+    efektyOn = !efektyOn;
+    remember(EFEKTY_KEY, efektyOn ? "1" : "0");
+    document.documentElement.classList.toggle("bez-efektow", !efektyOn);
+    if (!efektyOn) zapalnikUzyty();               // dopisek „kliknij” nie ma sensu przy zwykłym tekście
+    window.Efekty?.wlacz(efektyOn);               // wyłączenie przerywa to, co właśnie trwa
+    odswiezAudio();
   });
 
-  // Finał: dwa progi, żeby drobne przewinięcie na granicy nie przełączało utworu.
-  // Wejście, gdy początek finału minie 60% ekranu; powrót, gdy znów jest 160% niżej.
-  const finalSection = document.getElementById("mont-blanc");
-  if (finalSection) {
-    new IntersectionObserver(([wpis]) => {
-      if (!wpis.isIntersecting) return;
-      wFinale = true;
-      zmien(FINAL, PRZEJSCIE);
-    }, { rootMargin: "0px 0px -40% 0px" }).observe(finalSection);
-
-    new IntersectionObserver(([wpis]) => {
-      if (wpis.isIntersecting) return;
-      wFinale = false;
-      if (grany === FINAL) zmien(LISTA[pozycja], PRZEJSCIE);
-    }, { rootMargin: "0px 0px 60% 0px" }).observe(finalSection);
-
-    // Finał dociąga się, zanim będzie potrzebny — crossfade nie może czekać na sieć.
-    // Tylko przy włączonej muzyce, więc przed kliknięciem nie ma żadnego żądania do plików.
-    new IntersectionObserver(([wpis], obserwator) => {
-      if (!wpis.isIntersecting || !muzykaOn) return;
-      const el = odtwarzacz(FINAL);
-      el.preload = "auto";
-      el.load();
-      obserwator.disconnect();
-    }, { rootMargin: "0px 0px 150% 0px" }).observe(finalSection);
-  }
+  opcje?.append(
+    opcja("Muzyka", przelaczniki.muzyka),
+    opcja("Dźwięki", przelaczniki.dzwieki),
+    opcja("Efekty", przelaczniki.efekty),
+  );
+  odswiezAudio();
 
   // --- Druk i PDF: szkice ładują się dopiero przy przewijaniu — przed drukiem wszystkie ---
   addEventListener("beforeprint", () => {

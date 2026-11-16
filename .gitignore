@@ -40,6 +40,8 @@
 
 # Muzyka do czytania — tylko przekonwertowane pliki, nie oryginały z assets/
 !/assets/audio/*
+# Tła rozdziałów: gotowe pętle (75–220 s, ok. 1–2,6 MB). Oryginały w assets/audio/background/ zostają lokalnie.
+!/assets/audio/tlo/*
 
 # Makiety gór: moduł i pliki (assets/makiety-gor/ to materiał roboczy, zostaje lokalnie)
 !/mountain-fx.js

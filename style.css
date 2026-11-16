@@ -2324,6 +2324,39 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
 
 .menu .music-toggle.is-on { border-color: var(--accent); color: var(--accent); }
 
+/* Przełączniki w „Sprzęcie” (muzyka, dźwięki, efekty): pigułka „wł./wył.”, włączona w akcencie */
+.menu .reader .przelacznik {
+  width: auto;
+  min-width: 64px;
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  font: 12px/1 var(--mono);
+  letter-spacing: 0.08em;
+}
+
+.menu .reader .przelacznik[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Głośnik w pasku pokazuje podpowiedź także wtedy, gdy gra — nie ma już podpisu utworu */
+@media (hover: hover) {
+  .topbar .tb-dzwiek.is-on[data-tip]::after { content: attr(data-tip); }
+}
+
+/* Efekty wyłączone w menu: zapalnik to zwykły tekst — bez kropkowanej linii i bez rączki */
+.bez-efektow .fx,
+.bez-efektow .ref {
+  text-decoration: none;
+  cursor: text;
+}
+
+.bez-efektow .fx:hover,
+.bez-efektow .ref:hover {
+  color: inherit;
+}
+
 /* Pliki w „Sprzęcie”: dwie pigułki, nazwa i rozmiar */
 .opcja-pliki {
   display: flex;
