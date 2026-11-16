@@ -24,7 +24,7 @@
     skalka: 'skalka', 'mont-blanc': 'mont-blanc',
   };
   const NAZWY = {
-    wstep: 'Strona główna i wstęp — wiatr', pilsko: 'Pilsko — las', tatry: 'Dolina, Kozi Wierch, Mnich — wiatr',
+    wstep: 'Strona główna i wstęp — wiatr', pilsko: 'Pilsko — las, ptaki', tatry: 'Dolina, Kozi Wierch, Mnich — wiatr',
     marmolada: 'Marmolada — łagodny wiatr', everest: 'Everest i Grossglockner — wiatr', 'babia-gora': 'Babia Góra — wichura', rysy: 'Rysy — łagodny deszcz', 'gran-paradiso': 'Gran Paradiso — śnieżyca', skalka: 'Skalka — las, wiatr, ptaki', 'mont-blanc': 'Mont Blanc — wiatr',
   };
   // Poziomy domyślne (mnożniki). Tu wpisujemy wynik z miksera autora.
@@ -53,7 +53,7 @@
   // Gran Paradiso jest o 11 dB cichsza od reszty (prawie sam niski szum), pełne podbicie dudniłoby.
   // Przełącznik „korekta” w mikserze wyłącza całość — do porównania ze słuchu.
   const LUFS = {
-    tlo: { wstep: -21.6, pilsko: -27.1, tatry: -24.8, marmolada: -27.7, everest: -24.8, 'babia-gora': -24.6, rysy: -27.9,
+    tlo: { wstep: -21.6, pilsko: -26.4, tatry: -24.8, marmolada: -27.7, everest: -24.8, 'babia-gora': -24.6, rysy: -27.9,
       'gran-paradiso': -37.5, skalka: -28.7, 'mont-blanc': -25.9, 'kroki-snieg': -30.9 },
     muzyka: { wybor: -13.6, pilsko: -14.2, dolina: -14.9, kozi: -14.8, mnich: -14.4, marmolada: -14.9, everest: -15.1,
       'babia-gora': -14.3, rysy: -15.3, 'gran-paradiso': -15.2, grossglockner: -15.4, skalka: -15.2, 'mont-blanc': -14.6 },
