@@ -2527,3 +2527,20 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
   .menu .route-min { grid-area: min; flex: none; }
   .menu .route-leader { display: none; }
 }
+
+/* Echo wyboru ze wstępu w rozdziale „Zawrócenie” (script.js) — cichy dopisek, pismo metadanych */
+.echo-wyboru {
+  margin-top: calc(var(--sp-para) * -0.4);
+  font: 12px/1.5 var(--mono);
+  letter-spacing: 0.06em;
+  color: var(--text-quiet);
+}
+.echo-wyboru::before {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  margin-right: 0.6em;
+  border-top: 1px solid var(--accent);
+  vertical-align: 0.25em;
+}
+@media print { .echo-wyboru { display: none; } }

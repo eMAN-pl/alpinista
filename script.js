@@ -791,7 +791,19 @@
       document.querySelector(".wybor-dalej")?.classList.add("jest");
       przycisk.setAttribute("aria-expanded", "true");
       for (const o of opcje) o.disabled = true;
+      echoWyboru(przycisk.dataset.wybor);
     });
+  }
+
+  // Echo wyboru w rozdziale „Zawrócenie”: pod zdaniem „co by było, gdyby…” cichy dopisek
+  // o tym, co czytelnik kliknął na początku. Tylko w tej wizycie — wybór nie jest zapamiętywany.
+  function echoWyboru(wybor) {
+    const akapit = [...document.querySelectorAll("#grossglockner p")].find((p) => p.textContent.includes("co by było, gdyby"));
+    if (!akapit || akapit.nextElementSibling?.classList.contains("echo-wyboru")) return;
+    const echo = document.createElement("p");
+    echo.className = "echo-wyboru";
+    echo.textContent = /zawracam/i.test(wybor) ? "Na początku zawróciłeś." : "Na początku poszedłeś dalej.";
+    akapit.after(echo);
   }
 
   // --- Muzyka do czytania (Scott Buckley, CC BY 4.0) ---
