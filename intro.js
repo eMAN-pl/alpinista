@@ -121,6 +121,8 @@
   }
 
   let p = 0, target = 0, lastT = 0, flashAt = -1e9, nextFlash = 0, inStorm = false;
+  const SLAJDY = [.33, .47, .70];       // początki cytatów: Ósma godzina, 14:10, 20 minut do szczytu
+  let pPop = Infinity;                  // pierwsza klatka niczego nie ogłasza — strona mogła się otworzyć w środku
   const progress = () => { const r = intro.getBoundingClientRect(); return clamp(-r.top / (r.height - innerHeight)); };
 
   function render(time) {
@@ -132,6 +134,10 @@
     document.documentElement.classList.toggle('nad-zdjeciem', visible && ease(ramp(p, .925, .97)) < .5);
     stage.style.background = `rgb(${f.col.map(c => Math.round(c * 255)).join(',')})`;
     const k = p < .25 ? 0 : p < .595 ? 1 : 2;
+    // Tekst slajdu wchodzi (tylko przy przewijaniu w dół): sygnał dla dzwiek.js — cichy whoosh
+    // przy każdym z trzech cytatów (autor, 2026-11-16). Wracanie do tekstu nie szumi.
+    SLAJDY.forEach((a, nr) => { if (pPop < a && p >= a) dispatchEvent(new CustomEvent('intro:slajd', { detail: { nr } })); });
+    pPop = p;
 
     if (reduce) {   // bez ruchu: proste przełączanie, bez błysków
       sD.style.opacity = k === 0 ? 1 : 0; sK.style.opacity = k === 1 ? 1 : 0; sL.style.opacity = k === 2 && p < .9 ? 1 : 0;

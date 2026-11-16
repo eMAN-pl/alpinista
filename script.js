@@ -854,11 +854,39 @@
     pokazStan(przelaczniki.efekty, efektyOn);
   }
 
+  // Silnik dźwięku (dzwiek.js) wczytuje się dopiero przy pierwszym włączeniu — do tej chwili
+  // strona nie pobiera nic z audio. Kontekst dźwięku powstaje tutaj, w kliknięciu: iOS
+  // pozwala go uruchomić tylko w geście użytkownika, a skrypt dojdzie dopiero po chwili.
+  let silnikDzwieku = null;
+  function wczytajDzwiek() {
+    if (!silnikDzwieku) silnikDzwieku = new Promise((gotowe, blad) => {
+      const skrypt = document.createElement("script");
+      skrypt.src = document.body.dataset.dzwiekJs;
+      skrypt.onload = gotowe;
+      skrypt.onerror = blad;
+      document.head.append(skrypt);
+    });
+    return silnikDzwieku;
+  }
+  function odblokujDzwiek() {
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!window.alpinistaCtx && Ctx) window.alpinistaCtx = new Ctx();
+      window.alpinistaCtx?.resume();
+    } catch { /* bez Web Audio strona zostaje cicha */ }
+  }
+
   function ustawAudio(zmiana) {
     Object.assign(audio, zmiana);
     odswiezAudio();
+    if (audio.muzyka || audio.dzwieki) odblokujDzwiek();
     dispatchEvent(new CustomEvent("audio-zmiana", { detail: { ...audio } }));
+    if (audio.muzyka || audio.dzwieki || window.Dzwiek) {
+      wczytajDzwiek().then(() => window.Dzwiek?.ustaw(audio)).catch(() => { /* bez silnika: cisza */ });
+    }
   }
+  // roboczy mikser autora: panel głośności każdego dźwięku (dzwiek.js)
+  if (new URLSearchParams(location.search).has("mikser")) wczytajDzwiek().catch(() => {});
 
   // Głośnik: gdy cokolwiek gra — wycisza wszystko i pamięta, co grało; gdy cisza — przywraca.
   glosnik.addEventListener("click", () => {
