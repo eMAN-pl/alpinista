@@ -732,6 +732,7 @@
         const r = s.btn.getBoundingClientRect();
         main.style.transformOrigin = `${(r.left + r.width/2 - colRect().left).toFixed(0)}px ${(r.top - main.getBoundingClientRect().top).toFixed(0)}px`;
         s.kier = R() < .5 ? 1 : -1;
+        const col = colRect(); s.bx = col.left + col.width*(.42 + R()*.16); s.by = H*.6;
       },
       stop(s){ main.style.transformOrigin = ''; },
       draw(c, s, p, t, dt, M){
@@ -744,6 +745,31 @@
         const sw = c.createRadialGradient(W*.3, H*.25, 0, W*.3, H*.25, Math.max(W, H)*.7);
         sw.addColorStop(0, `rgba(255,255,255,${(.35*e).toFixed(3)})`); sw.addColorStop(1, 'rgba(255,255,255,0)');
         c.fillStyle = sw; c.fillRect(0, 0, W, H);
+        // Dwie postaci na linie (autor, 16.11): maleńkie, z daleka. Idą krokami, nie suną —
+        // ruch, pauza, ruch, każda w swoim rytmie; przy kroku lekko się kołyszą. Lina zwisa
+        // tym mocniej, im bliżej siebie są, i lekko faluje. Wszystko miękkie, bez ostrych krawędzi.
+        const ms = t - s.start, wid = e*smooth(clamp((p - .16)/.14, 0, 1));
+        if (wid > .01) {
+          const dir = [.82, -.57], KROK = 640, L = 2.1;
+          const droga = (faza) => { const m = ms + faza, n = Math.floor(m/KROK), f = (m % KROK)/KROK;
+            const ruch = smooth(clamp(f/.45, 0, 1)); return {d: (n + ruch)*L, bob: Math.sin(clamp(f/.45, 0, 1)*Math.PI)}; };
+          const a1 = droga(0), a2 = droga(KROK*.45);
+          const odst = 34 + Math.sin(ms/1900)*3;                        // druga osoba to dogania, to odchodzi
+          const p1 = [s.bx + dir[0]*a1.d, s.by + dir[1]*a1.d - a1.bob*.7];
+          const p2 = [s.bx + dir[0]*(a2.d + odst), s.by + dir[1]*(a2.d + odst) - a2.bob*.7];
+          const sag = 4 + (38 - odst)*.6 + Math.sin(ms/650)*.8;
+          c.save(); c.filter = 'blur(.35px)';
+          c.strokeStyle = `rgba(250,252,255,${(.9*wid).toFixed(3)})`; c.lineWidth = .9;   // lina, jasna jak na śniegu w słońcu
+          c.beginPath(); c.moveTo(p1[0], p1[1]); c.quadraticCurveTo((p1[0] + p2[0])/2, (p1[1] + p2[1])/2 + sag, p2[0], p2[1]); c.stroke();
+          for (const [x, y] of [p1, p2]) {
+            const cs = c.createRadialGradient(x + 7, y + 6, 0, x + 7, y + 6, 9);       // miękki, długi cień postaci
+            cs.addColorStop(0, `rgba(60,72,90,${(.32*wid).toFixed(3)})`); cs.addColorStop(1, 'rgba(60,72,90,0)');
+            c.save(); c.translate(x + 7, y + 6); c.rotate(.6); c.scale(1.6, .5); c.translate(-(x + 7), -(y + 6));
+            c.fillStyle = cs; c.fillRect(x - 4, y - 5, 22, 22); c.restore();
+            c.fillStyle = `rgba(28,32,38,${wid.toFixed(3)})`; c.beginPath(); c.ellipse(x, y - 3.2, 2.1, 4, 0, 0, TAU); c.fill();
+          }
+          c.restore();
+        }
         // cień skrzydła: szeroki, płaski łuk, mocno rozmyty, sunie ukośnie przez zbocze
         const u = smooth(clamp((p - .12)/.76, 0, 1));
         const x = s.kier > 0 ? -W*.25 + u*W*1.5 : W*1.25 - u*W*1.5, y = H*.25 + u*H*.4;
