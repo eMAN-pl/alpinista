@@ -1458,6 +1458,13 @@ article.is-shaken {
   color: var(--accent);
 }
 
+/* Punktor między wysokością a czasem czytania */
+.route-sep {
+  font: 12px/1 var(--mono);
+  color: color-mix(in srgb, var(--text-quiet) 60%, transparent);
+  margin-inline: -6px;      /* gap wiersza (16 px) jest za szeroki na sam punktor */
+}
+
 /* Czas czytania rozdziału: cichsza, wąska kolumna za wysokością (liczby stoją w słupku) */
 .route-min {
   flex: 0 0 5.5ch;
@@ -1466,29 +1473,14 @@ article.is-shaken {
   color: color-mix(in srgb, var(--text-quiet) 70%, transparent);
 }
 
-/* Gdzie jesteś: przeczytane rozdziały przygasają, bieżący ma kropkę w akcencie — tę samą
-   co na osi z boku ekranu. Bez napisu „jesteś tutaj” (autor). Ustawia script.js. */
+/* Gdzie jesteś: przeczytane rozdziały przygasają, nazwa bieżącego jest w akcencie
+   (autor, 2026-11-17 — zamiast kropki z lewej). Bez napisu „jesteś tutaj”. Ustawia script.js. */
 .route ol a.is-za .route-name { color: var(--text-quiet); }
 
 .route ol a.is-za .route-num,
 .route ol a.is-za .route-alt { opacity: 0.6; }
 
-.route ol a.is-tu { position: relative; }
-
-.route ol a.is-tu .route-name { color: var(--text-strong); }
-
-.route ol a.is-tu::before {
-  content: "";
-  position: absolute;
-  left: -18px;
-  top: 50%;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 28%, transparent);
-  transform: translateY(-50%);
-}
+.route ol a.is-tu .route-name { color: var(--accent); }
 
 /* Źródła i autor: do końca eseju nie trzeba przewijać 74 minut */
 .route-dalej {
@@ -2496,7 +2488,6 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
 
   /* 13 wierszy po 68 px spychało „Sprzęt” półtora ekranu w dół */
   .menu .route ol a { padding-block: 4px; gap: 12px; }
-  .menu .route ol a.is-tu::before { left: -14px; width: 6px; height: 6px; }
   .menu .route h2 { margin-bottom: var(--line); }
 }
 

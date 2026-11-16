@@ -625,6 +625,8 @@
       if (gdzie > -1 && nr === gdzie) link.setAttribute("aria-current", "location");
       else link.removeAttribute("aria-current");
     }
+    // „czytaj dalej” w menu usunięte (autor, 2026-11-17) — ten sam odnośnik stoi na stronie
+    // głównej; kod zostaje bezczynny, gdy elementu nie ma.
     const wroc = menu.querySelector(".route-wroc");
     const zapis = readPlace();
     const pokaz = wroc && zapis && odcinki[zapis.id] && zapis.id !== "wstep" && current !== zapis.id;
