@@ -808,20 +808,35 @@
         s.t.style.transform = `translate(${(spad*6).toFixed(1)}px,${(spad*spad*70).toFixed(1)}px) rotate(${(chwiej + spad*80).toFixed(1)}deg)`;
       }},
 
-    /* Przyleciał (Rysy): nad tekstem zawisa cień wirnika, podmuch szarpie literami. */
+    /* Przyleciał (Rysy): śmigłowca nie rysujemy — rysowany wirnik wyglądał jak krzyż
+       z kresek (autor, 16.11). Widać tylko skutki: miękki, rozmyty cień nadlatuje i zawisa
+       nad tekstem, pulsuje w rytmie łopat, podmuch wyrzuca pył i śnieg na boki,
+       a litery szarpią się w tym samym rytmie. */
     smiglowiec: { dur: 5600,
-      init(s){ s.cel = colRect(); },
-      draw(c, s, p, t, dt, M){
-        const e = env(p, .05, .12), wlot = smooth(p/.35), odlot = smooth((p - .7)/.3);
-        const cx = W*1.15 + (W*.55 - W*1.15)*wlot + (-W*.35 - W*.55)*odlot, cy = -H*.15 + (H*.36 + H*.15)*wlot - H*.2*odlot;
-        const blisko = Math.max(0, 1 - Math.hypot(cx - W*.55, cy - H*.36)/(W*.6));
-        c.save(); c.translate(cx, cy); c.rotate(t*.045);
-        c.fillStyle = `rgba(0,0,0,${(.22*e).toFixed(3)})`;
-        for (let i = 0; i < 2; i++) { c.rotate(Math.PI/2); c.fillRect(-170, -5, 340, 10); }
-        c.restore();
-        c.fillStyle = `rgba(0,0,0,${(.28*e).toFixed(3)})`; c.beginPath(); c.ellipse(cx, cy, 44, 20, -.2, 0, TAU); c.fill();
-        const a = 3*blisko*e;
-        M.dx += a*(Math.sin(t*.09) + .5*Math.sin(t*.23)); M.dy += a*.6*Math.cos(t*.11); M.blur += .6*blisko*e;
+      init(s){ s.pyl = []; },
+      draw(c, s, p, t, dt, M, cb){
+        const e = env(p, .05, .14), k = dt/16, wlot = smooth(p/.32), odlot = smooth((p - .72)/.28);
+        const cx = W*1.2 + (W*.55 - W*1.2)*wlot + (-W*.4 - W*.55)*odlot, cy = -H*.1 + (H*.38 + H*.1)*wlot - H*.25*odlot;
+        const blisko = Math.max(0, 1 - Math.hypot(cx - W*.55, cy - H*.38)/(W*.55));
+        const lopaty = .5 + .5*Math.sin(t*.055);                     // rytm wirnika, ok. 9 uderzeń na sekundę
+        // cień: duża, rozmyta plama na płótnie tylnym, lekko pulsuje z łopatami
+        const R0 = Math.min(W, H)*.42, g = cb.createRadialGradient(cx, cy, 0, cx, cy, R0);
+        const a0 = (.34 + .08*lopaty)*e*(.4 + .6*blisko);
+        g.addColorStop(0, `rgba(0,0,0,${a0.toFixed(3)})`); g.addColorStop(.6, `rgba(0,0,0,${(a0*.45).toFixed(3)})`); g.addColorStop(1, 'rgba(0,0,0,0)');
+        cb.fillStyle = g; cb.fillRect(cx - R0, cy - R0, R0*2, R0*2);
+        // podmuch: drobiny wylatują spod wirnika na boki, mocniej przy każdym uderzeniu łopat
+        // pył przy „ziemi”: tuż pod cieniem, rozdmuchiwany poziomo w obie strony
+        let n = (.8 + 2.4*lopaty)*blisko*e*k;
+        while (n > 0) { if (n >= 1 || R() < n) { const strona = R() < .5 ? -1 : 1, sp = 3 + R()*5;
+          s.pyl.push({x: cx + strona*R()*R0*.25, y: cy + R0*.3 + (R() - .5)*40, vx: strona*sp, vy: (R() - .6)*.8, age: 0, life: 600 + R()*600, d: R()}); } n--; }
+        s.pyl = s.pyl.filter(q => { q.age += dt; const al = 1 - q.age/q.life; if (al <= 0) return false;
+          q.x += q.vx*k; q.y += q.vy*k; q.vx *= .985; q.vy *= .985;
+          c.strokeStyle = rgba('--snow-rgb', (.12 + .28*q.d)*al*e); c.lineWidth = .6 + .8*q.d;
+          c.beginPath(); c.moveTo(q.x, q.y); c.lineTo(q.x - q.vx*1.6, q.y - q.vy*1.6); c.stroke(); return true; });
+        // tekst: szarpnięcia w rytmie łopat, odpychany od środka podmuchu
+        const sila = 3.2*blisko*e;
+        M.dx += sila*(lopaty - .5)*Math.sign(W*.5 - cx || 1)*-1 + (R() - .5)*sila*.5;
+        M.dy += sila*.5*(lopaty - .5); M.blur += .5*blisko*e;
       }},
 
     /* Ship it! (Rysy, konferencja): konfetti wystrzeliwuje ze słowa i smętnie opada. */
