@@ -1270,17 +1270,25 @@
   }
 
   /* ---------- Enter: model rozmawia z modelem ---------- */
+  // Rozmowa z kontekstu rozdziału (Gran Paradiso, „Wypolerowany czekan”, 16.11.2026):
+  // wygenerowane ogłoszenie i odpowiedzi, wymóg „biegłości w AI”, filtr, który za to samo CV
+  // daje dwie różne oceny, zamyślenie jako podejrzenie, wygenerowana kawa i wygenerowane
+  // podziękowanie — a na końcu „Masz absolutną rację”. Przy przyspieszeniu rozmowa się zapętla.
   const CHAT = [
-    ['a','Rekruter (model)','Dziękujemy za aplikację! Twoje doświadczenie idealnie pasuje do naszych wartości.'],
-    ['b','Kandydat (model)','Dziękuję! Jestem pasjonatem tworzenia wartości dla użytkowników.'],
-    ['a','Rekruter (model)','Świetnie! Opowiedz o sytuacji, w której wykazałeś się proaktywnością.'],
-    ['b','Kandydat (model)','W poprzedniej roli proaktywnie zwiększyłem zaangażowanie o 40%.'],
-    ['a','Rekruter (model)','Imponujące. Twoja kandydatura przechodzi do kolejnego etapu.'],
-    ['b','Kandydat (model)','Dziękuję! Nie mogę się doczekać kolejnego etapu.'],
-    ['a','Rekruter (model)','Kolejny etap to rozmowa z naszym asystentem.'],
-    ['b','Kandydat (model)','Z przyjemnością porozmawiam z Twoim asystentem.'],
-    ['a','Asystent (model)','Opowiedz o swoich mocnych stronach.'],
+    ['a','Rekruter (model)','Dziękujemy za aplikację! Twój profil idealnie pasuje do naszych wartości.'],
+    ['b','Kandydat (model)','Dziękuję! Jestem pasjonatem tworzenia wartości i ciągłego rozwoju.'],
+    ['a','Rekruter (model)','Wymagamy biegłości w pracy z AI. Opisz swoje doświadczenie.'],
+    ['b','Kandydat (model)','Na co dzień biegle współpracuję z AI, co pozwala mi dowozić szybciej.'],
+    ['c','Filtr CV (model)','Dopasowanie: 87/100.'],
+    ['a','Rekruter (model)','Czy zdarza Ci się odrywać wzrok od ekranu podczas rozmowy?'],
+    ['b','Kandydat (model)','Nigdy. Patrzę wyłącznie w kamerę.'],
+    ['a','Rekruter (model)','Doskonale. Zamyślenie budzi nasze wątpliwości.'],
+    ['c','Filtr CV (model)','To samo CV. Dopasowanie: 41/100.'],
+    ['a','Rekruter (model)','Zapraszamy na kawę z naszym asystentem.'],
+    ['a','Asystent (model)','Kawa gotowa. Opowiedz o swoich mocnych stronach.'],
     ['b','Kandydat (model)','Moją mocną stroną jest komunikacja i praca zespołowa.'],
+    ['a','Rekruter (model)','Dziękujemy! Zdecydowaliśmy się kontynuować z innymi kandydatami.'],
+    ['b','Kandydat (model)','Dziękuję za cenną informację zwrotną. Masz absolutną rację.'],
   ];
   let enterRun = null;
   function stopEnter(){ if (!enterRun) return; enterRun.timers.forEach(clearTimeout); enterRun.box.remove(); enterRun.btn.setAttribute('aria-pressed','false'); enterRun = null; }
