@@ -145,3 +145,4 @@ canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
 .tc-stan{flex-basis:100%;min-height:1.3em;font-size:11px;letter-spacing:.06em;color:var(--text-quiet)}
 .tc-stan.zle{color:var(--accent)}
 @keyframes tc-krec{to{transform:rotate(360deg)}}
+.os-t{display:inline-block;color:var(--accent);transform-origin:50% 90%}

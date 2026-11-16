@@ -1117,46 +1117,26 @@
     document.querySelectorAll('img[loading="lazy"]').forEach((img) => (img.loading = "eager"));
   });
 
-  // --- Zakończenie: mgła odsłania Dolomity z pierwszego slajdu ---
-  // Odwrócenie intro: kolor strony → szara mgła → zdjęcie z wizytówką → mgła → kolor strony.
-  // Kamera lekko się wznosi (w intro schodziliśmy w chmury). Przy ograniczonym ruchu
-  // scena stoi nieruchomo: zdjęcie i wizytówka, bez mgły (style.css).
+  // --- Koniec strony: Dolomity z pierwszego slajdu jako przyciszone tło Źródeł ---
+  // Zdjęcie wchodzi, gdy góra części końcowej przejeżdża przez ekran — wynurza się z koloru
+  // strony jak z mgły — i zostaje pod Źródłami i stopką (style.css: .koniec).
   const koniec = document.getElementById("koniec");
-  if (koniec && !reduceMotion.matches) {
-    const foto = koniec.querySelector(".kn-foto"), mgla = koniec.querySelector(".kn-mgla"),
-          tlo = koniec.querySelector(".kn-tlo"), karta = koniec.querySelector(".kn-karta");
-    const ramp = (p, a, b) => Math.min(1, Math.max(0, (p - a) / (b - a)));
-    const gladko = (x) => x * x * (3 - 2 * x);
-    let widac = false, czeka = false;
+  const tloKonca = koniec?.querySelector(".kn-tlo");
+  if (tloKonca) {
+    let czeka = false;
     const rysuj = () => {
       czeka = false;
-      const box = koniec.getBoundingClientRect();
-      const p = Math.min(1, Math.max(0, -box.top / Math.max(1, box.height - innerHeight)));
-      const t = 1 - ramp(p, .02, .16) + ramp(p, .86, .97);
-      const m = 1 - gladko(ramp(p, .16, .42)) + gladko(ramp(p, .7, .86));
-      tlo.style.opacity = Math.min(1, t).toFixed(3);
-      mgla.style.opacity = Math.min(1, m).toFixed(3);
-      const k = ramp(p, .42, .52) * (1 - ramp(p, .62, .7));
-      karta.style.opacity = k.toFixed(3);
-      karta.style.transform = `translate3d(0,${((1 - ramp(p, .42, .52)) * 14).toFixed(1)}px,0)`;
-      karta.style.visibility = k > .01 ? "visible" : "hidden";
-      const w = gladko(ramp(p, .08, .78));
-      foto.style.transform = `translate3d(0,${(5 * (1 - w)).toFixed(2)}%,0) scale(${(1.12 - .12 * w).toFixed(4)})`;
-      // nad jasnym zdjęciem ikony paska są ciemne — ta sama klasa co w intro
-      document.documentElement.classList.toggle("nad-zdjeciem", widac && t < .5 && m < .6);
-      // nad zdjęciem oś trasy z boku tylko by przeszkadzała — jak w intro
-      document.documentElement.classList.toggle("kn-zdjecie", widac && t < .5);
+      const top = koniec.getBoundingClientRect().top;
+      const u = Math.min(1, Math.max(0, (innerHeight - top) / (innerHeight * 0.9)));
+      tloKonca.style.setProperty("--wejscie", (u * u * (3 - 2 * u)).toFixed(3));
     };
     const kolejka = () => { if (!czeka) { czeka = true; requestAnimationFrame(rysuj); } };
-    new IntersectionObserver(([wpis]) => {
-      widac = wpis.isIntersecting;
-      if (!widac) document.documentElement.classList.remove("nad-zdjeciem", "kn-zdjecie");
-      kolejka();
-    }).observe(koniec);
-    addEventListener("scroll", () => { if (widac) kolejka(); }, { passive: true });
-    addEventListener("resize", kolejka);
-    koniec.classList.add("kn-ruch");
-    rysuj();
+    if (reduceMotion.matches) tloKonca.style.setProperty("--wejscie", "1");
+    else {
+      addEventListener("scroll", kolejka, { passive: true });
+      addEventListener("resize", kolejka);
+      rysuj();
+    }
   }
 
   addEventListener("scroll", queueUpdate, { passive: true });

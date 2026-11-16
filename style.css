@@ -2430,81 +2430,59 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
 }
 .route-wroc a:hover, .route-wroc a:focus-visible { color: var(--accent); }
 
-/* ---------- Zakończenie: Dolomity nad chmurami ----------
-   Odwrócenie intro (build.py: koniec_html, ruch: script.js). Bez skryptu i przy
-   ograniczonym ruchu: nieruchome zdjęcie z wizytówką. Wizytówka stoi w lewym dolnym
-   rogu — tam, gdzie w intro stał tytuł. Na zdjęciu zawsze ciemne litery, jak w intro. */
+/* ---------- Koniec strony: wizytówka, potem Dolomity pod Źródłami ----------
+   Wizytówka stoi zaraz po Mont Blanc i jego przypisie. Pod Źródłami i stopką leży
+   zdjęcie z pierwszego slajdu — przyciszone, żeby drobne pismo zostało czytelne
+   (tekst pomocniczy ≥ 6:1). Zdjęcie jest przyklejone do ekranu i wynurza się z koloru
+   strony (script.js ustawia --wejscie od 0 do 1). Pomysł autora, 2026-11-16. */
+
+.autor-blok {
+  max-width: var(--measure);
+  margin: var(--sp-chapter) auto 0;
+}
 
 .koniec {
   position: relative;
   margin: var(--sp-chapter) calc(-1 * var(--edge)) 0;
+  padding: 0 var(--edge) 6rem;
+  isolation: isolate;
 }
-.koniec.kn-ruch { height: 340vh; }
-.kn-stage {
+
+.kn-tlo {
+  --wejscie: 0;
   position: sticky;
   top: 0;
+  z-index: -1;
   height: 100vh;
   height: 100svh;
+  margin-bottom: -100vh;
+  margin-bottom: -100svh;
   overflow: hidden;
-  contain: paint;
+  pointer-events: none;
+  opacity: var(--wejscie);
 }
-.kn-foto {
-  position: absolute;
-  inset: 0;
+
+.kn-tlo img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 60% 28%;
-  transform-origin: 60% 40%;
-  will-change: transform;
+  object-position: 60% 30%;
+  opacity: 0.28;
+  filter: brightness(0.55) saturate(0.55);
 }
-.kn-mgla, .kn-tlo { position: absolute; inset: 0; pointer-events: none; opacity: 0; }
-.kn-mgla { background: #cdd2d7; }
-.kn-tlo { background: var(--bg); }
-.kn-ruch .kn-mgla, .kn-ruch .kn-tlo { opacity: 1; }
-.kn-karta {
+
+/* góra i dół zdjęcia schodzą w kolor strony — bez twardej krawędzi */
+.kn-tlo::after {
+  content: "";
   position: absolute;
-  left: clamp(24px, 5vw, 104px);
-  bottom: clamp(32px, 12vh, 140px);
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  color: #1f262b;
-  scroll-margin-top: 30vh;
-}
-.kn-ruch .kn-karta { opacity: 0; visibility: hidden; }
-.kn-karta img {
-  display: block;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  object-fit: cover;
-  filter: grayscale(1) contrast(1.04);
-}
-.kn-karta p { margin: 0; }
-.kn-imie { font: 400 clamp(26px, 3vw, 40px)/1 var(--display); text-transform: uppercase; letter-spacing: 0.01em; }
-.kn-linia { margin-top: 6px !important; font: 700 clamp(22px, 2.4vw, 30px)/1 var(--hand); color: #9b1d20; transform: rotate(-1.6deg); transform-origin: left center; }
-.kn-linki { display: flex; gap: 16px; margin-top: 4px !important; font: 11px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; }
-.kn-linki a { display: inline-flex; align-items: center; min-height: 44px; color: #1f262b; text-decoration: underline; text-decoration-color: #9b1d20; text-underline-offset: 0.35em; }
-.kn-linki a:hover, .kn-linki a:focus-visible { color: #9b1d20; }
-
-.kn-zdjecie .profile-nav, .kn-zdjecie .progress { opacity: 0; pointer-events: none; transition: opacity .4s; }
-
-/* wizytówka mieszka w scenie zamykającej; w stopce zostaje tylko do druku */
-.colophon .author { display: none; }
-
-@media (max-width: 40em) {
-  .kn-karta { right: 24px; gap: 14px; }
-  .kn-karta img { width: 52px; height: 52px; }
+  inset: 0;
+  background: linear-gradient(var(--bg), transparent 22%, transparent 78%, var(--bg));
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .kn-foto { transform: none !important; }
-}
+:root[data-theme="jasny"] .kn-tlo img { opacity: 0.4; filter: saturate(0.5); }
 
 @media print {
-  .koniec { display: none !important; }
-  .colophon .author { display: flex; }
+  .kn-tlo { display: none; }
 }
 
 /* ---------- Menu na szerokim ekranie: „Trasa” i „Sprzęt” obok siebie ----------

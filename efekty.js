@@ -701,6 +701,124 @@
         c.globalCompositeOperation = 'source-over';
       }},
 
+    /* ===== Propozycje z 2026-11-16 (plan-poprawek.md, sekcja D) — do oceny autora ===== */
+
+    /* Paralotnia (Mont Blanc): skrzydło przelatuje wysoko nad tekstem, jego cień sunie po akapicie. */
+    paralotnia: { dur: 6400,
+      init(s){ s.kier = R() < .5 ? 1 : -1; s.y0 = H*(.14 + R()*.08); },
+      draw(c, s, p, t, dt, M, cb){
+        const e = env(p, .06, .1), u = smooth(p), x = s.kier > 0 ? W + 140 - u*(W + 300) : -140 + u*(W + 300);
+        const y = s.y0 + u*H*.12 + Math.sin(t/900)*8, kat = Math.sin(t/1100)*.07 - s.kier*.05;
+        const acc = v('--accent') || '#c0392b';
+        c.save(); c.translate(x, y); c.rotate(kat); c.globalAlpha = e;
+        c.beginPath(); c.ellipse(0, 0, 58, 15, 0, Math.PI, TAU); c.lineTo(58, 0);    // skrzydło
+        c.quadraticCurveTo(0, -6, -58, 0); c.fillStyle = acc; c.fill();
+        c.strokeStyle = `rgba(${v('--fg-rgb')},.55)`; c.lineWidth = .7; c.beginPath();      // linki
+        for (const lx of [-50, -25, 0, 25, 50]) { c.moveTo(lx, -2); c.lineTo(0, 46); } c.stroke();
+        c.fillStyle = `rgba(${v('--fg-rgb')},.9)`; c.beginPath(); c.arc(0, 48, 3.2, 0, TAU); c.fill();   // pilot
+        c.restore();
+        // cień na akapicie: miękka plama, przesunięta jak od słońca z boku
+        const col = colRect(), sx = x - s.kier*160, sy = Math.max(col.top + 20, Math.min(H*.7, (s.target?.getBoundingClientRect().top ?? H*.5) + 20));
+        const g = cb.createRadialGradient(sx, sy, 0, sx, sy, 90);
+        g.addColorStop(0, `rgba(0,0,0,${(.32*e).toFixed(3)})`); g.addColorStop(1, 'rgba(0,0,0,0)');
+        cb.save(); cb.translate(sx, sy); cb.scale(1.8, .45); cb.translate(-sx, -sy); cb.fillStyle = g; cb.fillRect(sx - 90, sy - 90, 180, 180); cb.restore();
+      }},
+
+    /* Kamienie (Mont Blanc, „usłyszeliśmy kamienie. Poleciały dokładnie tamtędy.”): przez kolumnę
+       tekstu, dokładnie tam, gdzie przed chwilą była ścieżka, leci kilka kamieni i odbija się od półek. */
+    kamienie: { dur: 4800,
+      init(s){
+        const col = colRect(), cx = col.left + col.width*(.35 + R()*.3);
+        s.polki = [.38, .62, .82].map(f => H*f + (R()-.5)*30);
+        s.k = Array.from({length: 9}, (_, i) => ({x: cx + (R()-.5)*50, y: -20 - R()*60, vx: (R()-.5)*1.4, vy: 0, od: 120 + i*170 + R()*120,
+          r: 3 + R()*5, rot: R()*6, w: (R()-.5)*.3, hit: 0, ks: Array.from({length: 6}, () => .7 + R()*.5)}));
+        s.pyl = []; s.cx = cx;
+      },
+      draw(c, s, p, t, dt, M){
+        const ms = t - s.start, k = dt/16, e = env(p, .02, .12);
+        let rum = 0;
+        for (const st of s.k) {
+          if (ms < st.od) continue;
+          st.vy += .42*k; st.x += st.vx*k; st.y += st.vy*k; st.rot += st.w*k;
+          for (const py of s.polki) if (st.hit < 3 && st.y > py && st.y - st.vy*k <= py) {
+            st.y = py; st.vy = -Math.abs(st.vy)*.38; st.vx = (R()-.5)*4; st.hit++; rum = 1;
+            for (let i = 0; i < 6; i++) s.pyl.push({x: st.x, y: py, vx: (R()-.5)*2.4, vy: -R()*1.6, age: 0, life: 500 + R()*500});
+          }
+          c.save(); c.translate(st.x, st.y); c.rotate(st.rot); c.beginPath();
+          st.ks.forEach((q, i) => { const a = i/6*TAU; const X = Math.cos(a)*st.r*q, Y = Math.sin(a)*st.r*q; i ? c.lineTo(X, Y) : c.moveTo(X, Y); });
+          c.closePath(); c.fillStyle = `rgba(150,146,140,${e.toFixed(3)})`; c.fill(); c.restore();
+        }
+        s.pyl = s.pyl.filter(d => { d.age += dt; const a = 1 - d.age/d.life; if (a <= 0) return false; d.x += d.vx*k; d.y += d.vy*k; d.vy += .03*k;
+          const r = 2 + (1 - a)*8, g = c.createRadialGradient(d.x, d.y, 0, d.x, d.y, r);
+          g.addColorStop(0, `rgba(165,158,150,${(.3*a*e).toFixed(3)})`); g.addColorStop(1, 'rgba(165,158,150,0)'); c.fillStyle = g; c.fillRect(d.x - r, d.y - r, r*2, r*2); return true; });
+        if (rum) s.rum = t;
+        if (s.rum) { const d = t - s.rum; M.dx += 2.2*Math.exp(-d/110)*Math.sin(d/17); M.dy += 1.4*Math.exp(-d/110)*Math.cos(d/23); }
+      }},
+
+    /* Widmo Brockenu (Grossglockner): mgła, a w niej cień postaci otoczony tęczowymi kręgami. */
+    brocken: { dur: 5600,
+      init(s){ s.cx = W*(.55 + R()*.15); s.cy = H*.42; },
+      draw(c, s, p, t, dt, M){
+        const e = env(p, .2, .25), R0 = Math.min(W, H)*.11, cx = s.cx, cy = s.cy + Math.sin(t/1400)*4;
+        c.fillStyle = rgba('--fog-rgb', .55*e); c.fillRect(0, 0, W, H);
+        M.blur += 1.2*e;
+        c.globalCompositeOperation = 'source-over';
+        const barwy = [[200,80,70],[175,85,72],[120,70,70],[55,85,65],[205,70,72],[270,55,72],[0,75,68]];   // od środka: niebieski → czerwony, potem drugi krąg
+        barwy.forEach(([h, sa, l], i) => { c.beginPath(); c.arc(cx, cy, R0 + i*10, 0, TAU);
+          c.strokeStyle = `hsla(${h},${sa}%,${l}%,${(.3*e*(1 - i*.07)).toFixed(3)})`; c.lineWidth = 9; c.stroke(); });
+        const g = c.createRadialGradient(cx, cy, 0, cx, cy, R0); g.addColorStop(0, `rgba(255,255,255,${(.35*e).toFixed(3)})`); g.addColorStop(1, 'rgba(255,255,255,0)');
+        c.fillStyle = g; c.fillRect(cx - R0, cy - R0, R0*2, R0*2);
+        // cień: głowa w środku kręgów, ciało wydłużone w dół, rozmyte jak w mgle
+        c.save(); c.filter = 'blur(4px)'; c.fillStyle = `rgba(40,46,56,${(.55*e).toFixed(3)})`;
+        c.beginPath(); c.arc(cx, cy, R0*.16, 0, TAU); c.fill();
+        c.beginPath(); c.moveTo(cx - R0*.22, cy + R0*.2); c.lineTo(cx + R0*.22, cy + R0*.2); c.lineTo(cx + R0*.42, cy + R0*2.6); c.lineTo(cx - R0*.42, cy + R0*2.6); c.closePath(); c.fill();
+        c.restore();
+      }},
+
+    /* Oszus (Everest): ktoś zgubił literę. Na chwilę pojawia się „t”, chwieje się i spada. */
+    oszus: { dur: 3400,
+      init(s){ s.html = s.btn.innerHTML; s.btn.innerHTML = s.html.replace(/Oszus/, 'Oszus<span class="os-t" aria-hidden="true">t</span>'); s.t = s.btn.querySelector('.os-t'); s.w0 = s.t ? s.t.offsetWidth : 0; },
+      stop(s){ s.btn.innerHTML = s.html; },
+      draw(c, s, p){
+        if (!s.t) { s.done = true; return; }
+        const pojaw = smooth(p/.18), chwiej = p > .3 && p < .5 ? Math.sin((p - .3)/.2*Math.PI*3)*12*(1 - (p - .3)/.2) : 0;
+        const spad = smooth((p - .5)/.45);
+        s.t.style.opacity = (pojaw*(1 - smooth((p - .8)/.2))).toFixed(2);
+        s.t.style.width = (s.w0*(1 - spad)).toFixed(1) + 'px';      // po odpadnięciu kropka dosuwa się do „Oszus”
+        s.t.style.transform = `translate(${(spad*6).toFixed(1)}px,${(spad*spad*70).toFixed(1)}px) rotate(${(chwiej + spad*80).toFixed(1)}deg)`;
+      }},
+
+    /* Przyleciał (Rysy): nad tekstem zawisa cień wirnika, podmuch szarpie literami. */
+    smiglowiec: { dur: 5600,
+      init(s){ s.cel = colRect(); },
+      draw(c, s, p, t, dt, M){
+        const e = env(p, .05, .12), wlot = smooth(p/.35), odlot = smooth((p - .7)/.3);
+        const cx = W*1.15 + (W*.55 - W*1.15)*wlot + (-W*.35 - W*.55)*odlot, cy = -H*.15 + (H*.36 + H*.15)*wlot - H*.2*odlot;
+        const blisko = Math.max(0, 1 - Math.hypot(cx - W*.55, cy - H*.36)/(W*.6));
+        c.save(); c.translate(cx, cy); c.rotate(t*.045);
+        c.fillStyle = `rgba(0,0,0,${(.22*e).toFixed(3)})`;
+        for (let i = 0; i < 2; i++) { c.rotate(Math.PI/2); c.fillRect(-170, -5, 340, 10); }
+        c.restore();
+        c.fillStyle = `rgba(0,0,0,${(.28*e).toFixed(3)})`; c.beginPath(); c.ellipse(cx, cy, 44, 20, -.2, 0, TAU); c.fill();
+        const a = 3*blisko*e;
+        M.dx += a*(Math.sin(t*.09) + .5*Math.sin(t*.23)); M.dy += a*.6*Math.cos(t*.11); M.blur += .6*blisko*e;
+      }},
+
+    /* Ship it! (Rysy, konferencja): konfetti wystrzeliwuje ze słowa i smętnie opada. */
+    shipit: { dur: 4200,
+      init(s){
+        const r = s.btn.getBoundingClientRect(), kol = [v('--accent') || '#c0392b', '#f2c94c', '#56ccf2', '#bb6bd9', '#6fcf97'];
+        s.c = Array.from({length: 70}, () => { const a = -Math.PI/2 + (R()-.5)*1.6, sp = 5 + R()*7;
+          return {x: r.left + r.width/2, y: r.top, vx: Math.cos(a)*sp, vy: Math.sin(a)*sp, kol: kol[Math.floor(R()*kol.length)], rot: R()*6, w: (R()-.5)*.4, ph: R()*6}; });
+        hud('sala bije brawo');
+      },
+      draw(c, s, p, t, dt){
+        const k = dt/16, e = env(p, .01, .2);
+        for (const q of s.c) { q.vy = Math.min(q.vy + .22*k, 1.6); q.vx *= Math.pow(.96, k); q.x += (q.vx + Math.sin(t/300 + q.ph)*.5)*k; q.y += q.vy*k; q.rot += q.w*k;
+          c.save(); c.translate(q.x, q.y); c.rotate(q.rot); c.globalAlpha = e; c.fillStyle = q.kol; c.fillRect(-4, -2, 8, 4); c.restore(); }
+        c.globalAlpha = 1;
+      }},
+
     cyk: { dur: 1500, lastFlash: -1e9,
       init(s){ s.flash = s.start - this.lastFlash > 1200; if (s.flash) this.lastFlash = s.start; },
       draw(c, s, p, t, dt, M){
