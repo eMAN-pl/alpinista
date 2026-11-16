@@ -20,34 +20,39 @@
   const TLA = {
     wstep: 'wstep', pilsko: 'pilsko',
     'dolina-pieciu-stawow': 'tatry', 'kozi-wierch': 'tatry', mnich: 'tatry',
-    marmolada: 'marmolada', everest: 'everest', 'babia-gora': 'babia-gora',
+    marmolada: 'marmolada', everest: 'everest', 'babia-gora': 'babia-gora', rysy: 'rysy',
   };
   const NAZWY = {
     wstep: 'Strona główna i wstęp — wiatr', pilsko: 'Pilsko — las', tatry: 'Dolina, Kozi Wierch, Mnich — wiatr',
-    marmolada: 'Marmolada — łagodny wiatr', everest: 'Everest — szum pomieszczenia', 'babia-gora': 'Babia Góra — wichura',
+    marmolada: 'Marmolada — łagodny wiatr', everest: 'Everest — szum pomieszczenia', 'babia-gora': 'Babia Góra — wichura', rysy: 'Rysy — ulewa',
   };
   // Poziomy domyślne (mnożniki). Tu wpisujemy wynik z miksera autora.
-  const POZIOMY = { grupy: { tla: 1, wstep: 1 }, tla: {}, wstep: { whoosh: 1 } };
-  const GLOS_TLA = .8, GLOS_WHOOSH = .45;
+  const POZIOMY = { grupy: { tla: 1, wstep: 1, muzyka: 1 }, tla: {}, wstep: { whoosh: 1 }, muzyka: {} };
+  const GLOS_TLA = .8, GLOS_WHOOSH = .45, GLOS_MUZYKI = .6;
+  // Muzyka to krótkie momenty, nie playlista (autor, 2026-11-16): urywki z początków utworów
+  // (Pixabay), każdy gra raz na wizytę, w swoim miejscu, i kończy się naturalnym wyciszeniem.
+  const MUZYKA = { wybor: 'Wybór we wstępie — Sommerso (57 s)', pilsko: 'Pilsko — fortepian (24 s)' };
+  const MUZYKA_ROZDZIALU = { pilsko: 'pilsko' };     // rozdział → urywek grany przy pierwszym wejściu
   const PRZENIK = 4, WEJSCIE = 2, WYJSCIE = 1.2;
 
   const KLUCZ = 'alpinista:mikser';
   let MIX = {};
   const wczytajMix = () => { try { MIX = JSON.parse(localStorage.getItem(KLUCZ) || '{}'); } catch { MIX = {}; }
-    for (const k of ['grupy', 'tla', 'wstep', 'efekty']) MIX[k] = MIX[k] || {}; };
+    for (const k of ['grupy', 'tla', 'wstep', 'efekty', 'muzyka']) MIX[k] = MIX[k] || {}; };
   wczytajMix();
   const mn = (grupa, k) => (POZIOMY[grupa]?.[k] ?? 1)*(MIX[grupa]?.[k] ?? 1);
   const poziomTla = n => GLOS_TLA*mn('tla', n)*mn('grupy', 'tla');
   const poziomWhoosh = () => GLOS_WHOOSH*mn('wstep', 'whoosh')*mn('grupy', 'wstep');
 
   // ---------- kontekst: tworzy go script.js w kliknięciu (iOS wymaga gestu) ----------
-  let A = null, wyjscie = null, grupaTla = null;
+  let A = null, wyjscie = null, grupaTla = null, grupaMuzyki = null;
   function kontekst() {
     if (A) return A;
     A = window.alpinistaCtx || new (window.AudioContext || window.webkitAudioContext)();
     window.alpinistaCtx = A;
     wyjscie = A.createGain(); wyjscie.connect(A.destination);
     grupaTla = A.createGain(); grupaTla.connect(wyjscie);
+    grupaMuzyki = A.createGain(); grupaMuzyki.connect(wyjscie);
     return A;
   }
 
@@ -113,9 +118,11 @@
 
   let stan = {muzyka: false, dzwieki: false}, teraz = null, solo = null, dociag = 0;
   const wlaczone = () => stan.dzwieki && !document.hidden;
+  const muzykaWlaczona = () => stan.muzyka && !document.hidden;
 
   function wybierz(czas = PRZENIK) {
     const id = rozdzial(), n = solo || (wlaczone() ? TLA[id] || null : null);
+    if (muzykaWlaczona() && MUZYKA_ROZDZIALU[id]) muzyka(MUZYKA_ROZDZIALU[id]);
     if (n === teraz) return;
     if (teraz) cisza(teraz, czas);
     teraz = n;
@@ -129,12 +136,12 @@
   // Tło zmienia się dopiero, gdy czytelnik zatrzyma się w rozdziale: skok z menu albo szybkie
   // przewijanie przez kilka rozdziałów nie zapala po drodze tła każdego z nich.
   let zwloka = 0;
-  addEventListener('scroll', () => { if (!teraz && !wlaczone() && !solo) return;
+  addEventListener('scroll', () => { if (!teraz && !wlaczone() && !muzykaWlaczona() && !solo) return;
     clearTimeout(zwloka); zwloka = setTimeout(() => wybierz(), 700); }, {passive: true});
 
   // schowana karta milczy; powrót wznawia
   document.addEventListener('visibilitychange', () => { if (!A) return;
-    if (document.hidden) { if (teraz) { cisza(teraz, .4); teraz = null; } }
+    if (document.hidden) { if (teraz) { cisza(teraz, .4); teraz = null; } zgasMuzyke(.4); }
     else wybierz(WEJSCIE); });
 
   // ---------- whoosh slajdów wstępu: wariant B wybrany przez autora (przechodzący wiatr) ----------
@@ -156,7 +163,44 @@
   addEventListener('intro:slajd', e => { if (A && wlaczone()) whoosh([1, .92, .84][e.detail?.nr] ?? 1); });
   // „Idę dalej” / „Zawracam” we wstępie: ten sam podmuch co przy slajdach (autor, 2026-11-16 —
   // zamiast grzmotu). Głośność idzie za suwakiem whoosha w mikserze.
-  addEventListener('dzwiek:wybor', () => { if (A && wlaczone()) whoosh(.9); });
+  addEventListener('dzwiek:wybor', () => { if (A && wlaczone()) whoosh(.9); if (A && muzykaWlaczona()) muzyka('wybor'); });
+
+  // ---------- muzyka: urywki grane raz, w swoim miejscu ----------
+  const poziomMuzyki = n => GLOS_MUZYKI*mn('muzyka', n)*mn('grupy', 'muzyka');
+  const muzPliki = new Map(), zagrane = new Set();
+  let grana = null;
+  // pliki są małe (0,4–0,9 MB) — dociągamy oba od razu po włączeniu muzyki, dekodujemy przy graniu
+  const muzPlik = n => { if (!muzPliki.has(n)) muzPliki.set(n, fetch(`${BAZA}assets/audio/muzyka/${n}.mp3`)
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); }).catch(e => { muzPliki.delete(n); throw e; })); return muzPliki.get(n); };
+  // Urywek nie przerywa innego: jeśli coś jeszcze gra (np. Sommerso po wyborze, a czytelnik
+  // już wszedł w Pilsko), czeka, aż tamto wybrzmi — i gra, jeśli czytelnik dalej jest w tym rozdziale.
+  let kolejka = null;
+  async function muzyka(n, wymus = false) {
+    if (!wymus && zagrane.has(n)) return;
+    if (!wymus && grana) { kolejka = n; return; }
+    zagrane.add(n);
+    kontekst();
+    let b; try { const dane = (await muzPlik(n)).slice(0); b = await new Promise((ok, blad) => { const p = A.decodeAudioData(dane, ok, blad); if (p && p.then) p.then(ok, blad); }); }
+    catch { zagrane.delete(n); return; }
+    if (!wymus && !muzykaWlaczona()) { zagrane.delete(n); return; }
+    zgasMuzyke(.8);
+    const s = A.createBufferSource(), g = A.createGain(); s.buffer = b; g.gain.value = poziomMuzyki(n);
+    s.connect(g).connect(grupaMuzyki); s.start(A.currentTime + .05);
+    grana = {s, g, n}; s.onended = () => { if (grana?.s !== s) return; grana = null;
+      const k = kolejka; kolejka = null;
+      if (k && muzykaWlaczona() && MUZYKA_ROZDZIALU[rozdzial()] === k) muzyka(k); };
+    // tło przycicha pod muzyką i wraca, gdy urywek wybrzmi
+    const tg = grupaTla.gain, now = A.currentTime;
+    tg.cancelScheduledValues(now); tg.setValueAtTime(tg.value, now);
+    tg.linearRampToValueAtTime(.6, now + 1.5); tg.setValueAtTime(.6, now + b.duration - 3); tg.linearRampToValueAtTime(1, now + b.duration + 1);
+  }
+  function zgasMuzyke(czas) {
+    kolejka = null;
+    if (!grana || !A) return; const {s, g} = grana; grana = null;
+    const now = A.currentTime; g.gain.cancelScheduledValues(now); g.gain.setValueAtTime(g.gain.value, now); g.gain.linearRampToValueAtTime(0, now + czas);
+    try { s.stop(now + czas + .05); } catch {}
+    const tg = grupaTla.gain; tg.cancelScheduledValues(now); tg.setValueAtTime(tg.value, now); tg.linearRampToValueAtTime(1, now + 1.5);
+  }
 
   // ---------- dźwięki efektów: osobny moduł, wczytywany przy pierwszym włączeniu „Dźwięków” ----------
   let modulEfektow = null;
@@ -178,13 +222,15 @@
   // ---------- API dla script.js ----------
   window.Dzwiek = {
     // podgląd stanu do sprawdzania w konsoli: co gra i co jest w pamięci
-    stan: () => ({teraz, solo, kontekst: A?.state, wPamieci: [...bufory.keys()],
+    stan: () => ({teraz, solo, muzyka: grana?.n ?? null, zagrane: [...zagrane], kontekst: A?.state, wPamieci: [...bufory.keys()],
       graja: Object.values(sciezki).filter(t => t.zrodlo).map(t => `${t.n} ${t.g.gain.value.toFixed(2)}`)}),
     ustaw(nowy) {
       stan = {...nowy};
       if (stan.dzwieki) efekty().then(() => window.Dzwieki?.wlacz(true)).catch(() => {});
       else window.Dzwieki?.wlacz(false);
-      if (!stan.dzwieki && !solo && !A) return;            // nic nie gra i nic nie zagra
+      if (stan.muzyka) Object.keys(MUZYKA).forEach(n => muzPlik(n).catch(() => {}));
+      else zgasMuzyke(1.2);
+      if (!stan.dzwieki && !stan.muzyka && !solo && !A) return;   // nic nie gra i nic nie zagra
       kontekst(); if (A.state === 'suspended') A.resume();
       wybierz(stan.dzwieki ? WEJSCIE : WYJSCIE);
     },
@@ -192,7 +238,8 @@
 
   // ---------- mikser (?mikser=1) ----------
   addEventListener('storage', e => { if (e.key === KLUCZ) { wczytajMix(); odswiezPoziomy(); } });
-  function odswiezPoziomy() { if (A && teraz && sciezki[teraz]?.gra) glos(sciezki[teraz], poziomTla(teraz), .1); }
+  function odswiezPoziomy() { if (A && teraz && sciezki[teraz]?.gra) glos(sciezki[teraz], poziomTla(teraz), .1);
+    if (A && grana) grana.g.gain.setTargetAtTime(poziomMuzyki(grana.n), A.currentTime, .1); }
 
   if (new URLSearchParams(location.search).has('mikser')) {
     const panel = document.createElement('aside');
@@ -235,6 +282,7 @@
     wiersz('grupy', 'tla', 'Tła rozdziałów');
     wiersz('grupy', 'wstep', 'Whoosh wstępu');
     wiersz('grupy', 'efekty', 'Dźwięki efektów');
+    wiersz('grupy', 'muzyka', 'Muzyka');
     naglowek('Tła');
     for (const n of Object.keys(NAZWY)) wiersz('tla', n, NAZWY[n], ['słuchaj', b => {
       kontekst(); A.resume();
@@ -243,6 +291,9 @@
       b.dataset.solo = n; b.setAttribute('aria-pressed', String(solo === n));
       wybierz(1.5);
     }]);
+    naglowek('Muzyka');
+    for (const n of Object.keys(MUZYKA)) wiersz('muzyka', n, MUZYKA[n], ['graj', b => {
+      if (grana?.n === n) { zgasMuzyke(.6); return; } kontekst(); A.resume(); muzyka(n, true); }]);
     naglowek('Wstęp');
     wiersz('wstep', 'whoosh', 'Whoosh slajdów (3 podmuchy)', ['test', () => { kontekst(); A.resume();
       const t = A.currentTime + .05; [1, .92, .84].forEach((n, i) => whoosh(n, t + i*2.5)); }]);
@@ -265,7 +316,7 @@
     panel.addEventListener('click', async e => {
       const a = e.target.closest('[data-a]')?.dataset.a; if (!a) return;
       if (a === 'zwin') { panel.classList.toggle('mk-zwiniety'); e.target.textContent = panel.classList.contains('mk-zwiniety') ? 'rozwiń' : 'zwiń'; }
-      if (a === 'zeruj') { MIX = {grupy: {}, tla: {}, wstep: {}, efekty: {}}; zapisz(); wiersze.forEach(f => f()); }
+      if (a === 'zeruj') { MIX = {grupy: {}, tla: {}, wstep: {}, efekty: {}, muzyka: {}}; zapisz(); wiersze.forEach(f => f()); }
       if (a === 'kopiuj') { const tx = panel.querySelector('textarea'), json = JSON.stringify(MIX);
         tx.hidden = false; tx.value = json; tx.select();
         try { await navigator.clipboard.writeText(json); e.target.textContent = 'skopiowane'; } catch { e.target.textContent = 'Ctrl+C'; } }

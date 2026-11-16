@@ -44,6 +44,8 @@
 !/assets/audio/*
 # Tła rozdziałów: gotowe pętle (75–220 s, ok. 1–2,6 MB). Oryginały w assets/audio/background/ zostają lokalnie.
 !/assets/audio/tlo/*
+# Muzyka: krótkie urywki z początków utworów (Pixabay), grane raz w swoim miejscu eseju.
+!/assets/audio/muzyka/*
 
 # Makiety gór: moduł i pliki (assets/makiety-gor/ to materiał roboczy, zostaje lokalnie)
 !/mountain-fx.js
