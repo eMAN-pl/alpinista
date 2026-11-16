@@ -146,3 +146,23 @@ canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
 .tc-stan.zle{color:var(--accent)}
 @keyframes tc-krec{to{transform:rotate(360deg)}}
 .os-t{display:inline-block;color:var(--accent);transform-origin:50% 90%}
+
+/* Czołówka: biel na całej stronie, krąg światła wokół kursora (efekty.js) */
+.czolowka{--x:50vw;--y:50vh;--r:140px;position:fixed;inset:0;z-index:2;pointer-events:none;opacity:0;
+  background:rgb(var(--fog-rgb));
+  -webkit-mask-image:radial-gradient(circle var(--r) at var(--x) var(--y),transparent 55%,#000 100%);
+  mask-image:radial-gradient(circle var(--r) at var(--x) var(--y),transparent 55%,#000 100%)}
+:root[data-theme="jasny"] .czolowka{background:rgb(250,251,252)}
+
+/* Ruch: przycisk pod akapitem i zdanie, które zostaje, gdy nikt nie kliknie */
+.ruch-pole{display:flex;align-items:center;gap:14px;margin:4px 0 22px;font:12px/1 var(--mono);letter-spacing:.08em;color:var(--text-quiet);animation:pop .22s ease-out}
+.ruch-btn{min-height:44px;padding:0 20px;border:1px solid var(--accent);border-radius:999px;background:var(--accent);color:var(--bg);font:inherit;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+.ruch-pole.zrobione .ruch-btn,.ruch-pole.zgaslo .ruch-btn{background:transparent;color:var(--text-quiet);border-color:var(--rule);cursor:default}
+.ruch-cisza{color:transparent !important;transition:color .8s}
+.ruch-cisza .ruch-zdanie{color:var(--text-strong);transition:none}
+.ruch-cisza [data-fx]{color:transparent !important;text-decoration-color:transparent !important}
+
+/* Poza kadrem: porzucone napisy na marginesach */
+.kadr-smieci{position:absolute;inset:0;pointer-events:none;z-index:1}
+.kadr-smieci span{position:absolute;white-space:nowrap;font-family:var(--mono);color:var(--text-quiet);opacity:0;transition:opacity 1.2s ease}
+.kadr-smieci.widac span{opacity:var(--o)}

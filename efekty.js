@@ -819,6 +819,105 @@
         c.globalAlpha = 1;
       }},
 
+    /* ===== Propozycje z 2026-11-16, druga runda (pomysły Fable 5.2, wybrane przez autora) ===== */
+
+    /* Czołówka (Babia Góra, „światło czołówek, które po kilku metrach grzęzło w gęstym śniegu”):
+       strona tonie w bieli, czytelny zostaje tylko krąg światła wokół kursora albo palca.
+       Bez ruchu krąg dryfuje sam. Czytelnik szuka tekstu tak, jak oni szukali kopca. */
+    czolowka: { dur: 9000,
+      init(s){
+        const r = s.btn.getBoundingClientRect();
+        s.x = r.left + r.width/2; s.y = r.top + r.height/2; s.tx = s.x; s.ty = s.y; s.ruch = 0;
+        const v0 = document.createElement('div'); v0.className = 'czolowka'; v0.setAttribute('aria-hidden', 'true');
+        document.body.append(v0); s.v = v0;
+        s.on = ev => { const q = ev.touches ? ev.touches[0] : ev; if (!q) return; s.tx = q.clientX; s.ty = q.clientY; s.ruch = performance.now(); };
+        addEventListener('pointermove', s.on, {passive: true}); addEventListener('touchmove', s.on, {passive: true});
+      },
+      stop(s){ s.v.remove(); removeEventListener('pointermove', s.on); removeEventListener('touchmove', s.on); },
+      draw(c, s, p, t, dt){
+        const e = env(p, .12, .14), k = Math.min(1, dt/16);
+        if (t - s.ruch > 1400) { s.tx = W*.5 + Math.sin(t/1700)*W*.22; s.ty = H*.5 + Math.sin(t/1100)*H*.16; }   // krąg błądzi sam
+        s.x += (s.tx - s.x)*.18*k; s.y += (s.ty - s.y)*.18*k;
+        const rr = Math.min(W, H)*(.16 + .015*Math.sin(t/240));        // światło lekko pulsuje — oddech
+        s.v.style.setProperty('--x', s.x.toFixed(0) + 'px'); s.v.style.setProperty('--y', s.y.toFixed(0) + 'px');
+        s.v.style.setProperty('--r', rr.toFixed(0) + 'px'); s.v.style.opacity = e.toFixed(3);
+        // płatki w świetle: kilka jasnych kresek tylko wewnątrz kręgu
+        c.strokeStyle = `rgba(255,255,255,${(.7*e).toFixed(3)})`; c.lineWidth = 1.2;
+        for (let i = 0; i < 26; i++) { const a = (i*2.399 + t/900) % TAU, d = ((i*37 + t*.09) % rr);
+          const x = s.x + Math.cos(a)*d, y = s.y + Math.sin(a)*d*.7; c.beginPath(); c.moveTo(x, y); c.lineTo(x + 5, y + 3); c.stroke(); }
+      }},
+
+    /* Ruch (Mnich, paraliż — „Strach każe kurczowo ściskać chwyt.”): pod akapitem pojawia się
+       „Zrób ruch”. Z każdą sekundą wahania akapit blednie i drży jak puchnące przedramiona.
+       Kto kliknie, wraca do tekstu szarpnięciem. Kto czeka za długo, zostaje mu tylko zdanie
+       z tego samego akapitu: „stanie w miejscu też jest decyzją”. */
+    ruch: { dur: 9000,
+      init(s){
+        const tg = s.target;
+        s.box = document.createElement('div'); s.box.className = 'ruch-pole';
+        s.box.innerHTML = '<button type="button" class="ruch-btn">Zrób ruch</button><span class="ruch-czas" aria-live="polite"></span>';
+        tg.after(s.box); s.czas = s.box.querySelector('.ruch-czas');
+        s.box.querySelector('.ruch-btn').addEventListener('click', () => { s.zrobil = performance.now(); s.box.classList.add('zrobione'); s.czas.textContent = 'ruch.'; });
+        // zdanie, które zostaje na końcu, gdy nikt nie kliknie
+        s.html = tg.innerHTML;
+        tg.innerHTML = tg.innerHTML.replace(/(Wtedy stanie w(?:\s|&nbsp;| )miejscu też jest decyzją\.)/, '<span class="ruch-zdanie">$1</span>');
+        s.zdanie = tg.querySelector('.ruch-zdanie');
+      },
+      stop(s){ s.box.remove(); s.target.innerHTML = s.html; s.target.style.opacity = ''; s.target.style.filter = ''; s.target.style.transform = ''; },
+      draw(c, s, p, t){
+        const ms = t - s.start, tg = s.target;
+        if (s.zrobil) {                                                  // ruch zrobiony: szarpnięcie i powrót
+          const d = t - s.zrobil; tg.style.opacity = ''; tg.style.filter = '';
+          tg.style.transform = `translateY(${(-6*Math.exp(-d/120)*Math.cos(d/30)).toFixed(2)}px)`;
+          if (d > 1600) s.done = true; return;
+        }
+        const w = Math.min(1, ms/6000), sek = Math.floor(ms/1000);    // 6 s wahania
+        s.czas.textContent = sek ? `${sek} s` : '';
+        if (ms < 6000) {
+          tg.style.opacity = (1 - .72*w).toFixed(3); tg.style.filter = `blur(${(1.6*w*w).toFixed(2)}px)`;
+          const a = 1.4*w*w; tg.style.transform = `translate(${((R()-.5)*a).toFixed(2)}px,${((R()-.5)*a).toFixed(2)}px)`;
+        } else {                                                          // za długo: zostaje jedno zdanie
+          s.box.classList.add('zgaslo'); s.czas.textContent = '';
+          tg.style.transform = ''; tg.style.filter = ''; tg.style.opacity = '1';
+          tg.classList.add('ruch-cisza');
+          if (ms > 8600) tg.classList.remove('ruch-cisza');
+        }
+      }},
+
+    /* Poza kadrem (Everest, Podragu — „Z tyłu, poza kadrem, wszystko, czego nikt nie zniósł
+       na dół.”): wokół akapitu celownik, ładny kadr. Poza nim, na marginesach, wychodzą z tła
+       porzucone napisy: dokumenty ze „Slopowiska” kilka akapitów wyżej. Kadr zostaje czysty. */
+    kadr: { dur: 6200,
+      init(s){
+        const tg = s.target, mr = main.getBoundingClientRect(), r = tg.getBoundingClientRect();
+        const smieci = ['Polityka użycia AI', 'Matryca odpowiedzialności', 'Karta oceny ryzyka', 'standardy_promptowania_v3_FINAL.pdf',
+          'makieta_47.fig', 'podsumowanie spotkania (wygenerowane)', 'Rejestr przypadków użycia', 'Wytyczne dla zespołów', 'makieta_48_v2.fig',
+          'raport_badan_kopia(3).docx', 'Standardy promptowania', 'roadmapa_Q3_nowa_NOWA.pptx', 'transkrypcja_auto.txt', 'persona_07.png'];
+        const lay = document.createElement('div'); lay.className = 'kadr-smieci'; lay.setAttribute('aria-hidden', 'true');
+        const waski = r.left - mr.left < 150;                            // telefon: brak marginesów — nad i pod akapitem
+        smieci.forEach((txt, i) => { const el = document.createElement('span'); el.textContent = txt;
+          const lewa = i % 2 === 0, rz = Math.floor(i/2);
+          let x, y;
+          if (waski) { x = (r.left - mr.left) + (R()*.7)*r.width; y = (r.top - mr.top) + (i % 2 ? r.height + 18 + rz*15 : -24 - rz*15); }
+          else { x = lewa ? (r.left - mr.left) - 40 - R()*Math.min(260, r.left - mr.left - 60) : (r.right - mr.left) + 40 + R()*120;
+                 y = (r.top - mr.top) - 30 + rz*((r.height + 60)/7) + (R()-.5)*14; }
+          el.style.cssText = `left:${x.toFixed(0)}px;top:${y.toFixed(0)}px;transform:rotate(${((R()-.5)*14).toFixed(1)}deg);`
+            + `font-size:${(10 + R()*4).toFixed(1)}px;--o:${(.35 + R()*.35).toFixed(2)};transition-delay:${(.5 + i*.09).toFixed(2)}s`;
+          if (lewa && !waski) el.style.transform += ' translateX(-100%)';
+          lay.append(el); });
+        main.append(lay); s.lay = lay; s.r = () => tg.getBoundingClientRect();
+        requestAnimationFrame(() => lay.classList.add('widac'));
+      },
+      stop(s){ s.lay.remove(); },
+      draw(c, s, p, t){
+        const e = env(p, .06, .14), r = s.r(), m = 14, L = 28;
+        if (p > .82 && !s.zanik) { s.zanik = true; s.lay.classList.remove('widac'); }
+        c.strokeStyle = `rgba(${v('--fg-rgb')},${(.8*e).toFixed(3)})`; c.lineWidth = 1.5; c.beginPath();
+        [[r.left - m, r.top - m, 1, 1], [r.right + m, r.top - m, -1, 1], [r.left - m, r.bottom + m, 1, -1], [r.right + m, r.bottom + m, -1, -1]]
+          .forEach(([x, y, sx, sy]) => { c.moveTo(x, y + sy*L); c.lineTo(x, y); c.lineTo(x + sx*L, y); });
+        c.stroke();
+      }},
+
     cyk: { dur: 1500, lastFlash: -1e9,
       init(s){ s.flash = s.start - this.lastFlash > 1200; if (s.flash) this.lastFlash = s.start; },
       draw(c, s, p, t, dt, M){
