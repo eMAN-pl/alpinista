@@ -28,7 +28,7 @@
   };
   // Poziomy domyślne (mnożniki). Tu wpisujemy wynik z miksera autora.
   const POZIOMY = { grupy: { tla: 1, wstep: 1, muzyka: 1 }, tla: {}, wstep: { whoosh: 1 }, muzyka: {} };
-  const GLOS_TLA = .8, GLOS_WHOOSH = .45, GLOS_MUZYKI = .6;
+  const GLOS_TLA = .8, GLOS_WHOOSH = .45, GLOS_MUZYKI = .48;   // o 20% ciszej niż było: muzyka to delikatne tło (autor, 2026-11-16)
   // Muzyka rozdziału (autor, 2026-11-16): cały utwór w pętli, dopóki czytelnik jest w swoim
   // rozdziale; po wyjściu gaśnie, po powrocie gra dalej od miejsca, w którym skończył. Utwory
   // z Pixabay. Wstęp ma muzykę dopiero od decyzji „Idę dalej” / „Zawracam”.
