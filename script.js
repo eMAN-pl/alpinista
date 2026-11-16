@@ -734,22 +734,58 @@
   smaller.setAttribute("aria-label", "Mniejszy tekst");
   bigger.setAttribute("aria-label", "Większy tekst");
 
-  // Ustawienia mieszkają w menu: dwa wiersze, nazwa i przyciski (autor, 2026-11-14)
+  // Ustawienia w menu (przebudowa 2026-11-17, autor: „słabo wygląda”): grupy „Czytanie”
+  // i „Dźwięk”, w każdym wierszu nazwa z krótkim opisem, a kontrolki w dwóch kształtach —
+  // segment (wybór z dwóch) i przełącznik (wł./wył.). Wcześniej obok siebie stały kółka,
+  // pigułki z napisem „wł./wył.” i pigułki plików.
   const opcje = document.querySelector(".menu-opcje");
-  function opcja(nazwa, ...przyciski) {
+  function opcja(nazwa, opis, ...przyciski) {
     const wiersz = document.createElement("div");
     wiersz.className = "opcja";
+    const tekst = document.createElement("span");
+    tekst.className = "opcja-tekst";
     const etykieta = document.createElement("span");
     etykieta.className = "opcja-nazwa";
     etykieta.textContent = nazwa;
+    tekst.append(etykieta);
+    if (opis) {
+      const o = document.createElement("span");
+      o.className = "opcja-opis";
+      o.textContent = opis;
+      tekst.append(o);
+    }
     const grupa = document.createElement("div");
     grupa.className = "reader";
     grupa.append(...przyciski);
-    wiersz.append(etykieta, grupa);
+    wiersz.append(tekst, grupa);
+    // przełącznik niesie nazwę wiersza — czytnik ekranu powie „Dźwięki, przełącznik, włączony”
+    for (const p of przyciski) if (p.getAttribute?.("role") === "switch") p.setAttribute("aria-label", nazwa);
     return wiersz;
   }
+  function grupaOpcji(tytul) {
+    const h = document.createElement("p");
+    h.className = "opcja-grupa";
+    h.textContent = tytul;
+    return h;
+  }
+  function segment(...przyciski) {
+    const s = document.createElement("div");
+    s.className = "segment";
+    s.append(...przyciski);
+    return s;
+  }
+  // Motyw: dwa słowa zamiast ikony słońca — od razu widać, który jest wybrany
+  const motywy = ["ciemny", "jasny"].map((m) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = m;
+    b.dataset.motyw = m;
+    b.addEventListener("click", () => setTheme(m));
+    return b;
+  });
   reader.replaceChildren();
-  opcje?.append(opcja("Rozmiar tekstu", smaller, bigger), opcja("Motyw", themeButton()));
+  opcje?.append(grupaOpcji("Czytanie"), opcja("Rozmiar tekstu", "", segment(smaller, bigger)),
+    opcja("Motyw", "", segment(...motywy)));
 
   let size = Number(remember(SIZE_KEY) ?? 1);
 
@@ -768,6 +804,7 @@
     if (bar) bar.content = next === "jasny" ? "#eceeef" : "#16191c";
     // intro kończy się mgłą w kolorze tła — po zmianie motywu musi wziąć nowe --bg
     dispatchEvent(new Event("theme-change"));
+    for (const b of motywy) b.setAttribute("aria-pressed", String(b.dataset.motyw === next));
     const label = next === "jasny" ? "Tryb ciemny" : "Tryb jasny";
     for (const button of themeButtons) {
       button.setAttribute("aria-label", label);
@@ -842,10 +879,11 @@
     const b = document.createElement("button");
     b.type = "button";
     b.className = "przelacznik";
+    b.setAttribute("role", "switch");
     return b;
   }
   const przelaczniki = { muzyka: przelacznik(), dzwieki: przelacznik(), efekty: przelacznik() };
-  const pokazStan = (b, on) => { b.setAttribute("aria-pressed", String(on)); b.textContent = on ? "wł." : "wył."; };
+  const pokazStan = (b, on) => b.setAttribute("aria-checked", String(on));
 
   function odswiezAudio() {
     const gra = audio.muzyka || audio.dzwieki;
@@ -911,10 +949,14 @@
     odswiezAudio();
   });
 
+  // Efekty to część czytania (ruch na stronie), więc stoją w „Czytaniu”, za motywem
+  opcje?.querySelector(".opcja:last-of-type")?.after(
+    opcja("Efekty", "ruch po kliknięciu podkreślonej frazy", przelaczniki.efekty));
   opcje?.append(
-    opcja("Muzyka", przelaczniki.muzyka),
-    opcja("Dźwięki", przelaczniki.dzwieki),
-    opcja("Efekty", przelaczniki.efekty),
+    grupaOpcji("Dźwięk"),
+    opcja("Dźwięki", "tło rozdziałów i efektów", przelaczniki.dzwieki),
+    opcja("Muzyka", "delikatnie, pod tłem", przelaczniki.muzyka),
+    grupaOpcji("Pobierz"),
   );
   odswiezAudio();
 

@@ -2302,20 +2302,80 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
   margin-bottom: var(--line);
 }
 
+/* Ustawienia (przebudowa 2026-11-17): grupy z małym nagłówkiem, wiersz = nazwa + opis po lewej,
+   jedna kontrolka po prawej. Dwa kształty kontrolek: segment i przełącznik. */
+.opcja-grupa {
+  margin: calc(var(--line) * 1.4) 0 4px;
+  font: 10px/1 var(--mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-quiet);
+}
+
+.menu-opcje > .opcja-grupa:first-child { margin-top: 0; }
+
 .opcja {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  min-height: 56px;
-  border-top: 1px solid color-mix(in srgb, var(--rule) 60%, transparent);
+  min-height: 64px;
+  padding-block: 8px;
+  border-top: 1px solid color-mix(in srgb, var(--rule) 55%, transparent);
+}
+
+.opcja-grupa + .opcja { border-top-color: color-mix(in srgb, var(--rule) 90%, transparent); }
+
+.opcja-tekst {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
 }
 
 .opcja-nazwa {
-  font: 12px/1 var(--mono);
-  letter-spacing: 0.08em;
+  font: 13px/1.2 var(--mono);
+  letter-spacing: 0.04em;
+  color: var(--text);
+}
+
+.opcja-opis {
+  font: 11px/1.35 var(--mono);
+  letter-spacing: 0.02em;
   color: var(--text-quiet);
 }
+
+/* Segment: dwa przyciski w jednej pigułce (rozmiar tekstu, motyw) */
+.segment {
+  display: inline-flex;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.menu .reader .segment button {
+  width: auto;
+  min-width: 56px;
+  height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 0;
+  font: 12px/1 var(--mono);
+  letter-spacing: 0.06em;
+  color: var(--text-quiet);
+}
+
+.menu .reader .segment button + button { border-left: 1px solid var(--rule); }
+
+.menu .reader .segment button:hover,
+.menu .reader .segment button:focus-visible { color: var(--text); background: color-mix(in srgb, var(--text) 6%, transparent); }
+
+.menu .reader .segment button[aria-pressed="true"] {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.menu .reader .segment button[disabled] { opacity: 0.35; }
 
 .menu .reader button {
   width: 44px;
@@ -2324,20 +2384,57 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
 
 .menu .music-toggle.is-on { border-color: var(--accent); color: var(--accent); }
 
-/* Przełączniki w „Sprzęcie” (muzyka, dźwięki, efekty): pigułka „wł./wył.”, włączona w akcencie */
+/* Przełącznik (efekty, dźwięki, muzyka): tor z kółkiem; włączony — kółko w prawo, akcent.
+   Sam przycisk ma 56×44 px (pole dotyku), tor rysuje ::before, kółko ::after. */
 .menu .reader .przelacznik {
-  width: auto;
-  min-width: 64px;
+  position: relative;
+  width: 56px;
   height: 44px;
-  padding: 0 16px;
+  padding: 0;
+  border: 0;
   border-radius: 999px;
-  font: 12px/1 var(--mono);
-  letter-spacing: 0.08em;
+  background: none;
 }
 
-.menu .reader .przelacznik[aria-pressed="true"] {
+.menu .reader .przelacznik::before {
+  content: "";
+  position: absolute;
+  inset: 8px 2px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text) 4%, transparent);
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.menu .reader .przelacznik::after {
+  content: "";
+  position: absolute;
+  top: 13px;
+  left: 7px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--text-quiet);
+  transition: transform 0.2s ease, background-color 0.2s;
+}
+
+.menu .reader .przelacznik[aria-checked="true"]::before {
   border-color: var(--accent);
-  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.menu .reader .przelacznik[aria-checked="true"]::after {
+  transform: translateX(24px);
+  background: var(--accent);
+}
+
+.menu .reader .przelacznik:hover::before,
+.menu .reader .przelacznik:focus-visible::before { border-color: var(--text-quiet); }
+
+.menu .reader .przelacznik:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .menu .reader .przelacznik::before, .menu .reader .przelacznik::after { transition: none; }
 }
 
 /* Głośnik w pasku pokazuje podpowiedź także wtedy, gdy gra — nie ma już podpisu utworu */
@@ -2391,6 +2488,11 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
 @media (max-width: 40em) {
   .tb-autor { letter-spacing: 0.1em; font-size: 10px; }
   .menu-in { padding-top: 88px; }
+
+  /* pliki pod opisem — obok siebie opis łamał się na trzy wiersze */
+  .opcja-pobierz { flex-wrap: wrap; row-gap: 10px; }
+  .opcja-pobierz .opcja-pliki { width: 100%; }
+  .opcja-pobierz .opcja-pliki a { flex: 1; justify-content: center; }
 
   /* 13 wierszy po 68 px spychało „Sprzęt” półtora ekranu w dół */
   .menu .route ol a { padding-block: 4px; gap: 12px; }
