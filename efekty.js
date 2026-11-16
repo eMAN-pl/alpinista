@@ -1239,37 +1239,34 @@
      Pod akapitem pojawia się okienko „Jestem człowiekiem”. Czytelnik może kliknąć sam —
      jeśli nie kliknie, test robi się sam. Wynik zawsze negatywny; kolejne powody są
      z tekstu („Unikają myślników. Celowo robią nierówne akapity.”). */
-  const TEST_WYNIKI = ['Nie udało się potwierdzić.', 'Zbyt równe akapity.', 'Wykryto myślniki.'];
+  // Jedna próba, wszystko w jednym wierszu (autor, 2026-11-16): w miejscu pola wyboru kręci się
+  // kółko, potem krzyżyk, a „Jestem człowiekiem” zmienia się na czerwone „Ups. Nie jestem człowiekiem.”
   let testRun = null;
-  function stopTest(){ if (!testRun) return; testRun.timers.forEach(clearTimeout); clearTimeout(testRun.koniec); testRun.box.remove();
+  function stopTest(){ if (!testRun) return; testRun.timers.forEach(clearTimeout); testRun.box.remove();
     testRun.btn.setAttribute('aria-pressed', 'false'); testRun = null; }
   function testCzlowieka(btn){
     if (testRun) { stopTest(); return; }
     const tg = btn.closest('p'); if (!tg) return;
     const box = document.createElement('div'); box.className = 'test-czlowieka';
-    // Wygląd współczesnej weryfikacji: pole wyboru, napis, obok znak „usługi” i drobne odnośniki.
-    // Znak jest wymyślony (góra w tarczy) — nie udaje żadnej prawdziwej firmy.
+    // Znak „usługi” po prawej jest wymyślony (góra w tarczy) — nie udaje żadnej prawdziwej firmy.
     box.innerHTML = '<button type="button" class="tc-pole" aria-label="Jestem człowiekiem — zaznacz"></button>'
-      + '<div class="tc-tekst"><span class="tc-napis">Jestem człowiekiem</span><span class="tc-stan" aria-live="polite"></span></div>'
+      + '<span class="tc-napis" aria-live="polite">Jestem człowiekiem</span>'
       + '<div class="tc-marka" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5z"/>'
       + '<path class="tc-gora" d="m7.5 15 3-4.5 2 2.5 1.5-2 2.5 4z"/></svg><b>weryfikacja</b><small>Prywatność · Warunki</small></div>';
     tg.after(box); btn.setAttribute('aria-pressed', 'true');
-    const pole = box.querySelector('.tc-pole'), stan = box.querySelector('.tc-stan');
-    const run = testRun = {box, btn, timers: [], koniec: 0, proba: 0}, at = (ms, fn) => run.timers.push(setTimeout(fn, ms));
-    const zamknijPo = ms => { clearTimeout(run.koniec); run.koniec = setTimeout(() => { box.style.opacity = '0'; at(650, stopTest); }, ms); };
+    const pole = box.querySelector('.tc-pole'), napis = box.querySelector('.tc-napis');
+    const run = testRun = {box, btn, timers: []}, at = (ms, fn) => run.timers.push(setTimeout(fn, ms));
+    let zaczete = false;
     const sprawdz = () => {
-      if (pole.classList.contains('krec') || run.proba >= TEST_WYNIKI.length) return;
-      clearTimeout(run.koniec);
-      pole.className = 'tc-pole krec'; stan.className = 'tc-stan'; stan.textContent = 'sprawdzam…';
-      at(1500, () => { const ostatnia = run.proba >= TEST_WYNIKI.length - 1;
-        pole.className = 'tc-pole zle'; stan.className = 'tc-stan zle';
-        stan.textContent = TEST_WYNIKI[run.proba] + (ostatnia ? '' : ' Spróbuj ponownie.'); run.proba++;
-        if (!ostatnia) at(1100, () => { if (!pole.classList.contains('krec')) pole.className = 'tc-pole'; });
-        zamknijPo(ostatnia ? 3200 : 7000); });
+      if (zaczete) return; zaczete = true;
+      pole.className = 'tc-pole krec'; pole.disabled = true;
+      at(1600, () => {
+        pole.className = 'tc-pole zle'; napis.textContent = 'Ups. Nie jestem człowiekiem.'; napis.classList.add('zle');
+        at(3600, () => { box.style.opacity = '0'; at(650, stopTest); });
+      });
     };
     pole.addEventListener('click', sprawdz);
-    at(2400, () => { if (!run.proba) sprawdz(); });     // nikt nie kliknął: test robi się sam
-    zamknijPo(12000);
+    at(2400, sprawdz);                                   // nikt nie kliknął: test robi się sam
   }
 
   /* ---------- Enter: model rozmawia z modelem ---------- */
