@@ -798,7 +798,7 @@
       przycisk.setAttribute("aria-expanded", "true");
       for (const o of opcje) o.disabled = true;
       echoWyboru(przycisk.dataset.wybor);
-      // grzmot przy decyzji — gra, jeśli czytelnik ma włączone dźwięki (dzwieki-efektow.js, autor 2026-11-16)
+      // podmuch przy decyzji — gra, jeśli czytelnik ma włączone dźwięki (dzwiek.js, autor 2026-11-16)
       dispatchEvent(new CustomEvent("dzwiek:wybor", { detail: { wybor: przycisk.dataset.wybor } }));
     });
   }
