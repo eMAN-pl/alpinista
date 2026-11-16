@@ -134,17 +134,6 @@ canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
 /* Błysk: ciche liczenie sekund do grzmotu, dopisane za linijką */
 .fx-licznik{margin-left:.9em;font:.72em/1 var(--mono);letter-spacing:.2em;color:var(--text-quiet);white-space:nowrap}
 
-/* Test na człowieka: okienko jak z formularza, pismo maszynowe */
-.test-czlowieka{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;width:fit-content;max-width:100%;box-sizing:border-box;margin:4px 0 22px;padding:14px 18px 12px;border:1px solid var(--rule);border-radius:6px;background:color-mix(in srgb,var(--bg) 93%,var(--text));font:13px/1.3 var(--mono);animation:pop .22s ease-out;transition:opacity .6s}
-.tc-pole{position:relative;flex:none;width:24px;height:24px;padding:0;border:1.5px solid var(--text-quiet);border-radius:4px;background:transparent;color:inherit;cursor:pointer}
-.tc-pole::before{content:"";position:absolute;inset:-10px}
-.tc-pole:hover{border-color:var(--text)}
-.tc-pole.krec{border-radius:50%;border-color:var(--rule);border-top-color:var(--text);animation:tc-krec .7s linear infinite;cursor:default}
-.tc-pole.zle{border-color:var(--accent)}
-.tc-pole.zle::after{content:"×";position:absolute;inset:0;display:grid;place-items:center;font:700 17px/1 var(--mono);color:var(--accent)}
-.tc-stan{flex-basis:100%;min-height:1.3em;font-size:11px;letter-spacing:.06em;color:var(--text-quiet)}
-.tc-stan.zle{color:var(--accent)}
-@keyframes tc-krec{to{transform:rotate(360deg)}}
 .os-t{display:inline-block;color:var(--accent);transform-origin:50% 90%}
 
 /* Czołówka: biel na całej stronie, krąg światła wokół kursora (efekty.js) */
@@ -166,3 +155,32 @@ canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
 .kadr-smieci{position:absolute;inset:0;pointer-events:none;z-index:1}
 .kadr-smieci span{position:absolute;white-space:nowrap;font-family:var(--mono);color:var(--text-quiet);opacity:0;transition:opacity 1.2s ease}
 .kadr-smieci.widac span{opacity:var(--o)}
+
+/* Test na człowieka: jak współczesna weryfikacja — karta z polem wyboru, napisem i znakiem
+   usługi po prawej. Pismo systemowe celowo, bo to cudzy widżet wklejony w esej. */
+.test-czlowieka{--tc-bg:#232629;--tc-brzeg:#3c4146;--tc-tekst:#e8eaed;--tc-cichy:#9aa0a6;--tc-zle:#f28b82;
+  display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;width:320px;max-width:100%;box-sizing:border-box;
+  min-height:72px;margin:6px 0 24px;padding:12px 14px;border:1px solid var(--tc-brzeg);border-radius:8px;background:var(--tc-bg);
+  box-shadow:0 1px 3px rgba(0,0,0,.25);font:15px/1.25 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--tc-tekst);
+  animation:pop .22s ease-out;transition:opacity .6s,border-color .3s}
+:root[data-theme="jasny"] .test-czlowieka{--tc-bg:#fafafa;--tc-brzeg:#d6d6d6;--tc-tekst:#202124;--tc-cichy:#5f6368;--tc-zle:#d93025;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.test-czlowieka:has(.tc-pole.zle){border-color:var(--tc-zle)}
+.tc-pole{position:relative;width:28px;height:28px;padding:0;border:2px solid var(--tc-cichy);border-radius:4px;background:transparent;cursor:pointer;transition:border-color .2s,border-radius .2s}
+.tc-pole::before{content:"";position:absolute;inset:-10px}
+.tc-pole:hover{border-color:var(--tc-tekst)}
+.tc-pole.krec{border-radius:50%;border-color:var(--tc-brzeg);border-top-color:#4c8df6;animation:tc-krec .8s linear infinite;cursor:default}
+.tc-pole.zle{border:0;border-radius:50%;background:var(--tc-zle)}
+.tc-pole.zle::after{content:"";position:absolute;left:50%;top:50%;width:12px;height:12px;transform:translate(-50%,-50%);
+  background:linear-gradient(45deg,transparent 43%,var(--tc-bg) 43% 57%,transparent 57%),linear-gradient(-45deg,transparent 43%,var(--tc-bg) 43% 57%,transparent 57%)}
+.tc-tekst{display:flex;flex-direction:column;gap:3px;min-width:0}
+.tc-napis{font-weight:500}
+.tc-stan{font-size:12px;line-height:1.3;color:var(--tc-cichy)}
+.tc-stan:empty{display:none}
+.tc-stan.zle{color:var(--tc-zle)}
+.tc-marka{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--tc-cichy);text-align:center}
+.tc-marka svg{width:24px;height:24px;fill:#4c8df6}
+.tc-marka .tc-gora{fill:var(--tc-bg)}
+.tc-marka b{font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.tc-marka small{font-size:8px;opacity:.8;white-space:nowrap}
+@keyframes tc-krec{to{transform:rotate(360deg)}}
+@media (max-width:22em){.tc-marka small{display:none}}

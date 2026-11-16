@@ -1247,8 +1247,12 @@
     if (testRun) { stopTest(); return; }
     const tg = btn.closest('p'); if (!tg) return;
     const box = document.createElement('div'); box.className = 'test-czlowieka';
+    // Wygląd współczesnej weryfikacji: pole wyboru, napis, obok znak „usługi” i drobne odnośniki.
+    // Znak jest wymyślony (góra w tarczy) — nie udaje żadnej prawdziwej firmy.
     box.innerHTML = '<button type="button" class="tc-pole" aria-label="Jestem człowiekiem — zaznacz"></button>'
-      + '<span class="tc-napis">Jestem człowiekiem</span><span class="tc-stan" aria-live="polite"></span>';
+      + '<div class="tc-tekst"><span class="tc-napis">Jestem człowiekiem</span><span class="tc-stan" aria-live="polite"></span></div>'
+      + '<div class="tc-marka" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5z"/>'
+      + '<path class="tc-gora" d="m7.5 15 3-4.5 2 2.5 1.5-2 2.5 4z"/></svg><b>weryfikacja</b><small>Prywatność · Warunki</small></div>';
     tg.after(box); btn.setAttribute('aria-pressed', 'true');
     const pole = box.querySelector('.tc-pole'), stan = box.querySelector('.tc-stan');
     const run = testRun = {box, btn, timers: [], koniec: 0, proba: 0}, at = (ms, fn) => run.timers.push(setTimeout(fn, ms));
