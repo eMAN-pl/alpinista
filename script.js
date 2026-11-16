@@ -152,6 +152,28 @@
     const number = section.dataset.numer;
     const name = section.dataset.nazwa;
 
+    // Powrót do lektury mieszka w podpisie na dole intro („ok. 74 minuty · przewiń”):
+    // powracający czytelnik widzi tam „czytaj dalej · Babia Góra” i ile mu zostało.
+    // Ciemna pastylka u góry leżała na zdjęciu tuż nad szczytami i konkurowała z tytułem
+    // (przegląd 2026-11-15). Pastylka zostaje tylko tam, gdzie intro nie ma podpisu.
+    const hint = document.getElementById("we-hint");
+    if (hint) {
+      const zostalo = minutDoKonca(place);
+      const dalej = document.createElement("a");
+      dalej.className = "we-wroc";
+      dalej.href = `#${place.id}`;
+      dalej.textContent = `czytaj dalej · ${name}`;
+      dalej.addEventListener("click", (event) => { event.preventDefault(); goTo(place); });
+      const ile = document.createElement("b");
+      ile.textContent = zostalo ? `zostało ok. ${zostalo} min` : `rozdział ${number}`;
+      const albo = document.createElement("span");
+      albo.textContent = "albo przewiń od początku";
+      const kreska = hint.querySelector("i");
+      hint.replaceChildren(dalej, ile, albo, ...(kreska ? [kreska] : []));
+      hint.classList.add("we-hint--wroc");
+      return;
+    }
+
     resume = document.createElement("div");
     resume.className = "resume";
     resume.setAttribute("role", "region");
@@ -177,6 +199,20 @@
 
     resume.append(text, link, close);
     document.body.append(resume);
+  }
+
+  // Ile minut zostało od zapamiętanego miejsca — z tych samych danych co wykres w menu
+  function minutDoKonca(place) {
+    const profil = document.querySelector("#menu .profil");
+    if (!profil) return 0;
+    const odcinki = JSON.parse(profil.dataset.odcinki);
+    if (!odcinki[place.id]) return 0;
+    let przed = 0;
+    for (const [klucz, [, , min]] of Object.entries(odcinki)) {
+      if (klucz === place.id) { przed += min * place.fraction; break; }
+      przed += min;
+    }
+    return Math.max(0, Math.round(Number(profil.dataset.razem) - przed));
   }
 
   function hideResume() {
@@ -584,6 +620,19 @@
       link.classList.toggle("is-tu", gdzie > -1 && nr === gdzie);
       if (gdzie > -1 && nr === gdzie) link.setAttribute("aria-current", "location");
       else link.removeAttribute("aria-current");
+    }
+    const wroc = menu.querySelector(".route-wroc");
+    const zapis = readPlace();
+    const pokaz = wroc && zapis && odcinki[zapis.id] && zapis.id !== "wstep" && current !== zapis.id;
+    if (wroc) {
+      wroc.hidden = !pokaz;
+      if (pokaz) {
+        const cel = document.getElementById(zapis.id);
+        const link = wroc.querySelector("a");
+        link.href = `#${zapis.id}`;
+        link.textContent = `czytaj dalej · ${cel?.dataset.nazwa ?? ""}`;
+        link.onclick = (event) => { event.preventDefault(); setMenu(false); goTo(zapis); };
+      }
     }
     if (!id || !odcinki[id]) {
       tu.hidden = true;

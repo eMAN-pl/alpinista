@@ -2420,3 +2420,12 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
 @media print {
   .fx-podpowiedz::after { content: none; }
 }
+
+/* Ślad powrotu do lektury nad listą „Trasa” — dla tych, którzy przewinęli intro (script.js) */
+.route-wroc { margin: calc(var(--line) * -0.5) 0 calc(var(--line) * 0.75); font: 12px/1 var(--mono); letter-spacing: 0.08em; }
+.route-wroc[hidden] { display: none; }
+.route-wroc a {
+  display: inline-flex; align-items: center; min-height: 44px;
+  color: var(--text); text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 0.35em;
+}
+.route-wroc a:hover, .route-wroc a:focus-visible { color: var(--accent); }

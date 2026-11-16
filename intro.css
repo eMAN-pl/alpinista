@@ -153,3 +153,21 @@
   .we-title h1 { color: #000; }
   .wejscie + * { margin-top: 0; }
 }
+
+/* Podpis dla powracającego czytelnika (script.js, offerResume): „czytaj dalej · Babia Góra”
+   jako odnośnik, pod nim ile zostało i cicha alternatywa. Te same litery co „ok. 74 minuty”. */
+.we-hint--wroc { gap: 8px; }
+.we-hint .we-wroc {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px;
+  color: var(--stage-ink); letter-spacing: .14em;
+  text-decoration: underline; text-decoration-color: var(--stage-accent); text-decoration-thickness: 1.5px; text-underline-offset: .45em;
+}
+.we-hint .we-wroc:hover, .we-hint .we-wroc:focus-visible { color: var(--stage-accent); }
+.we-hint--wroc b { margin-top: -6px; }
+.we-hint--wroc span { font-size: .9em; letter-spacing: .16em; opacity: .7; }
+
+/* Koniec intro (intro.js): mgła ma już kolor strony, więc zdjęcia i smugi są wyłączone,
+   a scena sama ma tło strony. Nic nie może wystawać spod mgły ani nad tekst wstępu. */
+.we-stage { contain: paint; }
+.we-koniec { background: var(--bg); }
+.we-koniec .we-scene, .we-koniec .we-wisps, .we-koniec .we-flash { visibility: hidden; }

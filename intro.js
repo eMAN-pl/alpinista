@@ -89,6 +89,7 @@
   }
   const useGL = !!prog && !reduce;
   if (!useGL) canvas.style.display = 'none';
+  let bylKoniec = false;
   function sizeCanvas() {
     if (!useGL) return;
     const sc = Math.min(.6, 640 / stage.clientWidth);
@@ -167,6 +168,13 @@
     wisps.style.opacity = ((1 - ramp(p, .06, .2)) * .34).toFixed(3);
     wisps.style.transform = `translate3d(0,${-dsc * 8}vh,0)`;
     hint.style.opacity = 1 - ramp(p, 0, .03); hint.style.display = p > .9 ? 'none' : '';
+    hint.style.pointerEvents = p > .02 ? 'none' : '';     // zgaszony podpis nie łapie kliknięć (ma odnośnik „czytaj dalej”)
+    // Po zejściu mgły w kolor strony zdjęć już nie ma: sceny są wyłączone, a scena ma tło strony.
+    // Zdjęcie lodowca jest wyższe od sceny i wystaje poza jej dolną krawędź; przycina je sama
+    // scena, ale część przeglądarek nie przycina warstw z własnym przyspieszeniem — zostawał
+    // pasek zdjęcia NAD tekstem wstępu (zgłoszenie autora z produkcji, 2026-11-16).
+    const koniec = p >= .972;
+    if (koniec !== bylKoniec) { bylKoniec = koniec; stage.classList.toggle('we-koniec', koniec); }
     const beat = (el, a, b) => {
       el.style.opacity = ramp(p, a, a + .03) * (1 - ramp(p, b - .03, b));
       el.style.transform = `translate3d(0,${(1 - ramp(p, a, a + .05)) * 20}px,0)`;

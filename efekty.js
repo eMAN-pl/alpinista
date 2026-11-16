@@ -623,6 +623,84 @@
         }
       }},
 
+    /* Puf (Marmolada, „zniknęły też jego myśli. Puf.”): litery akapitu rozsypują się w pył,
+       od lewej do prawej, zostaje samo „Puf.” — i po chwili tekst wraca. */
+    puf: { dur: 3900,
+      init(s){
+        s.sp = splitText(s.target, 'char');
+        const lit = s.sp.units.filter(u => !s.btn.contains(u));
+        s.lit = lit.map((u, i) => ({u, od: 150 + i/Math.max(1, lit.length)*950 + R()*140,
+          dx: 6 + R()*26, dy: -(8 + R()*30), ob: (R()-.5)*50, pyl: false}));
+        s.pyl = [];
+      },
+      stop(s){ s.sp.restore(); },
+      draw(c, s, p, t, dt){
+        const ms = t - s.start, k = dt/16, WROC = 2900, wraca = smooth((ms - WROC)/550);
+        for (const l of s.lit) {
+          const q = clamp((ms - l.od)/520, 0, 1), e = 1 - Math.pow(1 - q, 2);
+          if (ms >= WROC) { l.u.style.transform = ''; l.u.style.opacity = wraca.toFixed(2); continue; }
+          if (q <= 0) continue;
+          if (!l.pyl) { l.pyl = true; const r = l.u.getBoundingClientRect();
+            for (let i = 0; i < 2; i++) s.pyl.push({x: r.left + R()*r.width, y: r.top + R()*r.height, vx: .3 + R()*1.1, vy: -(.2 + R()*.9), age: 0, life: 500 + R()*700, r: .5 + R()*.9}); }
+          l.u.style.transform = `translate(${(l.dx*e).toFixed(1)}px,${(l.dy*e).toFixed(1)}px) rotate(${(l.ob*e).toFixed(1)}deg) scale(${(1 - .5*e).toFixed(2)})`;
+          l.u.style.opacity = (1 - e).toFixed(2);
+        }
+        c.fillStyle = `rgb(${v('--fg-rgb')})`;
+        s.pyl = s.pyl.filter(d => { d.age += dt; const a = 1 - d.age/d.life; if (a <= 0) return false;
+          d.x += d.vx*k; d.y += d.vy*k; d.vy -= .004*k; c.globalAlpha = .55*a; c.fillRect(d.x, d.y, d.r*2, d.r*2); return true; });
+        c.globalAlpha = 1;
+      }},
+
+    /* Dwa świetliki (Mont Blanc, „Dwa świetliki odłączone od swojego roju. Krok za krokiem.
+       W jednym rytmie, pośród ciemnego lasu.”): noc, dwa światła idą razem. Bez rysowanych pni —
+       pionowe pasy wyglądały jak błąd obrazu (autor, 2026-11-15).
+       Powrót motywu z Gran Paradiso — tam był rój, tu zostało dwoje. */
+    dwa: { dur: 6500,
+      init(s){ s.slad = [[], []]; },
+      draw(c, s, p, t, dt, M){
+        const e = env(p, .12, .2);
+        c.fillStyle = `rgba(3,4,9,${(.78*e).toFixed(3)})`; c.fillRect(0,0,W,H);
+        M.sat *= 1 - .7*e; M.noc = Math.max(M.noc, e);
+        c.globalCompositeOperation = 'lighter';
+        [0, 1].forEach(i => {
+          const q = clamp(p*1.02 - i*.075, 0, 1);                       // drugie idzie krok za pierwszym
+          const x = W*.36 + q*W*.2 + Math.sin(q*9 + i)*5 + i*16, y = H*.9 - q*H*.72 + Math.sin(t/250 + i*.4)*1.6;   // ten sam rytm
+          const sl = s.slad[i]; sl.push([x, y]); if (sl.length > 14) sl.shift();
+          const ang = sl.length > 3 ? Math.atan2(y - sl[sl.length-4][1], x - sl[sl.length-4][0]) : -Math.PI/2;
+          czolowka(c, x, y, ang, e*(.8 + .2*Math.sin(t/110 + i*2)), sl);
+        });
+        c.globalCompositeOperation = 'source-over';
+      }},
+
+    /* Choinka (Mont Blanc, „korytarz świetlików. Wyglądało to jak choinka.”): sznur świateł
+       zakosami od Tête Rousse do Goûter — szeroko na dole, wąsko u góry. */
+    choinka: { dur: 6500,
+      init(s){
+        const N = 8; s.sciezka = [];
+        for (let i = 0; i <= N; i++) { const u = i/N, bok = (i % 2 ? 1 : -1)*(W*.02 + Math.min(W*.2, 230)*(1 - u));
+          s.sciezka.push([W/2 + bok, H*.9 - u*H*.8]); }
+        s.dl = [0]; for (let i = 1; i < s.sciezka.length; i++) s.dl.push(s.dl[i-1] + Math.hypot(s.sciezka[i][0] - s.sciezka[i-1][0], s.sciezka[i][1] - s.sciezka[i-1][1]));
+        s.sw = Array.from({length: 30}, (_, i) => ({u: i/30 + (R()-.5)*.012, ph: R()*6, j: (R()-.5)*8}));
+      },
+      draw(c, s, p, t, dt, M){
+        const e = env(p, .12, .2), cala = s.dl[s.dl.length-1];
+        c.fillStyle = `rgba(3,4,9,${(.78*e).toFixed(3)})`; c.fillRect(0,0,W,H);
+        M.sat *= 1 - .7*e; M.noc = Math.max(M.noc, e);
+        c.globalCompositeOperation = 'lighter';
+        for (const z of s.sw) {
+          const u = z.u*.9 + p*.09; if (u > smooth(p/.35) + .02) continue;      // sznur zapala się od dołu
+          const d = u*cala; let i = 1; while (i < s.dl.length-1 && s.dl[i] < d) i++;
+          const f = (d - s.dl[i-1])/Math.max(1, s.dl[i] - s.dl[i-1]);
+          const x = s.sciezka[i-1][0] + (s.sciezka[i][0] - s.sciezka[i-1][0])*f + z.j, y = s.sciezka[i-1][1] + (s.sciezka[i][1] - s.sciezka[i-1][1])*f;
+          const a = e*(.6 + .4*Math.sin(t/140 + z.ph)), r = 13 - 6*u;            // wyżej = dalej = mniejsze
+          const g = c.createRadialGradient(x, y, 0, x, y, r);
+          g.addColorStop(0, rgba('--glow-rgb', .5*a)); g.addColorStop(1, rgba('--glow-rgb', 0));
+          c.fillStyle = g; c.fillRect(x - r, y - r, r*2, r*2);
+          c.fillStyle = `rgba(255,250,236,${a.toFixed(3)})`; c.beginPath(); c.arc(x, y, 1.9 - .8*u, 0, TAU); c.fill();
+        }
+        c.globalCompositeOperation = 'source-over';
+      }},
+
     cyk: { dur: 1500, lastFlash: -1e9,
       init(s){ s.flash = s.start - this.lastFlash > 1200; if (s.flash) this.lastFlash = s.start; },
       draw(c, s, p, t, dt, M){
@@ -679,6 +757,20 @@
       node.replaceWith(wrap); pairs.push([wrap, node]);
     }
     return {units, restore(){ pairs.forEach(([w, nd]) => w.replaceWith(nd)); }};
+  }
+
+  // Czołówka: snop, poświata, ślad i jasny punkt — ten sam rysunek co w roju z Gran Paradiso
+  function czolowka(c, x, y, ang, a, slad){
+    c.save(); c.translate(x, y); c.rotate(ang);
+    const bg = c.createLinearGradient(0, 0, 110, 0);
+    bg.addColorStop(0, rgba('--glow-rgb', .22*a)); bg.addColorStop(1, rgba('--glow-rgb', 0));
+    c.fillStyle = bg; c.beginPath(); c.moveTo(0, 0); c.lineTo(110, -30); c.lineTo(110, 30); c.closePath(); c.fill();
+    c.restore();
+    if (slad) slad.forEach(([tx, ty], i) => { c.fillStyle = rgba('--glow-rgb', .25*a*i/slad.length); c.beginPath(); c.arc(tx, ty, 1.1, 0, TAU); c.fill(); });
+    const g = c.createRadialGradient(x, y, 0, x, y, 26);
+    g.addColorStop(0, rgba('--glow-rgb', .5*a)); g.addColorStop(1, rgba('--glow-rgb', 0));
+    c.fillStyle = g; c.fillRect(x - 26, y - 26, 52, 52);
+    c.fillStyle = `rgba(255,250,236,${clamp(a,0,1).toFixed(3)})`; c.beginPath(); c.arc(x, y, 2.2, 0, TAU); c.fill();
   }
 
   let _tex = null;
@@ -926,6 +1018,39 @@
     at(tm + 3700, stopCzat);
   }
 
+  /* ---------- Test na człowieka (Rysy, „Może powinienem zrobić test?”) ----------
+     Pod akapitem pojawia się okienko „Jestem człowiekiem”. Czytelnik może kliknąć sam —
+     jeśli nie kliknie, test robi się sam. Wynik zawsze negatywny; kolejne powody są
+     z tekstu („Unikają myślników. Celowo robią nierówne akapity.”). */
+  const TEST_WYNIKI = ['Nie udało się potwierdzić.', 'Zbyt równe akapity.', 'Wykryto myślniki.'];
+  let testRun = null;
+  function stopTest(){ if (!testRun) return; testRun.timers.forEach(clearTimeout); clearTimeout(testRun.koniec); testRun.box.remove();
+    testRun.btn.setAttribute('aria-pressed', 'false'); testRun = null; }
+  function testCzlowieka(btn){
+    if (testRun) { stopTest(); return; }
+    const tg = btn.closest('p'); if (!tg) return;
+    const box = document.createElement('div'); box.className = 'test-czlowieka';
+    box.innerHTML = '<button type="button" class="tc-pole" aria-label="Jestem człowiekiem — zaznacz"></button>'
+      + '<span class="tc-napis">Jestem człowiekiem</span><span class="tc-stan" aria-live="polite"></span>';
+    tg.after(box); btn.setAttribute('aria-pressed', 'true');
+    const pole = box.querySelector('.tc-pole'), stan = box.querySelector('.tc-stan');
+    const run = testRun = {box, btn, timers: [], koniec: 0, proba: 0}, at = (ms, fn) => run.timers.push(setTimeout(fn, ms));
+    const zamknijPo = ms => { clearTimeout(run.koniec); run.koniec = setTimeout(() => { box.style.opacity = '0'; at(650, stopTest); }, ms); };
+    const sprawdz = () => {
+      if (pole.classList.contains('krec') || run.proba >= TEST_WYNIKI.length) return;
+      clearTimeout(run.koniec);
+      pole.className = 'tc-pole krec'; stan.className = 'tc-stan'; stan.textContent = 'sprawdzam…';
+      at(1500, () => { const ostatnia = run.proba >= TEST_WYNIKI.length - 1;
+        pole.className = 'tc-pole zle'; stan.className = 'tc-stan zle';
+        stan.textContent = TEST_WYNIKI[run.proba] + (ostatnia ? '' : ' Spróbuj ponownie.'); run.proba++;
+        if (!ostatnia) at(1100, () => { if (!pole.classList.contains('krec')) pole.className = 'tc-pole'; });
+        zamknijPo(ostatnia ? 3200 : 7000); });
+    };
+    pole.addEventListener('click', sprawdz);
+    at(2400, () => { if (!run.proba) sprawdz(); });     // nikt nie kliknął: test robi się sam
+    zamknijPo(12000);
+  }
+
   /* ---------- Enter: model rozmawia z modelem ---------- */
   const CHAT = [
     ['a','Rekruter (model)','Dziękujemy za aplikację! Twoje doświadczenie idealnie pasuje do naszych wartości.'],
@@ -968,6 +1093,7 @@
       const name = btn.dataset.fx;
       if (name === 'klik') { if (enabled) klik(btn, ev); return; }
       if (name === 'dlugo') { if (enabled || czatRun) czatDziecka(btn); return; }
+      if (name === 'test') { if (enabled || testRun) testCzlowieka(btn); return; }
       if (name === 'enter') { if (enabled || enterRun) enter(btn); return; }
       if (active.has(name)) { stop(name); if (!active.size) clearAll(); return; }
       if (!enabled) return;
@@ -976,8 +1102,8 @@
     enter(btn) { if (enabled) enter(btn); },
     wlacz(flag) {
       enabled = !!flag;
-      if (!enabled) { [...active.keys()].forEach(stop); clearAll(); clearKlik(); stopEnter(); stopCzat(); }
+      if (!enabled) { [...active.keys()].forEach(stop); clearAll(); clearKlik(); stopEnter(); stopCzat(); stopTest(); }
     },
-    czyDziala() { return active.size > 0 || !!enterRun || !!czatRun; },
+    czyDziala() { return active.size > 0 || !!enterRun || !!czatRun || !!testRun; },
   };
 })();
