@@ -723,6 +723,36 @@
 
     /* ===== Propozycje z 2026-11-16 (plan-poprawek.md, sekcja D) — do oceny autora ===== */
 
+    /* Jego oczami (Mont Blanc, „zobaczyć naszą dwójkę jego oczami. Dwie małe postaci na białym
+       zboczu, połączone liną. Tuż obok ogromnej szczeliny.”): widok z paralotni. Tekst oddala się
+       i blednie jak teren widziany z góry, zalewa go biel zbocza, a na niej dwie maleńkie
+       postaci na linie idą powoli w górę — tuż obok miękkiej, ciemnej szczeliny. */
+    oczami: { dur: 6400,
+      init(s){
+        const r = s.btn.getBoundingClientRect();
+        main.style.transformOrigin = `${(r.left + r.width/2 - colRect().left).toFixed(0)}px ${(scrollY + r.top - main.getBoundingClientRect().top - scrollY).toFixed(0)}px`;
+        s.x0 = W*(.46 + R()*.08); s.y0 = H*.56;
+      },
+      stop(s){ main.style.transformOrigin = ''; },
+      draw(c, s, p, t, dt, M){
+        const e = env(p, .22, .22), jasny = root.getAttribute('data-theme') === 'jasny';
+        M.scale *= 1 - .16*e; M.blur += 1.4*e; M.op *= 1 - .55*e;
+        // biel zbocza z lekkim cieniem od dołu
+        const g = c.createLinearGradient(0, 0, 0, H);
+        g.addColorStop(0, `rgba(242,245,248,${(.86*e).toFixed(3)})`); g.addColorStop(1, `rgba(208,215,224,${(.86*e).toFixed(3)})`);
+        c.fillStyle = g; c.fillRect(0, 0, W, H);
+        // szczelina: miękka, ciemnoniebieska, lekko wygięta smuga obok postaci
+        c.save(); c.translate(s.x0 + 70, s.y0 - 10); c.rotate(-.5);
+        const sz = c.createRadialGradient(0, 0, 0, 0, 0, 120); sz.addColorStop(0, `rgba(25,40,62,${(.55*e).toFixed(3)})`); sz.addColorStop(1, 'rgba(25,40,62,0)');
+        c.scale(1, .16); c.fillStyle = sz; c.fillRect(-120, -120, 240, 240); c.restore();
+        // dwie postaci na linie, idą powoli w górę zbocza
+        const u = smooth(p), x1 = s.x0 - 26 + u*14, y1 = s.y0 + 30 - u*40, x2 = x1 + 22, y2 = y1 - 14;
+        c.strokeStyle = `rgba(40,46,56,${(.75*e).toFixed(3)})`; c.lineWidth = 1;
+        c.beginPath(); c.moveTo(x1, y1); c.quadraticCurveTo((x1 + x2)/2, (y1 + y2)/2 + 5, x2, y2); c.stroke();
+        c.fillStyle = `rgba(200,40,40,${e.toFixed(3)})`; c.beginPath(); c.arc(x1, y1, 3, 0, TAU); c.fill();
+        c.fillStyle = `rgba(40,46,56,${e.toFixed(3)})`; c.beginPath(); c.arc(x2, y2, 3, 0, TAU); c.fill();
+      }},
+
     /* Kamienie (Mont Blanc, „usłyszeliśmy kamienie. Poleciały dokładnie tamtędy.”): przez kolumnę
        tekstu, dokładnie tam, gdzie przed chwilą była ścieżka, leci kilka kamieni i odbija się od półek. */
     kamienie: { dur: 4800,
@@ -1044,7 +1074,7 @@
   const klatki = new Set();
   function tick(btn){ if (btn) klatki.add(btn); frames = Math.min(KLATEK, klatki.size);
     hud(`klisza ${frames}/${KLATEK}`); }
-  const fresh = () => ({cold:0, coldVar:'', noc:0, blur:0, op:1, dx:0, dy:0, skew:0, bright:1, sat:1, shadow:[], tunnel:null, frost:null});
+  const fresh = () => ({cold:0, coldVar:'', noc:0, scale:1, blur:0, op:1, dx:0, dy:0, skew:0, bright:1, sat:1, shadow:[], tunnel:null, frost:null});
   // kolor z tokenu: „#rrggbb” albo „rgb(r, g, b)” (ten drugi, gdy paleta nocna już go nadpisała)
   const hex = h => { h = h.trim();
     if (h[0] === '#') { h = h.slice(1); return [0,2,4].map(i => parseInt(h.slice(i,i+2),16)); }
@@ -1077,7 +1107,8 @@
     if (Math.abs(M.bright-1) > .002) f.push(`brightness(${M.bright.toFixed(3)})`);
     if (Math.abs(M.sat-1) > .002) f.push(`saturate(${M.sat.toFixed(3)})`);
     main.style.filter = f.join(' ');
-    main.style.transform = (Math.abs(M.dx) > .05 || Math.abs(M.dy) > .05 || Math.abs(M.skew) > .01) ? `translate(${M.dx.toFixed(2)}px,${M.dy.toFixed(2)}px) skewX(${M.skew.toFixed(3)}deg)` : '';
+    main.style.transform = (Math.abs(M.dx) > .05 || Math.abs(M.dy) > .05 || Math.abs(M.skew) > .01 || Math.abs(M.scale - 1) > .001)
+      ? `translate(${M.dx.toFixed(2)}px,${M.dy.toFixed(2)}px) skewX(${M.skew.toFixed(3)}deg)${Math.abs(M.scale - 1) > .001 ? ` scale(${M.scale.toFixed(4)})` : ''}` : '';
     main.style.opacity = M.op < .998 ? M.op.toFixed(3) : '';
     main.style.textShadow = M.shadow.join(',');
     main.style.willChange = active.size ? 'filter, transform' : '';
