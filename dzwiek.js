@@ -45,25 +45,78 @@
   const MUZYKA_ROZDZIALU = { pilsko: 'pilsko', 'dolina-pieciu-stawow': 'dolina', 'kozi-wierch': 'kozi', mnich: 'mnich', marmolada: 'marmolada', everest: 'everest', 'babia-gora': 'babia-gora', rysy: 'rysy', 'gran-paradiso': 'gran-paradiso', grossglockner: 'grossglockner', skalka: 'skalka', 'mont-blanc': 'mont-blanc' };     // rozdział → utwór; wstęp dochodzi po wyborze
   const PRZENIK = 4, WEJSCIE = 2, WYJSCIE = 1.2;
 
+  // ---------- korekta miksu (2026-11-17) ----------
+  // Hierarchia, o którą prosił autor: efekty na pierwszym planie, tło w środku, muzyka najdalej.
+  // Głośność plików zmierzona tak, jak słyszy ucho (LUFS, ITU-R BS.1770; pomiar w przeglądarce,
+  // robocze/petle.html) — w obrębie grupy wszystko stoi na jednym poziomie, a korekty autora
+  // (POZIOMY) i suwaki miksera działają dalej na wierzch. Wyrównanie najwyżej ±6 dB: śnieżyca
+  // Gran Paradiso jest o 11 dB cichsza od reszty (prawie sam niski szum), pełne podbicie dudniłoby.
+  // Przełącznik „korekta” w mikserze wyłącza całość — do porównania ze słuchu.
+  const LUFS = {
+    tlo: { wstep: -21.6, pilsko: -27.1, tatry: -24.8, marmolada: -27.7, everest: -24.8, 'babia-gora': -24.6, rysy: -27.9,
+      'gran-paradiso': -37.5, skalka: -28.7, 'mont-blanc': -25.9, 'kroki-snieg': -30.9 },
+    muzyka: { wybor: -13.6, pilsko: -14.2, dolina: -14.9, kozi: -14.8, mnich: -14.4, marmolada: -14.9, everest: -15.1,
+      'babia-gora': -14.3, rysy: -15.3, 'gran-paradiso': -15.2, grossglockner: -15.4, skalka: -15.2, 'mont-blanc': -14.6 },
+  };
+  const CEL = { tlo: -26, muzyka: -14.8, 'kroki-snieg': -29 };
+  const KLUCZ_KOREKTY = 'alpinista:korekta';
+  let KOREKTA = true;
+  try { KOREKTA = localStorage.getItem(KLUCZ_KOREKTY) !== '0'; } catch {}
+  const kal = (grupa, n) => { if (!KOREKTA || LUFS[grupa]?.[n] == null) return 1;
+    const db = Math.max(-6, Math.min(6, (CEL[n] ?? CEL[grupa]) - LUFS[grupa][n])); return Math.pow(10, db/20); };
+
   const KLUCZ = 'alpinista:mikser';
   let MIX = {};
   const wczytajMix = () => { try { MIX = JSON.parse(localStorage.getItem(KLUCZ) || '{}'); } catch { MIX = {}; }
     for (const k of ['grupy', 'tla', 'wstep', 'efekty', 'muzyka']) MIX[k] = MIX[k] || {}; };
   wczytajMix();
   const mn = (grupa, k) => (POZIOMY[grupa]?.[k] ?? 1)*(MIX[grupa]?.[k] ?? 1);
-  const poziomTla = n => GLOS_TLA*mn('tla', n)*mn('grupy', 'tla');
+  const poziomTla = n => GLOS_TLA*mn('tla', n)*mn('grupy', 'tla')*kal('tlo', n);
   const poziomWhoosh = () => GLOS_WHOOSH*mn('wstep', 'whoosh')*mn('grupy', 'wstep');
 
   // ---------- kontekst: tworzy go script.js w kliknięciu (iOS wymaga gestu) ----------
-  let A = null, wyjscie = null, grupaTla = null, grupaMuzyki = null;
+  let A = null, wyjscie = null, grupaTla = null, grupaMuzyki = null, tor = null;
+  // Tor (stały; korekta tylko przestawia parametry, więc przełączanie nie przerywa dźwięku):
+  //   tło:    grupaTla → górnoprzepustowy 80 Hz → półka −2 dB poniżej 200 Hz → wyjście
+  //   muzyka: grupaMuzyki → górnoprzepustowy 120 Hz → −3 dB przy 2,5 kHz → półka −4 dB od 7 kHz
+  //           → łagodny kompresor (crescenda nie wyskakują) → wyjście, + pogłos (odległość)
+  //   wyjście → cisza (miejsca bez dźwięku) → ogranicznik → głośniki
   function kontekst() {
     if (A) return A;
     A = window.alpinistaCtx || new (window.AudioContext || window.webkitAudioContext)();
     window.alpinistaCtx = A;
-    wyjscie = A.createGain(); wyjscie.connect(A.destination);
-    grupaTla = A.createGain(); grupaTla.connect(wyjscie);
-    grupaMuzyki = A.createGain(); grupaMuzyki.connect(wyjscie);
+    const f = (typ, hz, q = .7, g = 0) => { const n = A.createBiquadFilter(); n.type = typ; n.frequency.value = hz; n.Q.value = q; n.gain.value = g; return n; };
+    tor = {
+      tloHp: f('highpass', 80), tloDol: f('lowshelf', 200),
+      muzHp: f('highpass', 120), muzSrodek: f('peaking', 2500, 1), muzGora: f('highshelf', 7000),
+      komp: A.createDynamicsCompressor(), pogSend: A.createGain(), pog: A.createConvolver(),
+      cisza: A.createGain(), limit: A.createDynamicsCompressor(),
+    };
+    tor.pog.buffer = impuls(2.6);
+    wyjscie = A.createGain();
+    wyjscie.connect(tor.cisza).connect(tor.limit).connect(A.destination);
+    grupaTla = A.createGain(); grupaTla.connect(tor.tloHp).connect(tor.tloDol).connect(wyjscie);
+    grupaMuzyki = A.createGain();
+    grupaMuzyki.connect(tor.muzHp).connect(tor.muzSrodek).connect(tor.muzGora).connect(tor.komp).connect(wyjscie);
+    tor.komp.connect(tor.pogSend).connect(tor.pog).connect(wyjscie);
+    ustawKorekte();
     return A;
+  }
+  function impuls(sek) {
+    const len = Math.floor(A.sampleRate*sek), b = A.createBuffer(2, len, A.sampleRate);
+    for (let c = 0; c < 2; c++) { const d = b.getChannelData(c); let lp = 0;
+      for (let i = 0; i < len; i++) { const u = i/len; lp += ((Math.random()*2 - 1) - lp)*(.45 - .38*u); d[i] = lp*Math.pow(1 - u, 2.6); } }
+    return b;
+  }
+  function ustawKorekte() {
+    if (!tor) return;
+    const k = KOREKTA, t = A.currentTime, set = (par, v) => par.setTargetAtTime(v, t, .05);
+    set(tor.tloHp.frequency, k ? 80 : 10); set(tor.tloDol.gain, k ? -2 : 0);
+    set(tor.muzHp.frequency, k ? 120 : 10); set(tor.muzSrodek.gain, k ? -3 : 0); set(tor.muzGora.gain, k ? -4 : 0);
+    const c = tor.komp; set(c.threshold, k ? -26 : 0); set(c.ratio, k ? 2.5 : 1); c.knee.value = 10; c.attack.value = .05; c.release.value = .4;
+    set(tor.pogSend.gain, k ? .16 : 0);
+    const l = tor.limit; set(l.threshold, k ? -3 : 0); set(l.ratio, k ? 20 : 1); l.knee.value = 0; l.attack.value = .003; l.release.value = .25;
+    odswiezPoziomy();
   }
 
   // ---------- pętle ----------
@@ -136,6 +189,7 @@
     const m = solo ? null : (muzykaWlaczona() ? MUZYKA_ROZDZIALU[id] || null : null);
     if (!muzSolo && m !== muzTeraz) { if (muzTeraz) muzCisza(muzTeraz, 3); muzTeraz = m; if (m) muzGraj(m, szybkoMuzyka ? .8 : 2.5); }
     epizodyDla(wlaczone() && !solo ? id : null);
+    sprawdzCisze();
     if (n === teraz) return;
     if (teraz) cisza(teraz, czas);
     teraz = n;
@@ -158,6 +212,27 @@
   document.addEventListener('visibilitychange', () => { if (!A) return;
     if (document.hidden) { if (teraz) { cisza(teraz, .4); teraz = null; } if (muzTeraz) { muzCisza(muzTeraz, .4); muzTeraz = null; } clearTimeout(epTimer); epRozdzial = null; }
     else wybierz(WEJSCIE); });
+
+  // ---------- zaprojektowana cisza (2026-11-17) ----------
+  // Miejsca, które autor zostawił bez efektów, milkną całe: tło i muzyka gasną, gdy fragment
+  // jest na środku ekranu, i wracają, gdy czytelnik pójdzie dalej. Nagła cisza działa tu mocniej
+  // niż jakikolwiek dźwięk. Rysy: statystyki TOPR. Finał: od „Ja też nie jestem.” do końca strony.
+  // wzorzec, nie dosłowny tekst: build.py wstawia twarde spacje po liczbach i krótkich słowach
+  const akapit = (sekcja, wzor) => [...(document.getElementById(sekcja)?.querySelectorAll('p') || [])].find(p => wzor.test(p.textContent));
+  const STREFY_CISZY = [
+    [akapit('rysy', /224\s+potkni/), akapit('rysy', /statystyk\s+TOPR/)],
+    [[...document.querySelectorAll('article p')].find(p => /^Ja\s+też\s+nie\s+jestem\.$/.test(p.textContent.trim())), null],
+  ].filter(([od]) => od);
+  let wCiszy = false;
+  function sprawdzCisze() {
+    if (!A || !tor) return;
+    // strefa zaczyna się, gdy jej pierwszy wiersz wejdzie w dolne 40% ekranu, a kończy, gdy ostatni zniknie w górnych 20%
+    const teraz = STREFY_CISZY.some(([od, doo]) => od.getBoundingClientRect().top < innerHeight*.6 && (!doo || doo.getBoundingClientRect().bottom > innerHeight*.2));
+    if (teraz === wCiszy) return;
+    wCiszy = teraz;
+    const g = tor.cisza.gain, t = A.currentTime; g.cancelScheduledValues(t); g.setValueAtTime(g.value, t);
+    g.linearRampToValueAtTime(teraz ? 0 : 1, t + (teraz ? 2.5 : 4));
+  }
 
   // ---------- epizody ----------
   const los = ([a, b]) => a + Math.random()*(b - a);
@@ -214,7 +289,7 @@
     if (A) { MUZYKA_ROZDZIALU.wstep = 'wybor'; szybkoMuzyka = true; wybierz(); szybkoMuzyka = false; } });
 
   // ---------- muzyka rozdziału: cały utwór w pętli ----------
-  const poziomMuzyki = n => GLOS_MUZYKI*mn('muzyka', n)*mn('grupy', 'muzyka');
+  const poziomMuzyki = n => GLOS_MUZYKI*mn('muzyka', n)*mn('grupy', 'muzyka')*kal('muzyka', n);
   const muzPliki = new Map(), muzBufory = new Map(), utwory = {};
   let muzTeraz = null, muzSolo = null;
   // pliki (2,5–3 MB) dociągają się po włączeniu muzyki; dekodujemy w 32 kHz — pełne pasmo
@@ -245,9 +320,25 @@
     }
     glos(u, poziomMuzyki(n), czas);
     przyciszTlo();
+    if (!muzSolo) oddech(n, b);
   }
-  function muzCisza(n, czas) {
+  // Muzyka z oddechem (2026-11-17): esej czyta się ok. 74 minut, muzyka grająca bez przerwy po
+  // kwadransie męczy albo znika z uwagi. Utwór gra ok. półtora przejścia (najwyżej 3,5 min),
+  // gaśnie do samego tła, a po 2,5 min ciszy wraca, jeśli czytelnik dalej jest w rozdziale.
+  const ODDECH = { razy: 1.5, max: 210, wyjscie: 10, przerwa: 150, wejscie: 8 };
+  function oddech(n, b) {
+    const u = utwory[n]; clearTimeout(u.oddech);
+    const gra = Math.min(ODDECH.max, (b.do - b.od)*ODDECH.razy);
+    u.oddech = setTimeout(() => {
+      if (muzTeraz !== n || muzSolo) return;
+      muzCisza(n, ODDECH.wyjscie, true);                       // odpoczynek: rozdział zostaje „swój”
+      u.oddech = setTimeout(() => { if (muzTeraz === n && muzykaWlaczona() && !muzSolo) muzGraj(n, ODDECH.wejscie); },
+        (ODDECH.wyjscie + ODDECH.przerwa)*1000);
+    }, gra*1000);
+  }
+  function muzCisza(n, czas, odpoczynek = false) {
     const u = utwory[n]; if (!u) return;
+    if (!odpoczynek) clearTimeout(u.oddech);
     u.gra = false; glos(u, 0, czas);
     const s = u.zrodlo;
     setTimeout(() => { if (u.gra || u.zrodlo !== s || !s) return;
@@ -256,8 +347,9 @@
     przyciszTlo();
   }
   // tło przycicha, dopóki gra muzyka rozdziału
-  function przyciszTlo() { if (!A) return; const gra = Object.values(utwory).some(u => u.gra);
-    const g = grupaTla.gain, now = A.currentTime; g.cancelScheduledValues(now); g.setValueAtTime(g.value, now); g.linearRampToValueAtTime(gra ? .6 : 1, now + 2); }
+  const tloPodMuzyka = () => Object.values(utwory).some(u => u.gra) ? .6 : 1;
+  function przyciszTlo() { if (!A) return;
+    const g = grupaTla.gain, now = A.currentTime; g.cancelScheduledValues(now); g.setValueAtTime(g.value, now); g.linearRampToValueAtTime(tloPodMuzyka(), now + 2); }
 
   // ---------- dźwięki efektów: osobny moduł, wczytywany przy pierwszym włączeniu „Dźwięków” ----------
   let modulEfektow = null;
@@ -271,15 +363,18 @@
   }
   // Tło rozdziału na chwilę cichnie pod dźwiękiem efektu — efekt ma być wyraźny, a tło nie ma
   // się z nim kłócić. Wraca łagodnie po sekundzie.
+  // Pod efektem przycicha tło, a przy korekcie także muzyka — efekt ma stać na pierwszym planie.
   addEventListener('dzwiek:efekt', e => { if (!A || !grupaTla) return;
-    const g = grupaTla.gain, now = A.currentTime, czas = e.detail?.czas ?? 3;
-    g.cancelScheduledValues(now); g.setValueAtTime(g.value, now);
-    g.linearRampToValueAtTime(.45, now + .25); g.setValueAtTime(.45, now + czas); g.linearRampToValueAtTime(1, now + czas + 1.2); });
+    const now = A.currentTime, czas = e.detail?.czas ?? 3;
+    const zjazd = (g, dol, wroc) => { g.cancelScheduledValues(now); g.setValueAtTime(g.value, now);
+      g.linearRampToValueAtTime(dol, now + .25); g.setValueAtTime(dol, now + czas); g.linearRampToValueAtTime(wroc, now + czas + 1.2); };
+    zjazd(grupaTla.gain, .45*tloPodMuzyka(), tloPodMuzyka());
+    if (KOREKTA) zjazd(grupaMuzyki.gain, .5, 1); });
 
   // ---------- API dla script.js ----------
   window.Dzwiek = {
     // podgląd stanu do sprawdzania w konsoli: co gra i co jest w pamięci
-    stan: () => ({teraz, solo, muzyka: muzTeraz, muzSolo, kontekst: A?.state, wPamieci: [...bufory.keys()],
+    stan: () => ({teraz, solo, muzyka: muzTeraz, muzSolo, cisza: wCiszy, korekta: KOREKTA, strefyCiszy: STREFY_CISZY.length, kontekst: A?.state, wPamieci: [...bufory.keys()],
       graja: Object.values(sciezki).filter(t => t.zrodlo).map(t => `${t.n} ${t.g.gain.value.toFixed(2)}`)}),
     ustaw(nowy) {
       stan = {...nowy};
@@ -317,7 +412,7 @@
       .mikser .mk-gora b { margin-right: auto; } .mikser.mk-zwiniety .mk-tresc { display: none; }
       .mikser textarea { width: 100%; height: 90px; margin-top: 6px; font: inherit; background: none; color: var(--text); border: 1px solid var(--rule); }
     </style>
-    <div class="mk-gora"><b>Mikser</b><button data-a="kopiuj">kopiuj</button><button data-a="zeruj">na 1,00</button><button data-a="zwin">zwiń</button></div>
+    <div class="mk-gora"><b>Mikser</b><button data-a="korekta" aria-pressed="${KOREKTA}">korekta: ${KOREKTA ? 'wł.' : 'wył.'}</button><button data-a="kopiuj">kopiuj</button><button data-a="zeruj">na 1,00</button><button data-a="zwin">zwiń</button></div>
     <div class="mk-tresc"><p style="margin:6px 0 0;color:var(--text-quiet)">Suwak to mnożnik: 1,00 = obecny poziom. „Słuchaj” gra tło bez względu na rozdział, „graj” — dźwięk efektu bez obrazu.</p>
     <div class="mk-lista"></div><textarea hidden readonly></textarea></div>`;
     document.body.append(panel);
@@ -379,6 +474,9 @@
     }).catch(() => {});
     panel.addEventListener('click', async e => {
       const a = e.target.closest('[data-a]')?.dataset.a; if (!a) return;
+      if (a === 'korekta') { KOREKTA = !KOREKTA; try { localStorage.setItem(KLUCZ_KOREKTY, KOREKTA ? '1' : '0'); } catch {}
+        e.target.textContent = `korekta: ${KOREKTA ? 'wł.' : 'wył.'}`; e.target.setAttribute('aria-pressed', String(KOREKTA));
+        ustawKorekte(); dispatchEvent(new CustomEvent('dzwiek:korekta', {detail: {on: KOREKTA}})); }
       if (a === 'zwin') { panel.classList.toggle('mk-zwiniety'); e.target.textContent = panel.classList.contains('mk-zwiniety') ? 'rozwiń' : 'zwiń'; }
       if (a === 'zeruj') { MIX = {grupy: {}, tla: {}, wstep: {}, efekty: {}, muzyka: {}}; zapisz(); wiersze.forEach(f => f()); }
       if (a === 'kopiuj') { const tx = panel.querySelector('textarea'), json = JSON.stringify(MIX);

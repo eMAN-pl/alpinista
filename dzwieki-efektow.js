@@ -8,7 +8,8 @@
 (() => {
   if (new URLSearchParams(location.search).get('fx')) return;        // tryb klatki: cisza
 
-  let A = null, master = null, wet = null, wlaczony = false;
+  let A = null, master = null, wet = null, wlaczony = false, prezencja = null;
+  addEventListener('dzwiek:korekta', e => { if (prezencja) prezencja.gain.setTargetAtTime(e.detail?.on ? 2.5 : 0, prezencja.context.currentTime, .05); });
   const BAZA = document.currentScript && document.currentScript.src ? new URL('.', document.currentScript.src).href : '';
   // nagrania (assets/audio/efekty/): pobierane przy pierwszym włączeniu dźwięków, dekodowane raz
   const PROBKI = {grzmot: 'grzmot.mp3', glitch: 'glitch.mp3'}, probki = {};
@@ -52,8 +53,13 @@
     if (B.sr !== ctx.sampleRate) bufory(ctx.sampleRate);
     const comp = ctx.createDynamicsCompressor();
     comp.threshold.value = -16; comp.knee.value = 10; comp.ratio.value = 5; comp.attack.value = .004; comp.release.value = .25;
+    // Korekta miksu (dzwiek.js, 2026-11-17): efekty na pierwszym planie — lekkie podbicie
+    // czytelności (+2,5 dB przy 3 kHz). Przełącznik „korekta” w mikserze zdejmuje je razem z resztą.
     master = ctx.createGain(); master.gain.value = glosnosc;
-    master.connect(comp).connect(ctx.destination);
+    prezencja = ctx.createBiquadFilter(); prezencja.type = 'peaking'; prezencja.frequency.value = 3000; prezencja.Q.value = .9;
+    let kor = true; try { kor = localStorage.getItem('alpinista:korekta') !== '0'; } catch {}
+    prezencja.gain.value = kor ? 2.5 : 0;
+    master.connect(prezencja).connect(comp).connect(ctx.destination);
     const rev = ctx.createConvolver(); rev.buffer = impuls(ctx, 3.4, 2.4);
     wet = ctx.createGain(); wet.gain.value = .8; wet.connect(rev).connect(master);
   }
