@@ -2466,6 +2466,9 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
   height: 100svh;
   margin-bottom: -100vh;
   margin-bottom: -100svh;
+  /* .koniec ma padding --edge po bokach — tło wychodzi poza niego do krawędzi ekranu,
+     inaczej na szerokim monitorze zostawały dwa pasy (autor, 2026-11-16) */
+  margin-inline: calc(-1 * var(--edge));
   overflow: hidden;
   pointer-events: none;
   opacity: var(--wejscie);
