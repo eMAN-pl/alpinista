@@ -27,13 +27,13 @@
     marmolada: 'Marmolada — łagodny wiatr', everest: 'Everest — szum pomieszczenia', 'babia-gora': 'Babia Góra — wichura', rysy: 'Rysy — ulewa',
   };
   // Poziomy domyślne (mnożniki). Tu wpisujemy wynik z miksera autora.
-  const POZIOMY = { grupy: { tla: 1, wstep: 1, muzyka: 1 }, tla: { pilsko: .9 }, wstep: { whoosh: 1 }, muzyka: {} };
+  const POZIOMY = { grupy: { tla: 1, wstep: 1, muzyka: 1 }, tla: { pilsko: .9, tatry: .9 }, wstep: { whoosh: 1 }, muzyka: {} };
   const GLOS_TLA = .8, GLOS_WHOOSH = .45, GLOS_MUZYKI = .3;    // muzyka to delikatne tło pod resztą dźwięków (autor, 2026-11-16)
   // Muzyka rozdziału (autor, 2026-11-16): cały utwór w pętli, dopóki czytelnik jest w swoim
   // rozdziale; po wyjściu gaśnie, po powrocie gra dalej od miejsca, w którym skończył. Utwory
   // z Pixabay. Wstęp ma muzykę dopiero od decyzji „Idę dalej” / „Zawracam”.
-  const MUZYKA = { wybor: 'Wstęp po wyborze — Sommerso', pilsko: 'Pilsko — fortepian' };
-  const MUZYKA_ROZDZIALU = { pilsko: 'pilsko' };     // rozdział → utwór; wstęp dochodzi po wyborze
+  const MUZYKA = { wybor: 'Wstęp po wyborze — Sommerso', pilsko: 'Pilsko — fortepian', tatry: 'Dolina i Kozi Wierch — After War' };
+  const MUZYKA_ROZDZIALU = { pilsko: 'pilsko', 'dolina-pieciu-stawow': 'tatry', 'kozi-wierch': 'tatry' };   // jeden utwór gra dalej przez oba rozdziały     // rozdział → utwór; wstęp dochodzi po wyborze
   const PRZENIK = 4, WEJSCIE = 2, WYJSCIE = 1.2;
 
   const KLUCZ = 'alpinista:mikser';
