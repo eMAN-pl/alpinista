@@ -120,11 +120,12 @@
   let stan = {muzyka: false, dzwieki: false}, teraz = null, solo = null, dociag = 0;
   const wlaczone = () => stan.dzwieki && !document.hidden;
   const muzykaWlaczona = () => stan.muzyka && !document.hidden;
+  let szybkoMuzyka = false;
 
   function wybierz(czas = PRZENIK) {
     const id = rozdzial(), n = solo || (wlaczone() ? TLA[id] || null : null);
     const m = solo ? null : (muzykaWlaczona() ? MUZYKA_ROZDZIALU[id] || null : null);
-    if (!muzSolo && m !== muzTeraz) { if (muzTeraz) muzCisza(muzTeraz, 3); muzTeraz = m; if (m) muzGraj(m, 2.5); }
+    if (!muzSolo && m !== muzTeraz) { if (muzTeraz) muzCisza(muzTeraz, 3); muzTeraz = m; if (m) muzGraj(m, szybkoMuzyka ? .8 : 2.5); }
     if (n === teraz) return;
     if (teraz) cisza(teraz, czas);
     teraz = n;
@@ -155,19 +156,25 @@
     for (let i = 0; i < n; i++) { const x = Math.random()*2 - 1; b0 = .99886*b0 + x*.0555179; b1 = .99332*b1 + x*.0750759; b2 = .969*b2 + x*.153852;
       b3 = .8665*b3 + x*.3104856; b4 = .55*b4 + x*.5329522; b5 = -.7616*b5 - x*.016898; d[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + x*.5362)*.11; b6 = x*.115926; }
     return szum = b; }
-  function whoosh(nizej = 1, t = A.currentTime + .02) {
-    const d = 1.3, f0 = 240*nizej, f1 = 720*nizej, s = A.createBufferSource(), f = A.createBiquadFilter(), g = A.createGain();
+  // d — długość, szczyt — kiedy podmuch jest najgłośniejszy (ułamek d), glos — mnożnik głośności
+  function whoosh(nizej = 1, t = A.currentTime + .02, {d = 1.3, szczyt = .5, glos = 1} = {}) {
+    const f0 = 240*nizej, f1 = 720*nizej, s = A.createBufferSource(), f = A.createBiquadFilter(), g = A.createGain();
     const p = A.createStereoPanner ? A.createStereoPanner() : null;
     s.buffer = rozowy(); f.type = 'bandpass'; f.Q.value = .7;
     s.connect(f).connect(g); if (p) { g.connect(p).connect(wyjscie); p.pan.setValueAtTime(-.3, t); p.pan.linearRampToValueAtTime(.3, t + d); } else g.connect(wyjscie);
-    f.frequency.setValueAtTime(f0, t); f.frequency.exponentialRampToValueAtTime(f1, t + d*.5); f.frequency.exponentialRampToValueAtTime(f0*1.2, t + d);
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(poziomWhoosh(), t + d*.5); g.gain.linearRampToValueAtTime(0, t + d);
+    f.frequency.setValueAtTime(f0, t); f.frequency.exponentialRampToValueAtTime(f1, t + d*szczyt); f.frequency.exponentialRampToValueAtTime(f0*1.2, t + d);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(poziomWhoosh()*glos, t + d*szczyt); g.gain.linearRampToValueAtTime(0, t + d);
     s.start(t, Math.random()*.7); s.stop(t + d + .1);
   }
   addEventListener('intro:slajd', e => { if (A && wlaczone()) whoosh([1, .92, .84][e.detail?.nr] ?? 1); });
   // „Idę dalej” / „Zawracam” we wstępie: ten sam podmuch co przy slajdach (autor, 2026-11-16 —
   // zamiast grzmotu). Głośność idzie za suwakiem whoosha w mikserze.
-  addEventListener('dzwiek:wybor', () => { if (A && wlaczone()) whoosh(.9); if (A) { MUZYKA_ROZDZIALU.wstep = 'wybor'; wybierz(); } });
+  // Przycisk musi odpowiedzieć od razu: ten sam podmuch, ale krótszy, z szybkim wejściem
+  // i wyraźniejszy (autor: po kliknięciu „nie ma dźwięku” — wolny, cichy podmuch ginął).
+  // Muzyka wstępu wchodzi po decyzji szybciej niż przy zwykłej zmianie rozdziału.
+  addEventListener('dzwiek:wybor', () => {
+    if (A && wlaczone()) whoosh(.95, A.currentTime + .01, {d: .9, szczyt: .22, glos: 1.8});
+    if (A) { MUZYKA_ROZDZIALU.wstep = 'wybor'; szybkoMuzyka = true; wybierz(); szybkoMuzyka = false; } });
 
   // ---------- muzyka rozdziału: cały utwór w pętli ----------
   const poziomMuzyki = n => GLOS_MUZYKI*mn('muzyka', n)*mn('grupy', 'muzyka');
