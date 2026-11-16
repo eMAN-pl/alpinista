@@ -644,11 +644,11 @@
       }},
 
     /* Puf (Marmolada, „zniknęły też jego myśli. Puf.”): litery akapitu rozsypują się w pył,
-       od lewej do prawej, zostaje samo „Puf.” — i po chwili tekst wraca. */
+       od lewej do prawej — na końcu także samo „Puf.” (autor, 16.11) — i po chwili tekst wraca. */
     puf: { dur: 3900,
       init(s){
         s.sp = splitText(s.target, 'char');
-        const lit = s.sp.units.filter(u => !s.btn.contains(u));
+        const lit = s.sp.units;                          // razem z „Puf.” — znika wszystko
         s.lit = lit.map((u, i) => ({u, od: 150 + i/Math.max(1, lit.length)*950 + R()*140,
           dx: 6 + R()*26, dy: -(8 + R()*30), ob: (R()-.5)*50, pyl: false}));
         s.pyl = [];
