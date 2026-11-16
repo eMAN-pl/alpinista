@@ -741,16 +741,29 @@
         const g = c.createLinearGradient(0, 0, 0, H);
         g.addColorStop(0, `rgba(242,245,248,${(.86*e).toFixed(3)})`); g.addColorStop(1, `rgba(208,215,224,${(.86*e).toFixed(3)})`);
         c.fillStyle = g; c.fillRect(0, 0, W, H);
-        // szczelina: miękka, ciemnoniebieska, lekko wygięta smuga obok postaci
-        c.save(); c.translate(s.x0 + 70, s.y0 - 10); c.rotate(-.5);
-        const sz = c.createRadialGradient(0, 0, 0, 0, 0, 120); sz.addColorStop(0, `rgba(25,40,62,${(.55*e).toFixed(3)})`); sz.addColorStop(1, 'rgba(25,40,62,0)');
-        c.scale(1, .16); c.fillStyle = sz; c.fillRect(-120, -120, 240, 240); c.restore();
-        // dwie postaci na linie, idą powoli w górę zbocza
-        const u = smooth(p), x1 = s.x0 - 26 + u*14, y1 = s.y0 + 30 - u*40, x2 = x1 + 22, y2 = y1 - 14;
-        c.strokeStyle = `rgba(40,46,56,${(.75*e).toFixed(3)})`; c.lineWidth = 1;
-        c.beginPath(); c.moveTo(x1, y1); c.quadraticCurveTo((x1 + x2)/2, (y1 + y2)/2 + 5, x2, y2); c.stroke();
-        c.fillStyle = `rgba(200,40,40,${e.toFixed(3)})`; c.beginPath(); c.arc(x1, y1, 3, 0, TAU); c.fill();
-        c.fillStyle = `rgba(40,46,56,${e.toFixed(3)})`; c.beginPath(); c.arc(x2, y2, 3, 0, TAU); c.fill();
+        // Kadr jak na zdjęciu z paralotni (autor, 16.11): wielka szczelina łukiem przez zbocze —
+        // niebieski cień w lodzie z jasną krawędzią — a dwie postaci daleko od siebie, połączone
+        // długą, zwisającą liną, z długimi cieniami. Rysujemy cień i światło, nie bryłę.
+        const sx = s.x0, sy = s.y0;
+        const luk = (dx) => [sx - 150 + dx, sy + 120 - dx*.25];
+        c.save(); c.lineCap = 'round';
+        const cien = c.createLinearGradient(sx - 220, sy - 200, sx + 40, sy + 160);
+        cien.addColorStop(0, `rgba(70,110,160,0)`); cien.addColorStop(.35, `rgba(70,110,160,${(.5*e).toFixed(3)})`);
+        cien.addColorStop(.75, `rgba(55,90,140,${(.42*e).toFixed(3)})`); cien.addColorStop(1, `rgba(70,110,160,0)`);
+        c.strokeStyle = cien; c.lineWidth = 26; c.filter = 'blur(6px)';
+        c.beginPath(); c.moveTo(sx - 210, sy - 210); c.bezierCurveTo(sx - 260, sy - 60, sx - 200, sy + 40, sx - 40, sy + 150); c.stroke();
+        c.filter = 'blur(1px)'; c.strokeStyle = `rgba(255,255,255,${(.45*e).toFixed(3)})`; c.lineWidth = 1.5;   // jasna krawędź lodu
+        c.beginPath(); c.moveTo(sx - 196, sy - 212); c.bezierCurveTo(sx - 244, sy - 62, sx - 184, sy + 36, sx - 26, sy + 146); c.stroke();
+        c.restore();
+        // dwie postaci na linie, daleko od siebie, idą powoli w górę
+        const u = smooth(p), x1 = sx - 120 + u*14, y1 = sy + 70 - u*24, x2 = sx + 10 + u*14, y2 = sy - 10 - u*24;
+        c.strokeStyle = `rgba(250,252,255,${(.85*e).toFixed(3)})`; c.lineWidth = 1;
+        c.beginPath(); c.moveTo(x1, y1); c.quadraticCurveTo((x1 + x2)/2, (y1 + y2)/2 + 26, x2, y2); c.stroke();
+        for (const [x, y] of [[x1, y1], [x2, y2]]) {
+          c.strokeStyle = `rgba(60,70,85,${(.35*e).toFixed(3)})`; c.lineWidth = 2.5;      // długi cień postaci
+          c.beginPath(); c.moveTo(x, y + 3); c.lineTo(x + 16, y + 14); c.stroke();
+          c.fillStyle = `rgba(30,34,40,${e.toFixed(3)})`; c.beginPath(); c.ellipse(x, y - 3, 2.6, 5, 0, 0, TAU); c.fill();
+        }
       }},
 
     /* Kamienie (Mont Blanc, „usłyszeliśmy kamienie. Poleciały dokładnie tamtędy.”): przez kolumnę
