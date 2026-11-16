@@ -465,14 +465,27 @@
         'Na podstawie ośmiu wywiadów ustalono, że wszyscy użytkownicy myślą tak samo.',
         'Ten design system powstał w 1786 roku na szczycie Mont Blanc.',
         'Model potwierdził, że model miał rację.'],
+      // Halucynacja dopasowana do każdego „WTF” po kolei (autor, 16.11): pewna siebie, pasuje
+      // do kontekstu akapitu i jest zła. Lista ogólna wyżej zostaje na zapas.
+      wlasne: [
+        'Ten ekran jest w produkcie od 2019 roku. Model widział go w dokumentacji, której nikt inny nie widział.',
+        'Kryteria akceptacji: przycisk ma być jednocześnie widoczny i ukryty. Wycena: 2 punkty.',
+        'Makieta gotowa do wdrożenia: 14 ekranów, wszystkie przyciski główne, wszystkie najważniejsze.',
+        'Kod przeszedł review. Recenzentem był agent, który go napisał. Zatwierdzono w 100%.',
+        'Ustalono: premiera w piątek. Odpowiada Krzysztof z działu, którego nie ma.',
+        'Zespół jest pewny kierunku. Źródło: zespół.'],
       init(s){
-        this.level = Math.min(6, this.level + 1); s.lv = this.level; s.dur = 900 + s.lv*260;
+        this.level = Math.min(6, this.level + 1); s.lv = this.level;
+        // fazy w milisekundach: wejście w glitch, halucynacja do przeczytania, wyjście.
+        // Halucynacja stoi 1,4 s (wcześniej ok. 0,4 s — nie dało się jej przeczytać).
+        s.g1 = 320 + s.lv*40; s.hold = 1400 + s.lv*60; s.dur = s.g1 + s.hold + 340;
         hud(`halucynacje ${s.lv}`);
         const tg = s.target, r = tg.getBoundingClientRect(), mr = main.getBoundingClientRect();
         const wrap = document.createElement('div'); wrap.className = 'glitchwrap';
         Object.assign(wrap.style, {left:(r.left-mr.left)+'px', top:(r.top-mr.top)+'px', width:r.width+'px', height:r.height+'px'});
         const orig = () => { const n = tg.cloneNode(true); n.removeAttribute('id'); n.querySelectorAll('[data-fx]').forEach(b => b.setAttribute('tabindex','-1')); return n; };
-        const hal = document.createElement('p'); hal.className = 'halluc'; hal.textContent = this.lines[Math.floor(R()*this.lines.length)];
+        const hal = document.createElement('p'); hal.className = 'halluc'; const nr = [...document.querySelectorAll('[data-fx="wtf"]')].indexOf(s.btn);
+        hal.textContent = this.wlasne[nr] ?? this.lines[Math.floor(R()*this.lines.length)];
         s.base = orig(); s.hal = hal; s.r = orig(); s.r.classList.add('rgb-r'); s.c = orig(); s.c.classList.add('rgb-c');
         s.sl = Array.from({length: 2 + s.lv}, () => orig());
         wrap.append(s.base, hal, s.r, s.c, ...s.sl); main.appendChild(wrap); tg.style.visibility = 'hidden';
@@ -481,7 +494,7 @@
       stop(s){ s.wrap.remove(); s.target.style.visibility = ''; },
       draw(c, s, p, t, dt, M){
         const ms = (t - s.start), q = ms/s.dur; if (q >= 1) { s.done = true; return; }
-        const halPhase = q > .32 && q < .68, glitching = !halPhase || (q > .32 && q < .37) || (q > .63 && q < .68);
+        const halPhase = ms > s.g1 && ms < s.g1 + s.hold, glitching = !halPhase || ms < s.g1 + 140 || ms > s.g1 + s.hold - 140;
         s.base.style.visibility = halPhase ? 'hidden' : 'visible'; s.hal.style.visibility = halPhase ? 'visible' : 'hidden';
         if (t >= s.next) {
           s.next = t + 45 + R()*40;
