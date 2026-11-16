@@ -132,7 +132,9 @@ canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
 @keyframes pisze{0%,60%,100%{opacity:.3;transform:none}30%{opacity:1;transform:translateY(-2px)}}
 
 /* Błysk: ciche liczenie sekund do grzmotu, dopisane za linijką */
-.fx-licznik{margin-left:.9em;font:.72em/1 var(--mono);letter-spacing:.2em;color:var(--text-quiet);white-space:nowrap}
+.fx-liczenie{display:block;margin:.35em 0 .5em;font:.78em/1.75 var(--mono);color:var(--text-quiet)}
+.fx-liczenie i{display:block;font-style:normal;opacity:0;transition:opacity .25s}
+.fx-liczenie i.on{opacity:1}
 
 .os-t{display:inline-block;color:var(--accent);transform-origin:50% 90%}
 

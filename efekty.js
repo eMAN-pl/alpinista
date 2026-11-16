@@ -612,9 +612,17 @@
         do { n = n && n.nextElementSibling; } while (n && !n.classList.contains('line'));
         s.ile = n && /sześciu/.test(n.textContent) ? 6 : 9;
         s.dur = 620 + s.ile*290 + 1500;
-        if (n) { s.licz = document.createElement('span'); s.licz.className = 'fx-licznik'; s.licz.setAttribute('aria-hidden', 'true'); n.append(s.licz); }
+        // Liczenie idzie pionowo pod linijką, cyfra pod cyfrą, i zostaje na stronie (autor, 16.11):
+        // wstęp może się wydłużyć, a tekst nie skacze drugi raz, gdy liczba by znikała.
+        // Wszystkie cyfry powstają od razu (jeden skok układu), potem kolejno się zapalają.
+        s.licz = n && n.nextElementSibling?.classList.contains('fx-liczenie') ? n.nextElementSibling : null;
+        s.juz = !!s.licz;                                 // drugie kliknięcie: liczenie już stoi
+        if (n && !s.licz) {
+          s.licz = document.createElement('span'); s.licz.className = 'fx-liczenie'; s.licz.setAttribute('aria-hidden', 'true');
+          for (let i = 1; i <= s.ile; i++) { const d = document.createElement('i'); d.textContent = i; s.licz.append(d); }
+          n.after(s.licz);
+        }
       },
-      stop(s){ if (s.licz) s.licz.remove(); },
       draw(c, s, p, t, dt, M){
         const ms = t - s.start;
         // podwójny błysk — ta sama krzywa co burza w intro (dwa błyski w 180 ms, potem cisza)
@@ -626,13 +634,12 @@
           if (!jasny) M.bright *= 1 + .45*fo;
         }
         const k = clamp(Math.floor((ms - 620)/290) + 1, 0, s.ile);
-        if (s.licz && k !== s.k) { s.k = k; s.licz.textContent = Array.from({length: k}, (_, i) => i + 1).join(' '); }
+        if (s.licz && !s.juz && k !== s.k) { s.k = k; [...s.licz.children].forEach((d, i) => d.classList.toggle('on', i < k)); }
         const g = ms - (620 + s.ile*290);
         if (g > 0) {
           const moc = s.ile === 6 ? 1.6 : 1, a = moc*4.2*Math.exp(-g/420)*Math.min(1, g/60);
           M.dx += a*(Math.sin(g*.071) + .5*Math.sin(g*.19)); M.dy += a*.7*(Math.sin(g*.083) + .5*Math.sin(g*.23));
           if (!s.buzz) { s.buzz = true; try { navigator.vibrate && navigator.vibrate(s.ile === 6 ? [40, 60, 90] : 60); } catch(_){} }
-          if (s.licz) s.licz.style.opacity = Math.max(0, 1 - g/900).toFixed(2);
         }
       }},
 
