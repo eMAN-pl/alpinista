@@ -623,8 +623,6 @@
       const nr = klucze.indexOf(link.hash.slice(1));
       link.classList.toggle("is-za", gdzie > -1 && nr > -1 && nr < gdzie);
       link.classList.toggle("is-tu", gdzie > -1 && nr === gdzie);
-      // ile bieżącego rozdziału już za czytelnikiem — cienka kreska pod nazwą (style.css)
-      if (nr === gdzie) link.style.setProperty("--postep", frakcja.toFixed(3));
       if (gdzie > -1 && nr === gdzie) link.setAttribute("aria-current", "location");
       else link.removeAttribute("aria-current");
     }
@@ -644,8 +642,6 @@
       }
     }
     if (!id || !odcinki[id]) {
-      const postep = menu.querySelector(".route-postep");
-      if (postep) postep.hidden = true;
       tu.hidden = true;
       rect.setAttribute("width", 0);
       return;
@@ -658,19 +654,15 @@
       przed += min;
     }
     const zostalo = Math.round(razem - przed);
-    // Postęp drogi nad listą „Trasa” (autor, 2026-11-17): który rozdział i ile zostało
-    const postep = menu.querySelector(".route-postep");
-    if (postep) {
-      const gdzieNr = Object.keys(odcinki).indexOf(id), ile = Object.keys(odcinki).length - 1;
-      postep.textContent = (gdzieNr <= 0 ? "wstęp" : `rozdział ${gdzieNr} z ${ile}`)
-        + (zostalo > 0 ? ` · zostało ok. ${zostalo} min` : "");
-      postep.hidden = false;
-    }
+
     rect.setAttribute("width", x.toFixed(1));
     profilMenu.querySelector(`.profil-szczyt[href="#${id}"]`)?.classList.add("is-tu");
-    // Miejsce widać na grani (czerwień i kropka) — podpis mówi tylko, ile zostało (autor)
-    tu.textContent = `do końca drogi ok. ${zostalo} min`;
-    tu.hidden = zostalo <= 0;
+    // Pod wykresem: który rozdział i ile zostało (autor, 2026-11-17 — wcześniej samo „ile zostało”).
+    // Miejsce widać na grani (czerwień i kropka), więc bez „jesteś tutaj”.
+    const nrRozdzialu = Object.keys(odcinki).indexOf(id), rozdzialow = Object.keys(odcinki).length - 1;
+    tu.textContent = (nrRozdzialu <= 0 ? "wstęp" : `rozdział ${nrRozdzialu} z ${rozdzialow}`)
+      + (zostalo > 0 ? ` · zostało ok. ${zostalo} min` : "");
+    tu.hidden = false;
   }
 
   // Zakładki menu na telefonie: „Sprzęt” (ustawienia i wykres) i „Trasa” (lista rozdziałów)

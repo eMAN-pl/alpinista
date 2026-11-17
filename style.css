@@ -1482,34 +1482,57 @@ article.is-shaken {
 
 .route ol a.is-tu .route-name { color: var(--accent); }
 
-/* Źródła i autor: do końca eseju nie trzeba przewijać 74 minut */
-/* Postęp drogi nad listą: który rozdział i ile zostało (autor, 2026-11-17) */
-.route-postep {
-  margin: calc(var(--line) * -0.75) 0 calc(var(--line) * 0.75);
-  font: 12px/1.4 var(--mono);
-  letter-spacing: 0.06em;
-  color: var(--text-quiet);
+/* Zakładki „Sprzęt / Trasa” (autor, 2026-11-17) — na telefonie i na komputerze: obie części naraz
+   były za ciężkie. Zakładki zastępują nagłówki części, więc te znikają. */
+.menu-karty {
+  display: flex;
+  gap: 24px;
+  margin-bottom: calc(var(--line) * 1.25);
+  border-bottom: 1px solid var(--rule);
 }
 
-.route-postep[hidden] { display: none; }
+.menu-karty button {
+  position: relative;
+  min-height: 48px;
+  padding: 0 0 10px;
+  border: 0;
+  background: none;
+  font: 400 clamp(28px, 1.4rem + 0.9vw, 38px)/1 var(--display);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-quiet);
+  cursor: pointer;
+}
 
-/* Bieżący rozdział: cienka kreska pod nazwą — ile z niego już przeczytane */
-.route ol a.is-tu .route-name { position: relative; }
+.menu-karty button[aria-pressed="true"] { color: var(--text-strong); }
 
-.route ol a.is-tu .route-name::after {
+/* Fokus z klawiatury: cicha przerywana ramka — przy otwarciu menu fokus trafia na zakładkę
+   i pełna czerwona ramka wyglądała jak błąd */
+.menu-karty button:focus-visible {
+  outline: 1px dashed color-mix(in srgb, var(--text-quiet) 70%, transparent);
+  outline-offset: 5px;
+  border-radius: 2px;
+}
+
+.menu-karty button[aria-pressed="true"]::after {
   content: "";
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -5px;
+  bottom: -1px;
   height: 2px;
-  background: linear-gradient(to right, var(--accent) calc(var(--postep, 0) * 100%),
-    color-mix(in srgb, var(--accent) 22%, transparent) 0);
-  border-radius: 1px;
+  background: var(--accent);
 }
 
-/* Zakładki menu — tylko na telefonie (niżej, w @media) */
-.menu-karty { display: none; }
+.menu .route h2,
+.menu-ustawienia h2 { display: none; }
+
+.menu-ustawienia { margin-top: 0; }
+
+.menu[data-karta="sprzet"] .route,
+.menu[data-karta="trasa"] .menu-ustawienia,
+.menu[data-karta="trasa"] .menu-profil { display: none; }
+
 
 /* ---------- Stopka ----------
    Zamknięcie eseju: kto to pisał, kiedy, i gdzie zabrać tekst ze sobą.
@@ -2492,49 +2515,6 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
   .opcja-pobierz .opcja-pliki { width: 100%; }
   .opcja-pobierz .opcja-pliki a { flex: 1; justify-content: center; }
 
-  /* Zakładki „Sprzęt / Trasa” (autor, 2026-11-17): zamiast dwóch długich części jedna pod drugą.
-     Zakładki zastępują nagłówki części, więc te znikają. */
-  .menu-karty {
-    display: flex;
-    gap: 24px;
-    margin-bottom: calc(var(--line) * 1.25);
-    border-bottom: 1px solid var(--rule);
-  }
-
-  .menu-karty button {
-    position: relative;
-    min-height: 48px;
-    padding: 0 0 10px;
-    border: 0;
-    background: none;
-    font: 400 28px/1 var(--display);
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-    color: var(--text-quiet);
-    cursor: pointer;
-  }
-
-  .menu-karty button[aria-pressed="true"] { color: var(--text-strong); }
-
-  .menu-karty button[aria-pressed="true"]::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -1px;
-    height: 2px;
-    background: var(--accent);
-  }
-
-  .menu .route h2,
-  .menu-ustawienia h2 { display: none; }
-
-  .menu-ustawienia { margin-top: 0; }
-
-  .menu[data-karta="sprzet"] .route,
-  .menu[data-karta="trasa"] .menu-ustawienia,
-  .menu[data-karta="trasa"] .menu-profil { display: none; }
-
   /* 13 wierszy po 68 px spychało „Sprzęt” półtora ekranu w dół */
   .menu .route ol a { padding-block: 4px; gap: 12px; }
   .menu .route h2 { margin-bottom: var(--line); }
@@ -2676,20 +2656,6 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
 
 @media print {
   .kn-tlo { display: none; }
-}
-
-/* ---------- Menu na szerokim ekranie: „Trasa” i „Sprzęt” obok siebie ----------
-   13 wierszy spisu spychało ustawienia półtora ekranu w dół. Kolejność zostaje ta sama,
-   wykres pod spodem na całą szerokość. */
-@media (min-width: 76em) {
-  .menu-in {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 24rem);
-    column-gap: clamp(3rem, 6vw, 7rem);
-    align-items: start;
-    max-width: calc(var(--measure) + 24rem + 7rem + 2 * var(--edge));
-  }
-  .menu-ustawienia { margin-top: 0; }
 }
 
 /* Nazwa rozdziału wyraźnie większa od podtytułów w środku rozdziału (te mają ~24 px):
