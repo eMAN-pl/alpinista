@@ -1483,27 +1483,33 @@ article.is-shaken {
 .route ol a.is-tu .route-name { color: var(--accent); }
 
 /* Źródła i autor: do końca eseju nie trzeba przewijać 74 minut */
-.route-dalej {
-  display: flex;
-  gap: 12px;
-  margin: calc(var(--line) * 0.75) 0 0;
-  font: 12px/1 var(--mono);
-  letter-spacing: 0.08em;
+/* Postęp drogi nad listą: który rozdział i ile zostało (autor, 2026-11-17) */
+.route-postep {
+  margin: calc(var(--line) * -0.75) 0 calc(var(--line) * 0.75);
+  font: 12px/1.4 var(--mono);
+  letter-spacing: 0.06em;
   color: var(--text-quiet);
 }
 
-.route-dalej a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  color: inherit;
-  text-decoration: underline;
-  text-decoration-color: var(--rule);
-  text-underline-offset: 0.3em;
+.route-postep[hidden] { display: none; }
+
+/* Bieżący rozdział: cienka kreska pod nazwą — ile z niego już przeczytane */
+.route ol a.is-tu .route-name { position: relative; }
+
+.route ol a.is-tu .route-name::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -5px;
+  height: 2px;
+  background: linear-gradient(to right, var(--accent) calc(var(--postep, 0) * 100%),
+    color-mix(in srgb, var(--accent) 22%, transparent) 0);
+  border-radius: 1px;
 }
 
-.route-dalej a:hover,
-.route-dalej a:focus-visible { color: var(--accent); }
+/* Zakładki menu — tylko na telefonie (niżej, w @media) */
+.menu-karty { display: none; }
 
 /* ---------- Stopka ----------
    Zamknięcie eseju: kto to pisał, kiedy, i gdzie zabrać tekst ze sobą.
@@ -2486,6 +2492,49 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
   .opcja-pobierz .opcja-pliki { width: 100%; }
   .opcja-pobierz .opcja-pliki a { flex: 1; justify-content: center; }
 
+  /* Zakładki „Sprzęt / Trasa” (autor, 2026-11-17): zamiast dwóch długich części jedna pod drugą.
+     Zakładki zastępują nagłówki części, więc te znikają. */
+  .menu-karty {
+    display: flex;
+    gap: 24px;
+    margin-bottom: calc(var(--line) * 1.25);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .menu-karty button {
+    position: relative;
+    min-height: 48px;
+    padding: 0 0 10px;
+    border: 0;
+    background: none;
+    font: 400 28px/1 var(--display);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--text-quiet);
+    cursor: pointer;
+  }
+
+  .menu-karty button[aria-pressed="true"] { color: var(--text-strong); }
+
+  .menu-karty button[aria-pressed="true"]::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background: var(--accent);
+  }
+
+  .menu .route h2,
+  .menu-ustawienia h2 { display: none; }
+
+  .menu-ustawienia { margin-top: 0; }
+
+  .menu[data-karta="sprzet"] .route,
+  .menu[data-karta="trasa"] .menu-ustawienia,
+  .menu[data-karta="trasa"] .menu-profil { display: none; }
+
   /* 13 wierszy po 68 px spychało „Sprzęt” półtora ekranu w dół */
   .menu .route ol a { padding-block: 4px; gap: 12px; }
   .menu .route h2 { margin-bottom: var(--line); }
@@ -2670,6 +2719,10 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
   .menu .route-alt { grid-area: alt; text-align: right; }
   .menu .route-min { grid-area: min; flex: none; }
   .menu .route-leader { display: none; }
+  /* wysokość i minuty stoją jedna nad drugą — punktor między nimi nie ma sensu (wypadał pod numer) */
+  .menu .route-sep { display: none; }
+  /* nazwa zajmuje całą kolumnę siatki — kreska postępu ma iść pod samym napisem */
+  .menu .route-name { justify-self: start; }
 }
 
 /* Echo wyboru ze wstępu w rozdziale „Zawrócenie” (script.js) — cichy dopisek, pismo metadanych */
