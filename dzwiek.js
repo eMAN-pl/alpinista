@@ -216,12 +216,13 @@
   // ---------- zaprojektowana cisza (2026-11-17) ----------
   // Miejsca, które autor zostawił bez efektów, milkną całe: tło i muzyka gasną, gdy fragment
   // jest na środku ekranu, i wracają, gdy czytelnik pójdzie dalej. Nagła cisza działa tu mocniej
-  // niż jakikolwiek dźwięk. Finał: od „Ja też nie jestem.” do końca strony. (Cisza przy statystykach
-  // TOPR na Rysach usunięta 2026-11-17 — autor: „źle to działa”.)
+  // niż jakikolwiek dźwięk. Obecnie żadnej strefy: cisza przy statystykach TOPR na Rysach usunięta
+  // 2026-11-17 (autor: „źle to działa”), cisza w finale Mont Blanc też (autor: „nie chcę, żeby
+  // ucinało muzykę”). Mechanizm zostaje — wystarczy dopisać strefę do listy.
   // wzorzec, nie dosłowny tekst: build.py wstawia twarde spacje po liczbach i krótkich słowach
   const akapit = (sekcja, wzor) => [...(document.getElementById(sekcja)?.querySelectorAll('p') || [])].find(p => wzor.test(p.textContent));
   const STREFY_CISZY = [
-    [[...document.querySelectorAll('article p')].find(p => /^Ja\s+też\s+nie\s+jestem\.$/.test(p.textContent.trim())), null],
+    // np. [akapit('rysy', /wzorzec/), akapit('rysy', /wzorzec końca/)]
   ].filter(([od]) => od);
   let wCiszy = false;
   function sprawdzCisze() {
