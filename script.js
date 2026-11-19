@@ -578,7 +578,10 @@
   // Ikona menu zamienia się w ×; Esc i kliknięcie w rozdział zamykają; fokus nie ucieka.
   const menu = document.getElementById("menu");
   const menuButton = document.querySelector(".tb-menu");
-  const menuOpen = () => menuButton?.getAttribute("aria-expanded") === "true";
+  // Dwa wejścia do tego samego panelu (autor, 2026-11-19): ☰ otwiera „Trasę”, koło zębate —
+  // „Sprzęt”. Otwarty panel zamyka zawsze × w miejscu ☰ (w rogu); koło obraca się i gaśnie.
+  const sprzetButton = document.querySelector(".tb-sprzet");
+  const menuOpen = () => Boolean(menu && !menu.hidden);
 
   // Szeroki ekran (wariant 2026-11-19, autor: „menu możemy spróbować”): menu to panel z prawej,
   // a strona zostaje widoczna pod przyciemnieniem. Kliknięcie w przyciemnienie zamyka menu.
@@ -587,22 +590,50 @@
   menuTlo.setAttribute("aria-hidden", "true");
   menuTlo.addEventListener("click", () => setMenu(false));
   menu?.before(menuTlo);
+  // gradient przy górnej krawędzi panelu tylko po przewinięciu — nad niczym nie zasłania treści
+  menu?.addEventListener("scroll", () => menu.classList.toggle("przewiniete", menu.scrollTop > 4), { passive: true });
+
+  function pokazPrzyciski() {
+    const open = menuOpen(), karta = menu?.dataset.karta;
+    const opis = open ? "Zamknij" : "Spis treści";
+    menuButton?.setAttribute("aria-expanded", String(open));
+    menuButton?.setAttribute("aria-label", opis);
+    menuButton?.setAttribute("data-tip", open ? "zamknij" : "trasa");
+    sprzetButton?.setAttribute("aria-expanded", String(open && karta === "sprzet"));
+    sprzetButton?.setAttribute("data-tip", "sprzęt");
+  }
+
+  function ustawKarte(karta) {
+    menu.dataset.karta = karta;
+    for (const b of menu.querySelectorAll(".menu-karty [data-karta]")) b.setAttribute("aria-pressed", String(b.dataset.karta === karta));
+    menu.scrollTop = 0;
+    pokazPrzyciski();
+  }
+
+  // ☰ albo koło przy zamkniętym panelu: otwiera swoją część; × (☰ przy otwartym) zamyka.
+  function otworz(karta) {
+    if (!menu) return;
+    if (menuOpen()) return setMenu(false);
+    ustawKarte(karta);
+    setMenu(true);
+  }
 
   function setMenu(open) {
     if (!menu || open === menuOpen()) return;
     setDownloads(false);
-    menuButton.setAttribute("aria-expanded", String(open));
-    menuButton.setAttribute("aria-label", open ? "Zamknij menu" : "Spis treści i ustawienia");
+    // po zamknięciu fokus wraca na ikonę, która panel otworzyła; w otwartym — × w rogu
+    const ktory = !open && menu.dataset.karta === "sprzet" ? sprzetButton : menuButton;
     document.documentElement.classList.toggle("menu-open", open);
     menu.hidden = !open;
+    pokazPrzyciski();
     if (open) {
       updateProfil();
       document.documentElement.classList.remove("tb-schowany");
       const link = menu.querySelector(`.route a[href="#${current}"]`) ?? menu.querySelector(".route a");
-      const widoczny = link && link.offsetParent ? link : menu.querySelector(".menu-karty [aria-pressed='true']");
+      const widoczny = link && link.offsetParent ? link : ktory;
       widoczny?.focus({ preventScroll: true });
     } else {
-      menuButton.focus({ preventScroll: true });
+      ktory?.focus({ preventScroll: true });
     }
   }
 
@@ -665,23 +696,22 @@
     // w akcencie na liście, a powracającego czytelnika wita przypomnienie na stronie.
   }
 
-  // Zakładki menu na telefonie: „Sprzęt” (ustawienia i wykres) i „Trasa” (lista rozdziałów)
+  // Nagłówek panelu („Trasa” albo „Sprzęt”) — dawniej zakładki; teraz część wybiera ikona w pasku
   menu?.querySelector(".menu-karty")?.addEventListener("click", (event) => {
     const karta = event.target.closest("[data-karta]");
-    if (!karta) return;
-    menu.dataset.karta = karta.dataset.karta;
-    for (const b of menu.querySelectorAll(".menu-karty [data-karta]")) b.setAttribute("aria-pressed", String(b === karta));
-    menu.scrollTop = 0;
+    if (karta) ustawKarte(karta.dataset.karta);
   });
 
-  menuButton?.addEventListener("click", () => setMenu(!menuOpen()));
+  menuButton?.addEventListener("click", () => otworz("trasa"));
+  sprzetButton?.addEventListener("click", () => otworz("sprzet"));
   menu?.addEventListener("click", (event) => {
     if (event.target.closest("a[href^='#']")) setMenu(false);
   });
   // Tab krąży między menu a przyciskiem zamknięcia — nie wpada w tekst pod spodem
   addEventListener("keydown", (event) => {
     if (event.key !== "Tab" || !menuOpen()) return;
-    const items = [menuButton, ...menu.querySelectorAll("a[href], button:not([disabled])")];
+    const items = [sprzetButton, menuButton, ...menu.querySelectorAll("a[href], button:not([disabled])")]
+      .filter((el) => el && el.offsetParent && getComputedStyle(el).visibility !== "hidden");
     const at = items.indexOf(document.activeElement);
     const next = event.shiftKey ? (at <= 0 ? items.length - 1 : at - 1) : (at + 1) % items.length;
     event.preventDefault();
@@ -979,7 +1009,7 @@
     grupaOpcji("Dźwięk"),
     opcja("Dźwięki", "tło rozdziałów i efektów", przelaczniki.dzwieki),
     opcja("Muzyka", "delikatnie, pod tłem", przelaczniki.muzyka),
-    grupaOpcji("Pobierz"),
+    grupaOpcji("Do plecaka"),
   );
   odswiezAudio();
 

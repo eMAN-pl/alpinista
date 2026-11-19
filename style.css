@@ -2837,18 +2837,99 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
   .meta dt:has(+ .meta-pliki) { display: none !important; }
 }
 
-/* ---------- Zakładki na wysokości krzyżyka (2026-11-19, autor: „podnieść do poziomu [x]”) ----------
-   Zakładki stoją w jednym rzędzie z zamknięciem i są przyklejonym nagłówkiem panelu: lista
-   przewija się pod nimi. Dlatego bez gradientu przy górnej krawędzi (.menu::before) — jego
-   rolę przejmuje pełne tło nagłówka. Środek liter wypada na środku krzyżyka (32 px). */
-.menu::before { display: none; }
+/* ---------- Panel bez nagłówków; ☰ i koło zębate w pasku (2026-11-19) ----------
+   Autor: nagłówki „Trasa / Sprzęt” można usunąć — część wybiera ikona w pasku, więc duży
+   napis i kreska pod nim tylko powtarzały to, co już wiadomo. Otwarty panel zamyka ×
+   w miejscu ☰ (zawsze w rogu); koło zębate, jeśli to ono otworzyło panel, obraca się
+   i gaśnie, a gdy panel jest otwarty, w pasku zostaje sam × (druga ikona „bez sensu”). */
+.menu-karty { display: none; }
 
-.menu-in { padding-top: 0; }
+/* Treść zaczyna się w rzędzie krzyżyka (autor: „marnujemy sporo przestrzeni”): pierwszy
+   nagłówek karty i góra wykresu stoją na jego wysokości. Gradient przy górnej krawędzi
+   pojawia się dopiero po przewinięciu (klasa .przewiniete, script.js) — inaczej zasłaniałby
+   samą górę treści. */
+.menu-in { padding-top: 68px; }   /* pod krzyżykiem (dół 54 px) + oddech; 22 px było za ciasno (autor) */
+.menu .menu-ustawienia { margin-top: 0; }   /* odstęp był pod zakładki — ich już nie ma */
 
-.menu-karty {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  padding-top: 13px;
-  background: var(--bg);
+.menu::before { opacity: 0; transition: opacity 0.2s; }
+.menu.przewiniete::before { opacity: 1; }
+
+/* Wykres w menu: po najechaniu podpis zostaje po swojej stronie kropki. Ogólna reguła
+   powiększenia (translateX(-50%)) przesuwała podpisy „wys-lewo/prawo” — przy Pilsku
+   wyjeżdżały poza panel (autor: „Pilsko na hover ucieka”). */
+.menu-profil .wys-lewo:hover .profil-wys {
+  transform: translateX(0.4em) scale(calc(1 / 1.45));
+  transform-origin: 100% 100%;
+}
+
+.menu-profil .wys-prawo:hover .profil-wys {
+  transform: translateX(-0.4em) scale(calc(1 / 1.45));
+  transform-origin: 0 100%;
+}
+
+.tb-sprzet { position: relative; }
+.tb-sprzet svg {
+  position: absolute;
+  transition: opacity 0.25s ease, transform 0.5s cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+.tb-sprzet .i-zamknij { display: none; }
+.menu-open .tb-sprzet { visibility: hidden; transition: visibility 0s 0.3s; }
+.menu-open .tb-sprzet .i-zebatka { opacity: 0; transform: rotate(150deg) scale(0.7); }
+
+@media (hover: hover) {
+  .tb-sprzet:hover .i-zebatka { transform: rotate(45deg); }
+}
+
+/* Podpowiedzi przy ikonach paska (autor: „tooltipy do ikon”) — jak przy głośniku, pod ikoną */
+@media (hover: hover) {
+  .topbar .tb-btn[data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 30;
+    padding: 5px 8px;
+    border: 1px solid var(--rule);
+    background: var(--bg);
+    font: 10px/1 var(--mono);
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    color: var(--text-quiet);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+  }
+
+  .topbar .tb-btn[data-tip]:hover::after,
+  .topbar .tb-btn[data-tip]:focus-visible::after { opacity: 1; }
+}
+
+/* Bez nagłówka panelu nazwy kart mogą być wyraźniejsze (autor) */
+.opcja-grupa {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--text);
+}
+
+/* Pliki w „Sprzęcie”: przyciski drugiego stopnia — białe, jak „Idę dalej / Zawracam” we wstępie */
+.opcja-pliki a {
+  border-color: var(--text-strong);
+  background: var(--text-strong);
+  color: var(--bg);
+  font-weight: 600;
+  transition: transform 0.15s, background-color 0.2s, border-color 0.2s;
+}
+
+.opcja-pliki a span { color: color-mix(in srgb, var(--bg) 65%, var(--text-strong)); font-weight: 400; }
+
+.opcja-pliki a:hover,
+.opcja-pliki a:focus-visible {
+  border-color: var(--text);
+  background: var(--text);
+  color: var(--bg);
+  transform: translateY(-1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tb-sprzet svg, .opcja-pliki a { transition: none; }
 }
