@@ -177,7 +177,7 @@
     const section = document.getElementById(place.id);
     if (!section) return;
     // kto doczytał ostatni rozdział prawie do końca, nie potrzebuje zaproszenia z powrotem
-    if (section === sections.at(-1) && place.fraction > 0.8) return;
+    if (section === sections[sections.length - 1] && place.fraction > 0.8) return;
 
     // z atrybutów, nie z nagłówka: w nagłówku stoi „1. Pilsko”, a licznika „z 12” już tam nie ma
     const number = section.dataset.numer;
@@ -417,7 +417,7 @@
     const lineHeight = size * 1.45;
     let y = (CARD_H - lines.length * lineHeight) / 2 + size;
     for (const line of lines) {
-      ctx.fillText(cut && line === lines.at(-1) ? `${line}…` : line, pad, y);
+      ctx.fillText(cut && line === lines[lines.length - 1] ? `${line}…` : line, pad, y);
       y += lineHeight;
     }
 
@@ -451,7 +451,7 @@
       link.href = url;
       link.download = "cytat.png";
       link.click();
-      URL.revokeObjectURL(url);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
     imageButton.textContent = "obraz";
     setTimeout(hideCopyButton, 600);
@@ -545,7 +545,10 @@
   })();
 
   article.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-fx]");
+    // Tylko zapalniki w tekście (span). Warstwy zdjęć we wstępie też mają data-fx (punkt
+    // ostrości paralaksy, np. "0.6") — kliknięcie w lodowiec oznaczało podpowiedź jako
+    // zużytą i wczytywało silnik efektów (audyt 2026-11-20).
+    const button = event.target.closest("span[data-fx]");
     if (!button || !effectsEnabled() || !getSelection().isCollapsed) return;
     zapalnikUzyty();
     if (button.dataset.fx === "wtf-stary") glitch(button);
@@ -963,11 +966,22 @@
   }
   function odblokujDzwiek() {
     try {
+      // iPhone: bez tego przełącznik wyciszenia z boku telefonu ucisza cały dźwięk strony.
+      // Czytelnik sam go włączył, więc sesja „playback” jest tu na miejscu (Safari 17+).
+      if (navigator.audioSession) navigator.audioSession.type = "playback";
       const Ctx = window.AudioContext || window.webkitAudioContext;
       if (!window.alpinistaCtx && Ctx) window.alpinistaCtx = new Ctx();
       window.alpinistaCtx?.resume();
     } catch { /* bez Web Audio strona zostaje cicha */ }
   }
+  // iOS wstrzymuje kontekst przy telefonie, blokadzie ekranu i zmianie aplikacji („interrupted”).
+  // Wracamy przy powrocie do karty, a gdy to nie wystarczy — przy pierwszym dotknięciu strony.
+  const wznowDzwiek = () => {
+    const ctx = window.alpinistaCtx;
+    if (ctx && ctx.state !== "running" && (audio.muzyka || audio.dzwieki)) ctx.resume().catch(() => {});
+  };
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) wznowDzwiek(); });
+  addEventListener("pointerdown", wznowDzwiek, { passive: true });
 
   function ustawAudio(zmiana) {
     Object.assign(audio, zmiana);

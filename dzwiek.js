@@ -383,7 +383,9 @@
       else window.Dzwieki?.wlacz(false);
       // Sommerso czeka na decyzję we wstępie — plik dociąga się, gdy czytelnik jest jeszcze we wstępie
       if (stan.muzyka && rozdzial() === 'wstep') muzPlik('wybor').catch(() => {});
-      else if (muzTeraz) { muzCisza(muzTeraz, 1.5); muzTeraz = null; }
+      // muzykę gasimy tylko, gdy czytelnik ją wyłączył — wcześniej każde przełączenie „Dźwięków”
+      // przy grającej muzyce ściszało ją na 1,5 s i zapalało od nowa (audyt 2026-11-20)
+      if (!stan.muzyka && muzTeraz) { muzCisza(muzTeraz, 1.5); muzTeraz = null; }
       if (!stan.dzwieki && !stan.muzyka && !solo && !A) return;   // nic nie gra i nic nie zagra
       kontekst(); if (A.state === 'suspended') A.resume();
       wybierz(stan.dzwieki ? WEJSCIE : WYJSCIE);

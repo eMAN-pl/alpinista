@@ -136,7 +136,9 @@
 
 @media (max-width: 760px) {
   .we-wisps { --tile: 760px; }
-  .we-title { bottom: 17vh; width: 100%; padding: 0 24px; }
+  /* max(): na niskich telefonach (iPhone SE, 360×640) 17vh to za mało — tytuł wchodził na
+     „ok. 74 minuty / przewiń” (audyt 2026-11-20) */
+  .we-title { bottom: max(17vh, 150px); width: 100%; padding: 0 24px; }
   #we-bZ { left: 24px; right: 24px; top: 12vh; }
   #we-bH { max-width: none; }
   #we-bV { left: 24px; right: 24px; top: 15vh; }
