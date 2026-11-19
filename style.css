@@ -1530,8 +1530,16 @@ article.is-shaken {
 .menu-ustawienia { margin-top: 0; }
 
 .menu[data-karta="sprzet"] .route,
-.menu[data-karta="trasa"] .menu-ustawienia,
-.menu[data-karta="trasa"] .menu-profil { display: none; }
+.menu[data-karta="sprzet"] .menu-profil,
+.menu[data-karta="trasa"] .menu-ustawienia { display: none; }
+
+/* Wykres trasy na górze „Trasy” (2026-11-19): w kolumnie menu, bez własnych marginesów */
+.menu-in .menu-profil { max-width: none; padding: 0; margin: 0 0 calc(var(--line) * 1.25); }
+.menu-in .menu-profil .profil svg { height: clamp(140px, 32vw, 170px); }
+
+/* W wąskim panelu wysokości na początku grani wchodziły na siebie: stale tylko bieżący
+   szczyt, Everest i Mont Blanc, reszta po najechaniu (2026-11-19). */
+.menu-in .menu-profil .profil-szczyt:not(.is-tu):not([href="#everest"]):not([href="#mont-blanc"]):not(:hover) .profil-wys { display: none; }
 
 
 /* ---------- Stopka ----------
@@ -2268,6 +2276,72 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
 
 .menu-profil .profil { margin: 0; }
 
+.menu-tlo { display: none; }
+
+/* ---------- Szeroki ekran: menu jako panel z prawej (wariant 2026-11-19) ----------
+   Strona zostaje pod przyciemnieniem — widać, gdzie się czyta; panel ma szerokość jednej
+   kolumny, więc zakładki „Sprzęt / Trasa” i profil mieszczą się bez zmian w układzie. */
+@media (min-width: 64em) {
+  .menu {
+    left: auto;
+    width: min(520px, 44vw);
+    border-left: 1px solid var(--rule);
+    box-shadow: -24px 0 60px rgb(0 0 0 / 0.25);
+    animation: menu-panel 0.32s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .menu::before { left: auto; width: min(520px, 44vw); }
+
+  .menu-in { max-width: none; padding: 104px 40px calc(var(--line) * 1.5); }
+
+  .menu-profil .profil svg { height: 150px; }
+
+  /* body z overflow: hidden staje się własnym kontenerem przewijania — przyklejona scena
+     wstępu traciła wtedy miejsce i pod panelem była pusta ciemność zamiast zdjęcia (autor,
+     2026-11-19). Przewijanie blokuje samo <html>; body zostaje bez ograniczeń. */
+  .menu-open body { overflow: visible; }
+
+  .menu-open .menu-tlo {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 59;
+    background: rgb(8 10 12 / 0.55);
+    animation: menu-in 0.32s ease-out;
+    cursor: pointer;
+  }
+
+  /* górny pasek nad przyciemnioną stroną: z lewej nic, ikona zamknięcia zostaje w panelu */
+  .menu-open .topbar { pointer-events: none; }
+  .menu-open .topbar .tb-menu { pointer-events: auto; }
+}
+
+@keyframes menu-panel { from { transform: translateX(48px); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .menu, .menu-open .menu-tlo { animation: none; }
+}
+
+/* Rozdział na liście „Trasa”: po najechaniu przed nazwą wysuwa się kreska w akcencie */
+.menu .route ol .route-name { position: relative; transition: transform 0.2s ease, color 0.2s; }
+
+.menu .route ol .route-name::before {
+  content: "–";
+  position: absolute;
+  left: -0.9em;
+  color: var(--accent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+@media (hover: hover) {
+  .menu .route ol a:hover .route-name,
+  .menu .route ol a:focus-visible .route-name { transform: translateX(0.9em); color: var(--accent); }
+
+  .menu .route ol a:hover .route-name::before,
+  .menu .route ol a:focus-visible .route-name::before { opacity: 1; }
+}
+
 .menu-profil .profil svg { height: clamp(170px, 18vw, 300px); }
 
 /* Przebyta część grani w akcencie — przycina ją prostokąt ustawiany przez script.js */
@@ -2326,7 +2400,8 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
 /* Ustawienia (przebudowa 2026-11-17): grupy z małym nagłówkiem, wiersz = nazwa + opis po lewej,
    jedna kontrolka po prawej. Dwa kształty kontrolek: segment i przełącznik. */
 .opcja-grupa {
-  margin: calc(var(--line) * 1.4) 0 4px;
+  margin: calc(var(--line) * 1.4) 0 10px;
+  padding-left: 2px;
   font: 10px/1 var(--mono);
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -2345,7 +2420,25 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
   border-top: 1px solid color-mix(in srgb, var(--rule) 55%, transparent);
 }
 
-.opcja-grupa + .opcja { border-top-color: color-mix(in srgb, var(--rule) 90%, transparent); }
+/* Karty (2026-11-19, autor: „typograficznie rozpierdziel… zamknięte w ładne karty”): każda grupa
+   to jedna karta z delikatnym tłem; w środku wiersze rozdzielone cienką linią, bez kresek
+   pod nagłówkami grup. Pierwszy wiersz grupy zaokrągla górę, ostatni — dół. */
+.menu-opcje > .opcja,
+.menu-ustawienia > .opcja-pobierz {
+  --karta-brzeg: color-mix(in srgb, var(--rule) 70%, transparent);
+  padding-inline: 18px;
+  background: color-mix(in srgb, var(--text) 3.5%, transparent);
+  border: 1px solid var(--karta-brzeg);
+  border-top-color: color-mix(in srgb, var(--rule) 40%, transparent);
+  border-bottom: 0;
+}
+
+.menu-opcje > .opcja-grupa + .opcja,
+.menu-ustawienia > .opcja-pobierz { border-top-color: var(--karta-brzeg); border-radius: 14px 14px 0 0; }
+
+.menu-opcje > .opcja:has(+ .opcja-grupa),
+.menu-opcje > .opcja:last-child,
+.menu-ustawienia > .opcja-pobierz { border-bottom: 1px solid var(--karta-brzeg); border-bottom-left-radius: 14px; border-bottom-right-radius: 14px; }
 
 .opcja-tekst {
   display: flex;
@@ -2355,9 +2448,9 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
 }
 
 .opcja-nazwa {
-  font: 13px/1.2 var(--mono);
+  font: 500 13px/1.2 var(--mono);
   letter-spacing: 0.04em;
-  color: var(--text);
+  color: var(--text-strong);
 }
 
 .opcja-opis {
@@ -2388,12 +2481,33 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
 
 .menu .reader .segment button + button { border-left: 1px solid var(--rule); }
 
+/* Stopień pisma między A- i A+: trzy kropki, bieżąca w akcencie (2026-11-19) */
+.rozmiar-stopnie {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 10px;
+  border-left: 1px solid var(--rule);
+  border-right: 1px solid var(--rule);
+}
+
+.rozmiar-stopnie i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--text-quiet) 45%, transparent);
+}
+
+.rozmiar-stopnie i.tu { background: var(--accent); transform: scale(1.3); }
+
+.menu .reader .segment .rozmiar-stopnie + button { border-left: 0; }
+
 .menu .reader .segment button:hover,
 .menu .reader .segment button:focus-visible { color: var(--text); background: color-mix(in srgb, var(--text) 6%, transparent); }
 
 .menu .reader .segment button[aria-pressed="true"] {
   color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  background: color-mix(in srgb, var(--text) 7%, transparent);   /* lżej niż czerwonawe tło (2026-11-19) */
 }
 
 .menu .reader .segment button[disabled] { opacity: 0.35; }
@@ -2489,8 +2603,8 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
   padding: 0 16px;
   border: 1px solid var(--rule);
   border-radius: 999px;
-  font: 11px/1 var(--mono);
-  letter-spacing: 0.08em;
+  font: 12px/1 var(--mono);
+  letter-spacing: 0.06em;
   color: var(--text);
   text-decoration: none;
 }
@@ -2512,6 +2626,10 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
 
   /* pliki pod opisem — obok siebie opis łamał się na trzy wiersze */
   .opcja-pobierz { flex-wrap: wrap; row-gap: 10px; }
+  /* karty na telefonie: węższe wnętrze, żeby „Rozmiar tekstu” mieścił się w jednym wierszu */
+  .menu-opcje > .opcja, .menu-ustawienia > .opcja-pobierz { padding-inline: 14px; gap: 10px; }
+  .menu .reader .segment button { min-width: 46px; padding: 0 11px; }
+  .rozmiar-stopnie { padding: 0 8px; }
   .opcja-pobierz .opcja-pliki { width: 100%; }
   .opcja-pobierz .opcja-pliki a { flex: 1; justify-content: center; }
 

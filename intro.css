@@ -106,12 +106,14 @@
 .we-hint {
   position: absolute; left: 0; right: 0; bottom: 26px; width: max-content; margin-inline: auto;
   display: flex; flex-direction: column; align-items: center; gap: 10px;
-  font: 11px/1 var(--mono); letter-spacing: .2em; text-transform: uppercase; text-align: center;
+  /* 2026-11-19 (przegląd UX, autor: „delikatnie powiększ”, potem „12 px będzie ok”): 11 → 12 px, czas bez przygaszenia,
+     kreska dłuższa — napis ginął w mgle i wyglądał jak stopka, a nie zachęta do przewinięcia */
+  font: 12px/1 var(--mono); letter-spacing: .2em; text-transform: uppercase; text-align: center;
   color: var(--stage-soft);
 }
-.we-hint b { font-weight: 400; letter-spacing: .14em; opacity: .8; }
+.we-hint b { font-weight: 400; letter-spacing: .14em; }
 .we-hint i {
-  display: block; width: 1px; height: 38px;
+  display: block; width: 1px; height: 46px;
   background: linear-gradient(var(--stage-soft), transparent);
   animation: we-drip 2.2s ease-in-out infinite;
 }
@@ -128,8 +130,8 @@
 .wejscie + * { position: relative; z-index: 2; margin-top: -25vh; }
 
 @media (min-width: 1800px) {
-  .we-hint { font-size: 12px; bottom: 34px; }
-  .we-hint i { height: 48px; }
+  .we-hint { font-size: 13px; bottom: 34px; }
+  .we-hint i { height: 56px; }
 }
 
 @media (max-width: 760px) {

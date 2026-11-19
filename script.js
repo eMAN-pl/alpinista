@@ -580,6 +580,14 @@
   const menuButton = document.querySelector(".tb-menu");
   const menuOpen = () => menuButton?.getAttribute("aria-expanded") === "true";
 
+  // Szeroki ekran (wariant 2026-11-19, autor: „menu możemy spróbować”): menu to panel z prawej,
+  // a strona zostaje widoczna pod przyciemnieniem. Kliknięcie w przyciemnienie zamyka menu.
+  const menuTlo = document.createElement("div");
+  menuTlo.className = "menu-tlo";
+  menuTlo.setAttribute("aria-hidden", "true");
+  menuTlo.addEventListener("click", () => setMenu(false));
+  menu?.before(menuTlo);
+
   function setMenu(open) {
     if (!menu || open === menuOpen()) return;
     setDownloads(false);
@@ -804,8 +812,14 @@
     b.addEventListener("click", () => setTheme(m));
     return b;
   });
+  // Trzy kropki między A- i A+ (2026-11-19, przegląd UX): widać, na którym z trzech stopni
+  // jest pismo i kiedy wróciło do wyjściowego (środkowa kropka). Tylko wskaźnik — bez klikania.
+  const stopnie = document.createElement("span");
+  stopnie.className = "rozmiar-stopnie";
+  stopnie.setAttribute("aria-hidden", "true");
+  stopnie.append(...SIZES.map(() => document.createElement("i")));
   reader.replaceChildren();
-  opcje?.append(grupaOpcji("Czytanie"), opcja("Rozmiar tekstu", "", segment(smaller, bigger)),
+  opcje?.append(grupaOpcji("Czytanie"), opcja("Rozmiar tekstu", "", segment(smaller, stopnie, bigger)),
     opcja("Motyw", "", segment(...motywy)));
 
   let size = Number(remember(SIZE_KEY) ?? 1);
@@ -815,6 +829,7 @@
     document.documentElement.style.setProperty("--fs-scale", SIZES[size]);
     smaller.disabled = size === 0;
     bigger.disabled = size === SIZES.length - 1;
+    stopnie.querySelectorAll("i").forEach((k, i) => k.classList.toggle("tu", i === size));
     remember(SIZE_KEY, String(size));
   }
 
