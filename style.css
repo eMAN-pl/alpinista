@@ -1538,8 +1538,8 @@ article.is-shaken {
 .menu-in .menu-profil .profil svg { height: clamp(140px, 32vw, 170px); }
 
 /* W wąskim panelu wysokości na początku grani wchodziły na siebie: stale tylko bieżący
-   szczyt, Everest i Mont Blanc, reszta po najechaniu (2026-11-19). */
-.menu-in .menu-profil .profil-szczyt:not(.is-tu):not([href="#everest"]):not([href="#mont-blanc"]):not(:hover) .profil-wys { display: none; }
+   szczyt, reszta po najechaniu — i tak stoi na liście tuż niżej (autor, 2026-11-19). */
+.menu-in .menu-profil .profil-szczyt:not(.is-tu):not(:hover) .profil-wys { display: none; }
 
 
 /* ---------- Stopka ----------
