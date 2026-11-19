@@ -117,6 +117,26 @@
   let efektyOn = (remember(EFEKTY_KEY) ?? "1") === "1";
   document.documentElement.classList.toggle("bez-efektow", !efektyOn);
 
+  // Audyt a11y (2026-11-19): przy wyłączonych efektach zapalnik wygląda jak zwykły tekst,
+  // więc dla klawiatury i czytnika też nim jest — bez roli przycisku i poza kolejką Tab.
+  // Wcześniej Tab zatrzymywał się na kilkudziesięciu „przyciskach”, które nic nie robiły.
+  const zapalniki = [...document.querySelectorAll('[data-fx][role="button"]')];
+  function ustawZapalniki(on) {
+    for (const z of zapalniki) {
+      if (on) {
+        z.setAttribute("role", "button");
+        z.setAttribute("tabindex", "0");
+        if (z.dataset.bylPressed) z.setAttribute("aria-pressed", "false");
+      } else {
+        if (z.hasAttribute("aria-pressed")) z.dataset.bylPressed = "1";
+        z.removeAttribute("role");
+        z.removeAttribute("tabindex");
+        z.removeAttribute("aria-pressed");
+      }
+    }
+  }
+  ustawZapalniki(efektyOn);
+
   function effectsEnabled() {
     return efektyOn;
   }
@@ -235,7 +255,7 @@
 
   const NOT_COPIED =
     ".chapter-meta, .chapter-end, .fn-ref, .fn-num, .fn-back, " +
-    ".profile-nav, .resume, .copy-bar";
+    ".profile-nav, .resume, .copy-bar, .visually-hidden";
 
   function cleanText(range) {
     const holder = document.createElement("div");
@@ -609,6 +629,8 @@
     menuButton?.setAttribute("data-tip", open ? "zamknij" : "trasa");
     sprzetButton?.setAttribute("aria-expanded", String(open && karta === "sprzet"));
     sprzetButton?.setAttribute("data-tip", "sprzęt");
+    // a11y: czytnik słyszy nazwę otwartej części, a nie zawsze „Spis treści i ustawienia”
+    menu?.setAttribute("aria-label", karta === "sprzet" ? "Sprzęt: ustawienia czytania i dźwięku" : "Trasa: spis treści");
   }
 
   function ustawKarte(karta) {
@@ -918,7 +940,6 @@
     const gra = audio.muzyka || audio.dzwieki;
     glosnik.innerHTML = ikona(gra ? GRA : CISZA);
     glosnik.classList.toggle("is-on", gra);
-    glosnik.setAttribute("aria-pressed", String(gra));
     glosnik.setAttribute("aria-label", gra ? "Wycisz dźwięk" : "Włącz dźwięk");
     glosnik.dataset.tip = gra ? "wycisz" : "włącz dźwięk";
     pokazStan(przelaczniki.muzyka, audio.muzyka);
@@ -983,7 +1004,10 @@
     return b;
   });
   glosnik.after(wyborGlosnika);
-  glosnik.setAttribute("aria-haspopup", "true");
+  // a11y: przycisk rozwija grupę dwóch przycisków (nie menu), więc aria-expanded + aria-controls
+  wyborGlosnika.id = "glosnik-wybor";
+  glosnik.setAttribute("aria-controls", "glosnik-wybor");
+  glosnik.setAttribute("aria-expanded", "false");
 
   function pokazWybor(open) {
     wyborGlosnika.hidden = !open;
@@ -1016,6 +1040,7 @@
     efektyOn = !efektyOn;
     remember(EFEKTY_KEY, efektyOn ? "1" : "0");
     document.documentElement.classList.toggle("bez-efektow", !efektyOn);
+    ustawZapalniki(efektyOn);
     if (!efektyOn) zapalnikUzyty();               // dopisek „kliknij” nie ma sensu przy zwykłym tekście
     window.Efekty?.wlacz(efektyOn);               // wyłączenie przerywa to, co właśnie trwa
     odswiezAudio();
