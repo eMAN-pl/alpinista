@@ -224,14 +224,7 @@
   height: 18px;
 }
 
-/* Przewijanie utworu stoi po bokach nuty i jest od niej mniejsze — nuta decyduje
-   o ciszy, te dwa tylko wybierają, co gra. Pokazują się dopiero, gdy muzyka gra:
-   `hidden` samo nie wystarczy, bo reguła wyżej daje każdemu przyciskowi display: flex. */
-/* Przewijanie stoi w podpisie, przy nazwie utworu — gołe strzałki bez obwódki,
-   żeby nie udawały trzeciego równorzędnego przycisku obok nuty. */
-.reader button[hidden],
-.music-skip[hidden],
-.music-now[hidden] {
+.reader button[hidden] {
   display: none;
 }
 
@@ -242,74 +235,12 @@
   color: var(--accent);
 }
 
-/* Podpis siedzi w narożniku razem z zestawem, więc musi się liczyć względem niego */
-.reader {
-  position: relative;
-}
-
-.music-now {
-  position: absolute;
-  right: 0;
-  bottom: calc(100% + 10px);
-  z-index: 30;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: max-content;
-  max-width: min(72vw, 320px);
-  margin: 0;
-  padding: 6px 9px;
-  border: 1px solid var(--rule);
-  background: var(--bg);
-  font: 10px/1.5 var(--mono);
-  letter-spacing: 0.04em;
-  color: var(--text-quiet);
-}
-
-.music-now .music-skip {
-  flex: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: none;
-  color: var(--text-quiet);
-  cursor: pointer;
-}
-
-.music-now .music-skip svg {
-  width: 12px;
-  height: 12px;
-}
-
-.music-now .music-skip:hover,
-.music-now .music-skip:focus-visible {
-  color: var(--accent);
-}
-
-.music-now a {
-  color: var(--text);
-  text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
-}
-
 @media (max-width: 51.25em) {
 
   .reader button,
   .theme-toggle {
     width: 44px;           /* obszar dotyku ≥ 44 px */
     height: 44px;
-  }
-
-  /* Strzałki są małe, ale pole dotyku musi mieć swoje — stąd wyściółka zamiast rozmiaru,
-     żeby sama ikona przy nazwie utworu dalej była drobna. */
-  .music-now .music-skip {
-    width: 34px;
-    height: 34px;
-    margin: -7px 0;
   }
 }
 
@@ -2056,8 +1987,7 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
    w środkowej kolumnie, więc mają tam bezpieczne pole (autor). */
 .menu-open .topbar { background: none; }
 .menu-open .tb-autor,
-.menu-open .tb-muzyka,
-.menu-open .tb-pobierz { visibility: hidden; }   /* muzyka i pliki są w menu, w „Sprzęcie” */
+.menu-open .tb-muzyka { visibility: hidden; }   /* dźwięk jest też w menu, w „Sprzęcie” */
 
 .topbar > * { pointer-events: auto; }
 
@@ -2109,8 +2039,7 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
   gap: 4px;
 }
 
-.tb-muzyka,
-.tb-pobierz { position: relative; }
+.tb-muzyka { position: relative; }
 
 /* Wszystkie trzy ikony jednakowo: bez obwódki, pole dotyku 44 px */
 .tb-btn,
@@ -2153,11 +2082,6 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
   }
 }
 
-.topbar .music-now {
-  top: calc(100% + 8px);
-  bottom: auto;
-}
-
 /* Ikona menu: trzy kreski i krzyżyk to dwie osobne ikony, które się przenikają
    z lekkim obrotem. Obracanie pojedynczych kresek w SVG rozjeżdżało się (punkt obrotu
    ścieżek SVG przeglądarki liczą różnie). */
@@ -2166,52 +2090,6 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
 .tb-menu .i-zamknij { opacity: 0; transform: rotate(-90deg) scale(.8); }
 .tb-menu[aria-expanded="true"] .i-menu { opacity: 0; transform: rotate(90deg) scale(.8); }
 .tb-menu[aria-expanded="true"] .i-zamknij { opacity: 1; transform: none; }
-
-/* Lista pobierania pod ikoną */
-.pobierz {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  z-index: 2;
-  min-width: 200px;
-  padding: 8px 0;
-  border: 1px solid var(--rule);
-  border-radius: 12px;
-  background: var(--bg);
-  box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
-  font: 12px/1 var(--mono);
-}
-
-.pobierz[hidden] { display: none; }
-
-.pobierz-tytul {
-  margin: 0;
-  padding: 8px 16px 10px;
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--text-quiet);
-}
-
-.pobierz a {
-  display: flex;
-  justify-content: space-between;
-  gap: 24px;
-  min-height: 44px;
-  align-items: center;
-  padding: 0 16px;
-  letter-spacing: 0.08em;
-  color: var(--text);
-  text-decoration: none;
-}
-
-.pobierz a:hover,
-.pobierz a:focus-visible {
-  background: color-mix(in srgb, var(--text) 6%, var(--bg));
-  color: var(--accent);
-}
-
-.pobierz-rozmiar { color: var(--text-quiet); }
 
 /* Menu na pełny ekran: spis treści z profilem trasy i ustawienia */
 .menu {
@@ -2672,12 +2550,28 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
 
 .fx-podpowiedz { position: relative; }
 
+/* Wariant 2026-11-19 (autor: „pokaż propozycję”): napis dłuższy i większy, a podkreślenie
+   frazy dwa razy delikatnie pulsuje akcentem, gdy fraza wjedzie na ekran. Bez okienka
+   i bez zamykania — znika po pierwszym efekcie, jak dotąd. */
+.fx-podpowiedz {
+  animation: podpowiedz-puls 1.2s ease-in-out 0.5s 2;
+  border-radius: 3px;
+}
+
+@keyframes podpowiedz-puls {
+  50% {
+    text-decoration-color: var(--accent);
+    background-color: color-mix(in srgb, var(--accent) 16%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
+  }
+}
+
 .fx-podpowiedz::after {
-  content: "kliknij";
+  content: "kliknij — tekst ożyje ↓";
   position: absolute;
   left: 0;
-  bottom: calc(100% - 0.15em);
-  font: 500 10px/1 var(--mono);
+  bottom: calc(100% + 0.1em);
+  font: 500 11.5px/1 var(--mono);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -2691,21 +2585,12 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .fx-podpowiedz::after { animation: none; }
+  .fx-podpowiedz, .fx-podpowiedz::after { animation: none; }
 }
 
 @media print {
   .fx-podpowiedz::after { content: none; }
 }
-
-/* Ślad powrotu do lektury nad listą „Trasa” — dla tych, którzy przewinęli intro (script.js) */
-.route-wroc { margin: calc(var(--line) * -0.5) 0 calc(var(--line) * 0.75); font: 12px/1 var(--mono); letter-spacing: 0.08em; }
-.route-wroc[hidden] { display: none; }
-.route-wroc a {
-  display: inline-flex; align-items: center; min-height: 44px;
-  color: var(--text); text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 0.35em;
-}
-.route-wroc a:hover, .route-wroc a:focus-visible { color: var(--accent); }
 
 /* ---------- Koniec strony: wizytówka, potem Dolomity pod Źródłami ----------
    Wizytówka stoi zaraz po Mont Blanc i jego przypisie. Pod Źródłami i stopką leży
@@ -3010,3 +2895,55 @@ html.js.nav-on.przy-stopce .profile-nav { opacity: 0; visibility: hidden; }   /*
 
 /* Metryczka „O tekście” bliżej źródeł: odstęp rozdziału (4 linie) plus własny był za duży (autor, 2026-11-19) */
 .colophon { margin-top: calc(var(--line) * 1.5); }
+
+/* ---------- Głośnik z wyborem (2026-11-19) ----------
+   W ciszy kliknięcie w głośnik rozwija pod nim dwie drogi: „Dźwięki gór” i „Góry i muzyka”.
+   Ten sam język co karty w „Sprzęcie”: zaokrąglone pudełko, nazwa i krótki opis. */
+.tb-muzyka { position: relative; }
+
+.glosnik-wybor {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: -8px;
+  z-index: 70;
+  display: grid;
+  gap: 4px;
+  width: 240px;
+  padding: 6px;
+  border: 1px solid color-mix(in srgb, var(--rule) 80%, transparent);
+  border-radius: 14px;
+  background: var(--bg);
+  box-shadow: 0 18px 40px rgb(0 0 0 / 0.28);
+  animation: wybor-in 0.18s ease-out;
+}
+
+.glosnik-wybor[hidden] { display: none; }
+
+@keyframes wybor-in { from { opacity: 0; transform: translateY(-4px); } }
+
+.glosnik-wybor button {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  text-align: left;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.glosnik-wybor button b { font: 500 13px/1.2 var(--mono); letter-spacing: 0.04em; color: var(--text-strong); }
+.glosnik-wybor button span { font: 11px/1.35 var(--mono); color: var(--text-quiet); }
+
+.glosnik-wybor button:hover,
+.glosnik-wybor button:focus-visible,
+.glosnik-wybor button.ostatnia { background: color-mix(in srgb, var(--text) 6%, transparent); outline: none; }
+
+.glosnik-wybor button:hover b,
+.glosnik-wybor button:focus-visible b { color: var(--accent); }
+
+/* podpowiedź „włącz dźwięk” nie wchodzi pod rozwinięty wybór */
+.topbar .tb-dzwiek.ma-wybor[data-tip]::after { content: none; }
+
+@media (prefers-reduced-motion: reduce) { .glosnik-wybor { animation: none; } }

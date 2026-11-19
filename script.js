@@ -512,6 +512,8 @@
   (() => {
     let widziana = false;
     try { widziana = localStorage.getItem(PODPOWIEDZ) === "1"; } catch { /* jw. */ }
+    // podgląd dla autora: lokalnie ?podpowiedz pokazuje dopisek mimo zapamiętanego użycia
+    if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) && new URLSearchParams(location.search).has("podpowiedz")) widziana = false;
     const pierwszy = article.querySelector('[data-fx][role="button"]');
     if (widziana || !pierwszy || !effectsEnabled()) return;
     new IntersectionObserver(([wpis], obserwator) => {
@@ -626,7 +628,6 @@
 
   function setMenu(open) {
     if (!menu || open === menuOpen()) return;
-    setDownloads(false);
     // po zamknięciu fokus wraca na ikonę, która panel otworzyła; w otwartym — × w rogu
     const ktory = !open && menu.dataset.karta === "sprzet" ? sprzetButton : menuButton;
     document.documentElement.classList.toggle("menu-open", open);
@@ -674,21 +675,7 @@
       if (gdzie > -1 && nr === gdzie) link.setAttribute("aria-current", "location");
       else link.removeAttribute("aria-current");
     }
-    // „czytaj dalej” w menu usunięte (autor, 2026-11-17) — ten sam odnośnik stoi na stronie
-    // głównej; kod zostaje bezczynny, gdy elementu nie ma.
-    const wroc = menu.querySelector(".route-wroc");
-    const zapis = readPlace();
-    const pokaz = wroc && zapis && odcinki[zapis.id] && zapis.id !== "wstep" && current !== zapis.id;
-    if (wroc) {
-      wroc.hidden = !pokaz;
-      if (pokaz) {
-        const cel = document.getElementById(zapis.id);
-        const link = wroc.querySelector("a");
-        link.href = `#${zapis.id}`;
-        link.textContent = `czytaj dalej · ${cel?.dataset.nazwa ?? ""}`;
-        link.onclick = (event) => { event.preventDefault(); setMenu(false); goTo(zapis); };
-      }
-    }
+    // („czytaj dalej” w menu usunięte 2026-11-17 — ten sam odnośnik stoi na stronie głównej)
     if (!id || !odcinki[id]) {
       rect.setAttribute("width", 0);
       return;
@@ -724,26 +711,9 @@
     items[next].focus();
   });
 
-  // --- Pobieranie: mała lista pod ikoną ---
-  const dlButton = document.getElementById("tb-pobierz");
-  const dlList = document.getElementById("pobierz");
-  function setDownloads(open) {
-    if (!dlButton) return;
-    dlButton.setAttribute("aria-expanded", String(open));
-    dlList.hidden = !open;
-  }
-  dlButton?.addEventListener("click", (event) => {
-    event.stopPropagation();
-    setDownloads(dlList.hidden);
-  });
-  document.addEventListener("click", (event) => {
-    if (dlList && !dlList.hidden && !event.target.closest(".tb-pobierz")) setDownloads(false);
-  });
-
   addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
-    if (dlList && !dlList.hidden) { setDownloads(false); dlButton.focus(); }
-    else setMenu(false);
+    setMenu(false);
   });
 
   // --- Czytanie: stopień pisma i motyw ---
@@ -990,12 +960,55 @@
   // roboczy mikser autora: panel głośności każdego dźwięku (dzwiek.js)
   if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) && new URLSearchParams(location.search).has("mikser")) wczytajDzwiek().catch(() => {});
 
-  // Głośnik: gdy cokolwiek gra — wycisza wszystko i pamięta, co grało; gdy cisza — przywraca.
-  glosnik.addEventListener("click", () => {
+  // Głośnik z wyborem (autor, 2026-11-19): w ciszy kliknięcie rozwija dwie drogi — same odgłosy
+  // gór albo odgłosy z muzyką; gdy cokolwiek gra, kliknięcie wycisza wszystko naraz. Wybór
+  // przy okazji mówi czytelnikowi, że muzyka w ogóle jest (wcześniej tylko w „Sprzęcie”).
+  const wyborGlosnika = document.createElement("div");
+  wyborGlosnika.className = "glosnik-wybor";
+  wyborGlosnika.hidden = true;
+  wyborGlosnika.setAttribute("role", "group");
+  wyborGlosnika.setAttribute("aria-label", "Co ma grać");
+  const drogi = [
+    { nazwa: "Dźwięki gór", opis: "tło rozdziałów i efektów", stan: { dzwieki: true, muzyka: false } },
+    { nazwa: "Góry i muzyka", opis: "do tego delikatna muzyka", stan: { dzwieki: true, muzyka: true } },
+  ].map((d) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.innerHTML = `<b></b><span></span>`;
+    b.querySelector("b").textContent = d.nazwa;
+    b.querySelector("span").textContent = d.opis;
+    b.addEventListener("click", () => { pokazWybor(false); ostatnie = { ...d.stan }; ustawAudio(d.stan); glosnik.focus(); });
+    b.dataset.muzyka = String(d.stan.muzyka);
+    wyborGlosnika.append(b);
+    return b;
+  });
+  glosnik.after(wyborGlosnika);
+  glosnik.setAttribute("aria-haspopup", "true");
+
+  function pokazWybor(open) {
+    wyborGlosnika.hidden = !open;
+    glosnik.setAttribute("aria-expanded", String(open));
+    glosnik.classList.toggle("ma-wybor", open);
+    if (open) {
+      // ostatnio wybrana droga podświetlona i z fokusem — Enter od razu ją włącza
+      const ost = drogi.find((b) => b.dataset.muzyka === String(ostatnie.muzyka)) ?? drogi[0];
+      drogi.forEach((b) => b.classList.toggle("ostatnia", b === ost));
+      ost.focus({ preventScroll: true });
+    }
+  }
+
+  glosnik.addEventListener("click", (event) => {
+    event.stopPropagation();
     if (audio.muzyka || audio.dzwieki) {
       ostatnie = { ...audio };
       ustawAudio({ muzyka: false, dzwieki: false });
-    } else ustawAudio(ostatnie);
+    } else pokazWybor(wyborGlosnika.hidden);
+  });
+  document.addEventListener("click", (event) => {
+    if (!wyborGlosnika.hidden && !wyborGlosnika.contains(event.target)) pokazWybor(false);
+  });
+  addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !wyborGlosnika.hidden) { pokazWybor(false); glosnik.focus(); }
   });
   przelaczniki.muzyka.addEventListener("click", () => ustawAudio({ muzyka: !audio.muzyka }));
   przelaczniki.dzwieki.addEventListener("click", () => ustawAudio({ dzwieki: !audio.dzwieki }));
