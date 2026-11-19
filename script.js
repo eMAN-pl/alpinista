@@ -109,6 +109,11 @@
   // włączone od początku”), także przy systemowym ograniczeniu ruchu — wyłącza się je w menu.
   // Wyłączone: zapalniki wyglądają i działają jak zwykły tekst.
   const EFEKTY_KEY = "alpinista:efekty";
+  // Do 2026-11-15 ten sam klucz trzymał "on"/"off" (przełącznik w stopce i na ekranie tytułowym).
+  // Nowy kod porównywał tylko z "1", więc czytelnik, który kiedyś WŁĄCZYŁ efekty ("on"), dostawał
+  // je wyłączone (zgłoszenie autora, 2026-11-19). Stary zapis przepisujemy na nowy.
+  const staryZapis = { on: "1", off: "0" }[remember(EFEKTY_KEY)];
+  if (staryZapis) remember(EFEKTY_KEY, staryZapis);
   let efektyOn = (remember(EFEKTY_KEY) ?? "1") === "1";
   document.documentElement.classList.toggle("bez-efektow", !efektyOn);
 
