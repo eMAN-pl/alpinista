@@ -2381,18 +2381,6 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
 
 .profil-szczyt.is-tu .profil-wys { color: var(--text); }
 
-/* Ile zostało — wyśrodkowane pod rysunkiem, tym samym pismem co etykiety w „Sprzęcie”
-   (autor). Gdzie jesteś, mówi sama grań; podpis nie potrzebuje strzałki ani „jesteś tutaj”. */
-.profil-tu {
-  margin: 28px 0 0;
-  font: 12px/1 var(--mono);
-  letter-spacing: 0.08em;
-  text-align: center;
-  color: var(--text-quiet);
-}
-
-.profil-tu[hidden] { display: none; }
-
 .menu-ustawienia h2 {
   margin-bottom: var(--line);
 }
@@ -2847,4 +2835,20 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
   .changes,
   .meta-pliki,
   .meta dt:has(+ .meta-pliki) { display: none !important; }
+}
+
+/* ---------- Zakładki na wysokości krzyżyka (2026-11-19, autor: „podnieść do poziomu [x]”) ----------
+   Zakładki stoją w jednym rzędzie z zamknięciem i są przyklejonym nagłówkiem panelu: lista
+   przewija się pod nimi. Dlatego bez gradientu przy górnej krawędzi (.menu::before) — jego
+   rolę przejmuje pełne tło nagłówka. Środek liter wypada na środku krzyżyka (32 px). */
+.menu::before { display: none; }
+
+.menu-in { padding-top: 0; }
+
+.menu-karty {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding-top: 13px;
+  background: var(--bg);
 }

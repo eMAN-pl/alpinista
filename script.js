@@ -606,15 +606,13 @@
     }
   }
 
-  // --- Profil trasy w menu: „jesteś tutaj”, przebyta grań, ile zostało ---
+  // --- Profil trasy w menu: „jesteś tutaj” i przebyta grań ---
   // Oś pozioma rysunku to czas czytania (build.py), więc położenie w rozdziale przekłada
   // się wprost na miejsce na grani. Bez czytania: ostatnio zapamiętane miejsce.
   const profilMenu = menu?.querySelector(".profil");
   function updateProfil() {
     if (!profilMenu) return;
     const odcinki = JSON.parse(profilMenu.dataset.odcinki);
-    const razem = Number(profilMenu.dataset.razem);
-    const tu = profilMenu.querySelector(".profil-tu");
     const rect = profilMenu.querySelector(".profil-przebyte");
     let id = current, frakcja = 0;
     if (id) {
@@ -655,27 +653,16 @@
       }
     }
     if (!id || !odcinki[id]) {
-      tu.hidden = true;
       rect.setAttribute("width", 0);
       return;
     }
     const [od, doX] = odcinki[id];
     const x = od + (doX - od) * frakcja;
-    let przed = 0;
-    for (const [klucz, [, , min]] of Object.entries(odcinki)) {
-      if (klucz === id) { przed += min * frakcja; break; }
-      przed += min;
-    }
-    const zostalo = Math.round(razem - przed);
 
     rect.setAttribute("width", x.toFixed(1));
     profilMenu.querySelector(`.profil-szczyt[href="#${id}"]`)?.classList.add("is-tu");
-    // Pod wykresem: który rozdział i ile zostało (autor, 2026-11-17 — wcześniej samo „ile zostało”).
-    // Miejsce widać na grani (czerwień i kropka), więc bez „jesteś tutaj”.
-    const nrRozdzialu = Object.keys(odcinki).indexOf(id), rozdzialow = Object.keys(odcinki).length - 1;
-    tu.textContent = (nrRozdzialu <= 0 ? "wstęp" : `rozdział ${nrRozdzialu} z ${rozdzialow}`)
-      + (zostalo > 0 ? ` · zostało ok. ${zostalo} min` : "");
-    tu.hidden = false;
+    // Bez podpisu pod wykresem (autor, 2026-11-19): miejsce pokazuje grań i rozdział
+    // w akcencie na liście, a powracającego czytelnika wita przypomnienie na stronie.
   }
 
   // Zakładki menu na telefonie: „Sprzęt” (ustawienia i wykres) i „Trasa” (lista rozdziałów)
