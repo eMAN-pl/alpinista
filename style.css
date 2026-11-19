@@ -1626,6 +1626,7 @@ article.is-shaken {
   grid-template-columns: minmax(8em, auto) 1fr;
   gap: 0.9em 2em;
   margin: var(--sp-group) 0 0;
+  /* (2026-11-19) metryczka bliżej źródeł — patrz .colophon na końcu pliku */
   padding-top: var(--sp-group);
   border-top: 1px solid var(--rule);
   font: 11px/1.7 var(--mono);
@@ -2938,13 +2939,17 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
    Zamknięcie drogi: podziękowanie pismem metadanych, hasło krojem nagłówków, białe przyciski
    plików (te same co w „Sprzęcie”); pod linią drobny druk: ©, RSS i „na samą górę”. */
 .stopka {
-  margin-top: calc(var(--sp-chapter, 6rem) * 1.2);
+  margin-top: var(--sp-chapter);
   position: relative;   /* nad przyklejonym tłem zakończenia (zdjęcie z mgłą), które inaczej ją przygaszało */
   z-index: 2;
   padding: 0 var(--edge);
-  border-top: 1px solid var(--rule);
   color: var(--text-quiet);
+  /* bez linii u góry: na komputerze przecinała zdjęcie Dolomitów przez całą szerokość (autor) */
 }
+
+/* Gdy stopka wjeżdża na ekran, wysokościomierz gaśnie — droga skończona, hasło zostaje samo
+   (inaczej „Mont Blanc 4806” stał obok „Do zobaczenia na szlaku”). Klasa: script.js. */
+html.js.nav-on.przy-stopce .profile-nav { opacity: 0; visibility: hidden; }   /* mocniej niż .js.nav-on */
 
 .stopka-in {
   padding: clamp(56px, 9vw, 96px) 0 clamp(44px, 7vw, 72px);
@@ -3002,3 +3007,6 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
 @media print {
   .stopka { display: none; }
 }
+
+/* Metryczka „O tekście” bliżej źródeł: odstęp rozdziału (4 linie) plus własny był za duży (autor, 2026-11-19) */
+.colophon { margin-top: calc(var(--line) * 1.5); }

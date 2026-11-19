@@ -590,6 +590,12 @@
   menuTlo.setAttribute("aria-hidden", "true");
   menuTlo.addEventListener("click", () => setMenu(false));
   menu?.before(menuTlo);
+  // Wysokościomierz gaśnie, gdy na ekranie jest stopka (style.css, .przy-stopce)
+  const stopka = document.querySelector(".stopka");
+  if (stopka && "IntersectionObserver" in window) {
+    new IntersectionObserver(([w]) => document.documentElement.classList.toggle("przy-stopce", w.isIntersecting))
+      .observe(stopka.querySelector(".stopka-in") ?? stopka);
+  }
   // gradient przy górnej krawędzi panelu tylko po przewinięciu — nad niczym nie zasłania treści
   menu?.addEventListener("scroll", () => menu.classList.toggle("przewiniete", menu.scrollTop > 4), { passive: true });
 
