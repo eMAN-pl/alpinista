@@ -2953,3 +2953,19 @@ html.js.nav-on.przy-stopce .profile-nav { opacity: 0; visibility: hidden; }   /*
 .js .progress { transition: opacity 0.25s ease; }
 html:not(.tb-schowany) .progress,
 .menu-open .progress { opacity: 0; }
+
+/* Rozmiar tekstu dotyczy eseju, nie menu (autor, 2026-11-20: „w ustawieniach zmienia się tylko
+   padding”). Pochodne stopnia pisma liczą się w :root, więc w panelu liczymy je od nowa ze
+   stopniem 1 — panel, w którym się klika, nie skacze pod palcem; nazwy rozdziałów w „Trasie”
+   i odstępy kart „Sprzętu” mają zawsze ten sam rozmiar. */
+.menu {
+  --fs-scale: 1;
+  --fs: clamp(1.125rem, 0.95rem + 0.6vw, 1.25rem);
+  --line: calc(var(--fs) * var(--leading));
+  --sp-para: calc(var(--line) * 0.6);
+  --sp-item: calc(var(--line) * 0.3);
+  --sp-group: calc(var(--line) * 1.8);
+  --sp-break: calc(var(--line) * 2);
+  --sp-head: calc(var(--line) * 2);
+  font-size: var(--fs);
+}
