@@ -629,9 +629,7 @@
     const opis = open ? "Zamknij" : "Spis treści";
     menuButton?.setAttribute("aria-expanded", String(open));
     menuButton?.setAttribute("aria-label", opis);
-    menuButton?.setAttribute("data-tip", open ? "zamknij" : "trasa");
     sprzetButton?.setAttribute("aria-expanded", String(open && karta === "sprzet"));
-    sprzetButton?.setAttribute("data-tip", "sprzęt");
     // a11y: czytnik słyszy nazwę otwartej części, a nie zawsze „Spis treści i ustawienia”
     menu?.setAttribute("aria-label", karta === "sprzet" ? "Sprzęt: ustawienia czytania i dźwięku" : "Trasa: spis treści");
   }
@@ -944,7 +942,6 @@
     glosnik.innerHTML = ikona(gra ? GRA : CISZA);
     glosnik.classList.toggle("is-on", gra);
     glosnik.setAttribute("aria-label", gra ? "Wycisz dźwięk" : "Włącz dźwięk");
-    glosnik.dataset.tip = gra ? "wycisz" : "włącz dźwięk";
     pokazStan(przelaczniki.muzyka, audio.muzyka);
     pokazStan(przelaczniki.dzwieki, audio.dzwieki);
     pokazStan(przelaczniki.efekty, efektyOn);

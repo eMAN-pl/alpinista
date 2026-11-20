@@ -2553,21 +2553,18 @@ html:not(.menu-open):not(.nad-zdjeciem) .topbar {
 /* Wariant 2026-11-19 (autor: „pokaż propozycję”): napis dłuższy i większy, a podkreślenie
    frazy dwa razy delikatnie pulsuje akcentem, gdy fraza wjedzie na ekran. Bez okienka
    i bez zamykania — znika po pierwszym efekcie, jak dotąd. */
+/* Autor (2026-11-20): bez napisu — pierwsza fraza po prostu lekko miga, dopóki czytelnik
+   nie uruchomi pierwszego efektu. Miga samo podkreślenie i kolor, bez tła i bez ruchu. */
 .fx-podpowiedz {
-  animation: podpowiedz-puls 1.2s ease-in-out 0.5s 2;
-  border-radius: 3px;
+  animation: podpowiedz-puls 2.4s ease-in-out 0.5s infinite;
 }
 
 @keyframes podpowiedz-puls {
-  50% {
-    text-decoration-color: var(--accent);
-    background-color: color-mix(in srgb, var(--accent) 16%, transparent);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
-  }
+  50% { color: var(--accent); text-decoration-color: var(--accent); }
 }
 
 .fx-podpowiedz::after {
-  content: "kliknij — tekst ożyje ↓";
+  content: none;
   position: absolute;
   left: 0;
   bottom: calc(100% + 0.1em);
@@ -2947,3 +2944,12 @@ html.js.nav-on.przy-stopce .profile-nav { opacity: 0; visibility: hidden; }   /*
 .topbar .tb-dzwiek.ma-wybor[data-tip]::after { content: none; }
 
 @media (prefers-reduced-motion: reduce) { .glosnik-wybor { animation: none; } }
+
+/* Bez podpowiedzi przy ikonach paska (autor, 2026-11-20) — nazwy niosą aria-label */
+.topbar [data-tip]::after { content: none !important; }
+
+/* Pasek postępu chowa się, gdy widać górny pasek (autor, 2026-11-20): pasek wraca przy
+   przewijaniu w górę i nad intro — wtedy kreska tylko by się z nim dublowała. */
+.js .progress { transition: opacity 0.25s ease; }
+html:not(.tb-schowany) .progress,
+.menu-open .progress { opacity: 0; }
